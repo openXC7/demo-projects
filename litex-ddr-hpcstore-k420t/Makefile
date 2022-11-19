@@ -8,7 +8,7 @@ PART = xc7k420tffg901-1
 all: ${PROJECT_NAME}.bit
 
 ${PROJECT_NAME}.json: ${PROJECT_NAME}.v
-	yosys -p "hierarchy; synth_xilinx -flatten -abc9 -arch xc7 -nodsp -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< vexriscv/VexRiscv.v
+	yosys -p "hierarchy; synth_xilinx -flatten -arch xc7 -nodsp -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< vexriscv/VexRiscv.v
 
 .PHOHY: edif
 edif: ${PROJECT_NAME}.json
