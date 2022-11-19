@@ -25,7 +25,7 @@ ${PART}.bin:
 netlist2json: verilog-netlist.v
 	yosys -p "read_verilog verilog-netlist.v; hierarchy; synth_xilinx -flatten -abc9 -arch xc7 -nodsp -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;"
 
-${PROJECT_NAME}.fasm: ${PROJECT_NAME}.json
+${PROJECT_NAME}.fasm: ${PROJECT_NAME}.json ${PART}.bin
 	nextpnr-xilinx --chipdb ${PART}.bin --xdc ${PROJECT_NAME}.xdc  --json $< --write ${PROJECT_NAME}_routed.json --fasm $@  #--verbose --debug
 
 ${PROJECT_NAME}.frames: ${PROJECT_NAME}.fasm
