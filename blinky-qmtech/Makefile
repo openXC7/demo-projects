@@ -7,7 +7,7 @@ PART = xc7k325tffg676-1
 all: blinky.bit
 
 .PHONY: program
-program: all
+program: blinky.bit
 	openFPGALoader --board qmtechKintex7 --bitstream $<
 
 blinky.json: blinky.v
