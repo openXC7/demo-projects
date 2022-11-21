@@ -35,9 +35,3 @@ clean:
 	@rm -f *.frames
 	@rm -f *.fasm
 	@rm -f *.json
-
-.PHONY: clobber
-clobber:
-	rm -rf nextpnr-xilinx/build
-	rm -rf prjxray/build
-	rm -rf prjxray/env
