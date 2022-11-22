@@ -16,7 +16,7 @@ ${PART}.bin:
 	bbasm -l ${PART}.bba ${PART}.bin
 	rm -f ${PART}.bba
 
-blinky.fasm: blinky.json ${PART}.bin
+blinky.fasm: blinky.json ${PART}.bin blinky.xdc
 	nextpnr-xilinx --chipdb ${PART}.bin --xdc blinky.xdc --json blinky.json --fasm $@ --verbose --debug
 	
 blinky.frames: blinky.fasm
