@@ -16,14 +16,14 @@ module blinky (
     IBUFDS ibuf_inst (.I(clk_p), .IB(clk_n), .O(clk_ibufg));
     BUFG   bufg_inst (.I(clk_ibufg), .O(clk));
 
-    reg [24:0] r_count = 0;
+    reg [26:0] r_count = 0;
 
     always @(posedge(clk)) begin
         r_count <= r_count + 1;
         button_led <= button;
     end
 
-    assign led = r_count[24];
+    assign led = r_count[26];
 
     OBUFDS obuf_inst (.I(led), .O(diff_led_p), .OB(diff_led_n));
 endmodule
