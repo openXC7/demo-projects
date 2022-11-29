@@ -5,7 +5,7 @@ module blinky (
     input  wire clk_n,
     output wire led,
     input  wire button,
-    output wire button_led,
+    output reg button_led,
     output wire diff_led_p,
     output wire diff_led_n
     );
