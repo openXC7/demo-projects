@@ -15,7 +15,7 @@ set_property LOC Y12 [get_ports button_led]
 set_property IOSTANDARD SSTL15 [get_ports {button_led}]
 
 set_property LOC V11 [get_ports diff_led_p]
-set_property IOSTANDARD SSTL15 [get_ports {diff_led_p}]
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {diff_led_p}]
 
 set_property LOC W11 [get_ports diff_led_n]
-set_property IOSTANDARD SSTL15 [get_ports {diff_led_n}]
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {diff_led_n}]
