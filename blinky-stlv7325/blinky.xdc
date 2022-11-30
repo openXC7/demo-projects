@@ -9,7 +9,7 @@ set_property IOSTANDARD LVCMOS15 [get_ports {led}]
 
 # key2
 set_property LOC AC16 [get_ports button]
-set_property IOSTANDARD LVCMOS15 [get_ports {button}]
+set_property IOSTANDARD SSTL15 [get_ports {button}]
 
 set_property LOC Y12 [get_ports button_led]
 set_property IOSTANDARD SSTL15 [get_ports {button_led}]
