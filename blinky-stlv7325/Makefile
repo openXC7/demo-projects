@@ -1,5 +1,6 @@
 PREFIX ?= /snap/nextpnr-kintex/current
 DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db
+CHIPDB=../chipdb
 
 PART = xc7k325tffg676-1
 
@@ -11,13 +12,13 @@ blinky.json: blinky.v
 
 # The chip database only needs to be generated once
 # that is why we don't clean it with make clean
-${PART}.bin:
+${CHIPDB}/${PART}.bin:
 	python3 ${PREFIX}/opt/nextpnr-xilinx/python/bbaexport.py --device ${PART} --bba ${PART}.bba
-	bbasm -l ${PART}.bba ${PART}.bin
+	bbasm -l ${PART}.bba ${CHIPDB}/${PART}.bin
 	rm -f ${PART}.bba
 
-blinky.fasm: blinky.json ${PART}.bin blinky.xdc
-	nextpnr-xilinx --chipdb ${PART}.bin --xdc blinky.xdc --json blinky.json --fasm $@ --verbose --debug
+blinky.fasm: blinky.json ${CHIPDB}/${PART}.bin blinky.xdc
+	nextpnr-xilinx --chipdb ${CHIP}/${PART}.bin --xdc blinky.xdc --json blinky.json --fasm $@ --verbose --debug
 	
 blinky.frames: blinky.fasm
 	fasm2frames --part ${PART} --db-root ${DB_DIR}/kintex7 $< > $@
