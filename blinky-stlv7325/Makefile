@@ -18,7 +18,7 @@ ${CHIPDB}/${PART}.bin:
 	rm -f ${PART}.bba
 
 blinky.fasm: blinky.json ${CHIPDB}/${PART}.bin blinky.xdc
-	nextpnr-xilinx --chipdb ${CHIP}/${PART}.bin --xdc blinky.xdc --json blinky.json --fasm $@ --verbose --debug
+	nextpnr-xilinx --chipdb ${CHIPDB}/${PART}.bin --xdc blinky.xdc --json blinky.json --fasm $@ --verbose --debug
 	
 blinky.frames: blinky.fasm
 	fasm2frames --part ${PART} --db-root ${DB_DIR}/kintex7 $< > $@
