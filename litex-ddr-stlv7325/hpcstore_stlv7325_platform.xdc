@@ -11,7 +11,7 @@ set_property IOSTANDARD DIFF_SSTL15 [get_ports {clk200_n}]
 
 # clk100:0
 set_property LOC F17 [get_ports {clk100}]
-set_property IOSTANDARD LVCMOS15 [get_ports {clk100}]
+set_property IOSTANDARD LVCMOS25 [get_ports {clk100}]
 
 # cpu_reset_n:0
 set_property LOC AC16 [get_ports {cpu_reset_n}]
@@ -703,11 +703,25 @@ set_property SLEW FAST [get_ports {ddram0_cke}]
 set_property VCCAUX_IO NORMAL [get_ports {ddram0_cke}]
 set_property IOSTANDARD SSTL15 [get_ports {ddram0_cke}]
 
+# ddram:0.odt
+set_property LOC AA12 [get_ports {ddram0_odt}]
+set_property SLEW FAST [get_ports {ddram0_odt}]
+set_property VCCAUX_IO NORMAL [get_ports {ddram0_odt}]
+set_property IOSTANDARD SSTL15 [get_ports {ddram0_odt}]
+
 # ddram:0.reset_n
 set_property LOC AB20 [get_ports {ddram0_reset_n}]
 set_property SLEW FAST [get_ports {ddram0_reset_n}]
 set_property VCCAUX_IO NORMAL [get_ports {ddram0_reset_n}]
 set_property IOSTANDARD LVCMOS15 [get_ports {ddram0_reset_n}]
+
+# uartbone:0.tx
+set_property LOC B17 [get_ports {uartbone_tx}]
+set_property IOSTANDARD LVCMOS33 [get_ports {uartbone_tx}]
+
+# uartbone:0.rx
+set_property LOC A17 [get_ports {uartbone_rx}]
+set_property IOSTANDARD LVCMOS33 [get_ports {uartbone_rx}]
 
 # user_led_n:0
 set_property LOC AA2 [get_ports {user_led_n0}]
