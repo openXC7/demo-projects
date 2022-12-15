@@ -1,5 +1,6 @@
 PREFIX ?= /snap/nextpnr-kintex/current
-DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db
+DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db/kintex7
+#DB_DIR=../../db-workspace-for-kintex7/
 CHIPDB=../chipdb
 
 PART = xc7k325tffg676-1
@@ -21,10 +22,10 @@ blinky.fasm: blinky.json ${CHIPDB}/${PART}.bin blinky.xdc
 	nextpnr-xilinx --chipdb ${CHIPDB}/${PART}.bin --xdc blinky.xdc --json blinky.json --fasm $@ --verbose --debug
 	
 blinky.frames: blinky.fasm
-	fasm2frames --part ${PART} --db-root ${DB_DIR}/kintex7 $< > $@
+	fasm2frames --part ${PART} --db-root ${DB_DIR} $< > $@
 
 blinky.bit: blinky.frames
-	xc7frames2bit --part_file ${DB_DIR}/kintex7/${PART}/part.yaml --part_name ${PART} --frm_file $< --output_file $@
+	xc7frames2bit --part_file ${DB_DIR}/${PART}/part.yaml --part_name ${PART} --frm_file $< --output_file $@
 
 .PHONY: clean
 clean:
