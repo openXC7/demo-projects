@@ -3,7 +3,10 @@ PREFIX ?= /snap/nextpnr-kintex/current
 DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db/kintex7/
 #DB_DIR=../../db-workspace-for-kintex7/
 CHIPDB=../chipdb
-VEXRISCV=../vexriscv
+VEXRISCV=../vexriscv_smp
+#VEXRISCV_SRC = ${VEXRISCV}/VexRiscv.v
+VEXRISCV_SRC = ${VEXRISCV}/Ram_1w_1rs_Generic.v ${VEXRISCV}/VexRiscvLitexSmpCluster_Cc1_Iw32Is4096Iy1_Dw32Ds4096Dy1_ITs4DTs4_Ldw128_Ood.v
+
 
 PART = xc7k325tffg676-1
 
@@ -11,7 +14,7 @@ PART = xc7k325tffg676-1
 all: ${PROJECT_NAME}.bit
 
 ${PROJECT_NAME}.json: ${PROJECT_NAME}.v
-	yosys -p "hierarchy; synth_xilinx -flatten -abc9 -arch xc7 -nodsp -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< ${VEXRISCV}/VexRiscv_Min.v
+	yosys -p "hierarchy; synth_xilinx -flatten -abc9 -arch xc7 -nodsp -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< ${VEXRISCV}/${VEXRISCV_SRC}
 
 .PHOHY: edif
 edif: ${PROJECT_NAME}.json
@@ -37,9 +40,13 @@ ${PROJECT_NAME}.frames: ${PROJECT_NAME}.fasm
 ${PROJECT_NAME}.bit: ${PROJECT_NAME}.frames
 	xc7frames2bit --part_file ${DB_DIR}/${PART}/part.yaml --part_name ${PART} --frm_file $< --output_file $@
 
-.PHONY: clean
+.PHONY: clean pnrclean
 clean:
 	@rm -f *.bit
 	@rm -f *.frames
 	@rm -f *.fasm
 	@rm -f *.json
+
+pnrclean:
+	rm *.fasm *.frames *.bit
+
