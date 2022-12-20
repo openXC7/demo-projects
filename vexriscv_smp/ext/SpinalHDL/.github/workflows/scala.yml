@@ -1,0 +1,37 @@
+name: Scala CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - uses: ./.github/actions
+
+    ##############################################
+
+    - name: Compile tests
+      run: sbt "+test:compile"
+
+    - name: Run tests
+      run: sbt "++2.11.12; testWithoutFormal"
+  
+  formal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - uses: ./.github/actions
+    
+    ##############################################
+    
+    - name: Run tests
+      run: sbt "++2.11.12; testFormal"
