@@ -1,10 +1,8 @@
 PROJECT_NAME = qmtech_xc7k325t
 PREFIX ?= /snap/nextpnr-kintex/current
 DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db/kintex7/
-#DB_DIR=../../db-workspace-for-kintex7/
 CHIPDB=../chipdb
 VEXRISCV=../vexriscv_smp
-#VEXRISCV_SRC = ${VEXRISCV}/VexRiscv.v
 VEXRISCV_SRC = ${VEXRISCV}/Ram_1w_1rs_Generic.v ${VEXRISCV}/VexRiscvLitexSmpCluster_Cc1_Iw32Is4096Iy1_Dw32Ds4096Dy1_ITs4DTs4_Ldw128_Ood.v
 
 
