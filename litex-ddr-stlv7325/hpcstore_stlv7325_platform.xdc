@@ -770,3 +770,26 @@ set_property IOSTANDARD LVCMOS33 [get_ports {i2c_sda}]
 
 set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 2.5 [current_design]
+
+
+################################################################################
+# Clock constraints
+################################################################################
+
+
+create_clock -name clk200_p -period 5.0 [get_ports clk200_p]
+
+create_clock -name clk100 -period 10.0 [get_ports clk100]
+
+set_clock_groups -group [get_clocks -include_generated_clocks -of [get_nets sys_clk]] -group [get_clocks -include_generated_clocks -of [get_nets soc_crg_s7pll0_clkin]] -asynchronous
+
+################################################################################
+# False path constraints
+################################################################################
+
+
+set_false_path -quiet -through [get_nets -hierarchical -filter {mr_ff == TRUE}]
+
+set_false_path -quiet -to [get_pins -filter {REF_PIN_NAME == PRE} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE || ars_ff2 == TRUE}]]
+
+set_max_delay 2 -quiet -from [get_pins -filter {REF_PIN_NAME == C} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE}]] -to [get_pins -filter {REF_PIN_NAME == D} -of_objects [get_cells -hierarchical -filter {ars_ff2 == TRUE}]]
