@@ -1,5 +1,5 @@
 PROJECT_NAME = qmtech_xc7k325t
-PREFIX ?= /snap/nextpnr-kintex/current
+PREFIX ?= /snap/openxc7/current
 DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db/kintex7/
 CHIPDB=../chipdb
 VEXRISCV=../vexriscv_smp
@@ -12,7 +12,7 @@ PART = xc7k325tffg676-1
 all: ${PROJECT_NAME}.bit
 
 ${PROJECT_NAME}.json: ${PROJECT_NAME}.v
-	yosys -p "hierarchy; synth_xilinx -flatten -abc9 -arch xc7 -nodsp -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< ${VEXRISCV}/${VEXRISCV_SRC}
+	yosys -p "hierarchy; synth_xilinx -flatten -abc9 -arch xc7  -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< ${VEXRISCV}/${VEXRISCV_SRC}
 
 .PHOHY: edif
 edif: ${PROJECT_NAME}.json
@@ -20,7 +20,7 @@ edif: ${PROJECT_NAME}.json
 
 .PHONY: edif2json
 netlist2json: verilog-netlist.v
-	yosys -p "read_verilog verilog-netlist.v; hierarchy; synth_xilinx -flatten -abc9 -arch xc7 -nodsp -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;"
+	yosys -p "read_verilog verilog-netlist.v; hierarchy; synth_xilinx -flatten -abc9 -arch xc7  -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;"
 
 # The chip database only needs to be generated once
 # that is why we don't clean it with make clean

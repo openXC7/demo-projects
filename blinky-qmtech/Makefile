@@ -1,4 +1,4 @@
-PREFIX ?= /snap/nextpnr-kintex/current
+PREFIX ?= /snap/openxc7/current
 DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db
 CHIPDB=../chipdb
 

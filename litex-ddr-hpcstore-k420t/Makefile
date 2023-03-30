@@ -1,5 +1,5 @@
 PROJECT_NAME = hpcstore_xc7k420t
-PREFIX ?= /snap/nextpnr-kintex/current
+PREFIX ?= /snap/openxc7/current
 DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db
 CHIPDB=../chipdb
 VEXRISCV=../vexriscv
@@ -10,7 +10,7 @@ PART = xc7k420tffg901-1
 all: ${PROJECT_NAME}.bit
 
 ${PROJECT_NAME}.json: ${PROJECT_NAME}.v
-	yosys -p "hierarchy; synth_xilinx -flatten -arch xc7 -nodsp -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< ${VEXRISCV}/VexRiscv.v
+	yosys -p "hierarchy; synth_xilinx -flatten -arch xc7  -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< ${VEXRISCV}/VexRiscv.v
 
 .PHOHY: edif
 edif: ${PROJECT_NAME}.json
@@ -25,7 +25,7 @@ ${CHIPDB}/${PART}.bin:
 
 .PHONY: edif2json
 netlist2json: verilog-netlist.v
-	yosys -p "read_verilog verilog-netlist.v; hierarchy; synth_xilinx -flatten -abc9 -arch xc7 -nodsp -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;"
+	yosys -p "read_verilog verilog-netlist.v; hierarchy; synth_xilinx -flatten -abc9 -arch xc7  -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;"
 
 ${PROJECT_NAME}.fasm: ${PROJECT_NAME}.json ${CHIPDB}/${PART}.bin
 	nextpnr-xilinx --chipdb ${CHIPDB}/${PART}.bin --xdc ${PROJECT_NAME}.xdc  --json $< --write ${PROJECT_NAME}_routed.json --fasm $@  #--verbose --debug

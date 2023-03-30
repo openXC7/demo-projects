@@ -1,5 +1,5 @@
 PROJECT_NAME = digilent_arty_s7
-PREFIX ?= /snap/nextpnr-kintex/current
+PREFIX ?= /snap/openxc7/current
 DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db
 CHIPDB=../chipdb
 VEXRISCV=../vexriscv
@@ -10,7 +10,7 @@ PART = xc7s50csga324-1
 all: ${PROJECT_NAME}.bit
 
 ${PROJECT_NAME}.json: ${PROJECT_NAME}.v
-	yosys -p "hierarchy; synth_xilinx -flatten -abc9 -arch xc7 -nodsp -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< ${VEXRISCV}/VexRiscv.v
+	yosys -p "hierarchy; synth_xilinx -flatten -abc9 -arch xc7  -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< ${VEXRISCV}/VexRiscv.v
 
 # The chip database only needs to be generated once
 # that is why we don't clean it with make clean
