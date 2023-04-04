@@ -1,4 +1,4 @@
-PROJECT_NAME = hpcstore_stlv7325_platform
+PROJECT_NAME = sitlinv_stlv7325
 PREFIX ?= /snap/openxc7/current
 DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db
 CHIPDB=../chipdb
