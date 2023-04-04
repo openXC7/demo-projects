@@ -10,7 +10,7 @@ PART = xc7k325tffg676-1
 all: ${PROJECT_NAME}.bit
 
 ${PROJECT_NAME}.json: ${PROJECT_NAME}.v
-	yosys -p "hierarchy; synth_xilinx -flatten -abc9 -arch xc7  -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< ../vexriscv/VexRiscv.v
+	yosys -p "hierarchy; synth_xilinx -flatten -abc9 -arch xc7 -top ${PROJECT_NAME}; write_json ${PROJECT_NAME}.json;" $< ../vexriscv/VexRiscv.v
 
 # The chip database only needs to be generated once
 # that is why we don't clean it with make clean
@@ -20,7 +20,7 @@ ${CHIPDB}/${PART}.bin:
 	rm -f ${PART}.bba
 
 ${PROJECT_NAME}.fasm: ${PROJECT_NAME}.json ${CHIPDB}/${PART}.bin
-	nextpnr-xilinx --chipdb ${CHIPDB}/${PART}.bin --xdc ${PROJECT_NAME}.xdc  --json $< --write ${PROJECT_NAME}_routed.json --fasm $@  --freq 100 --router router1 #--debug-router ##--verbose --debug
+	nextpnr-xilinx --chipdb ${CHIPDB}/${PART}.bin --xdc ${PROJECT_NAME}.xdc  --json $< --write ${PROJECT_NAME}_routed.json --fasm $@  --freq 80 --router router2 #--debug-router ##--verbose --debug
 
 ${PROJECT_NAME}.frames: ${PROJECT_NAME}.fasm
 	fasm2frames --part ${PART} --db-root ${DB_DIR}/kintex7 $< > $@
