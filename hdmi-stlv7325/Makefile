@@ -1,6 +1,6 @@
 PREFIX ?= /snap/openxc7/current
-#DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db/kintex7
-DB_DIR=../../db-workspace-for-kintex7/
+DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db/kintex7
+#DB_DIR=../../db-workspace-for-kintex7/
 CHIPDB=../chipdb
 
 PART = xc7k325tffg676-1

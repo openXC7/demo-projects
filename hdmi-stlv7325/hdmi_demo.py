@@ -67,9 +67,9 @@ class BaseSoC(SoCCore):
         # CRG --------------------------------------------------------------------------------------
         self.crg = _CRG(platform, sys_clk_freq)
 
-
         kwargs['cpu_type'] = None
         kwargs["uart_name"] = "crossover"
+        kwargs['integrated_sram_size'] = 0
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Sitlinv STLV7325-v2", **kwargs)

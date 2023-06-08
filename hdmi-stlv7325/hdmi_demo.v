@@ -9,7 +9,7 @@
 // Filename   : hdmi_demo.v
 // Device     : xc7k325t-ffg676-2
 // LiteX sha1 : 57bffbbb
-// Date       : 2023-06-07 10:13:13
+// Date       : 2023-06-08 05:16:50
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -24,8 +24,6 @@ module hdmi_demo (
     input  wire          clk200_n,
     input  wire          clk50,
     input  wire          cpu_reset_n,
-    output reg           serial_tx,
-    input  wire          serial_rx,
     output wire          hdmi_out_clk_p,
     output wire          hdmi_out_clk_n,
     output wire          hdmi_out_data0_p,
@@ -49,7 +47,7 @@ module hdmi_demo (
 // Signals
 //------------------------------------------------------------------------------
 
-reg           main_rst = 1'd0;
+reg           rst = 1'd0;
 (* dont_touch = "true" *)
 wire          sys_clk;
 wire          sys_rst;
@@ -57,2728 +55,1820 @@ wire          hdmi_clk;
 wire          hdmi_rst;
 wire          hdmi5x_clk;
 wire          hdmi5x_rst;
-wire          main_pll_reset;
-reg           main_pll_power_down = 1'd0;
-wire          main_pll_locked;
+wire          pll_reset;
+reg           pll_power_down = 1'd0;
+wire          pll_locked;
 (* dont_touch = "true" *)
-wire          main_s7pll0_clkin;
-wire          main_s7pll0_clkout;
-wire          main_s7pll0_clkout_buf;
-wire          main_pll2_reset;
-reg           main_pll2_power_down = 1'd0;
-wire          main_pll2_locked;
-wire          main_s7pll1_clkin;
-wire          main_s7pll1_clkout0;
-wire          main_s7pll1_clkout_buf0;
-wire          main_s7pll1_clkout1;
-wire          main_s7pll1_clkout_buf1;
-reg           main_basesoc_soc_rst = 1'd0;
-wire          main_basesoc_cpu_rst;
-reg     [1:0] main_basesoc_reset_storage = 2'd0;
-reg           main_basesoc_reset_re = 1'd0;
-reg    [31:0] main_basesoc_scratch_storage = 32'd305419896;
-reg           main_basesoc_scratch_re = 1'd0;
-wire   [31:0] main_basesoc_bus_errors_status;
-wire          main_basesoc_bus_errors_we;
-reg           main_basesoc_bus_errors_re = 1'd0;
-wire          main_basesoc_bus_error;
-reg    [31:0] main_basesoc_bus_errors = 32'd0;
-wire   [29:0] main_basesoc_ram_bus_adr;
-wire   [31:0] main_basesoc_ram_bus_dat_w;
-wire   [31:0] main_basesoc_ram_bus_dat_r;
-wire    [3:0] main_basesoc_ram_bus_sel;
-wire          main_basesoc_ram_bus_cyc;
-wire          main_basesoc_ram_bus_stb;
-reg           main_basesoc_ram_bus_ack = 1'd0;
-wire          main_basesoc_ram_bus_we;
-wire    [2:0] main_basesoc_ram_bus_cti;
-wire    [1:0] main_basesoc_ram_bus_bte;
-reg           main_basesoc_ram_bus_err = 1'd0;
-reg           main_basesoc_adr_burst = 1'd0;
-wire   [10:0] main_basesoc_adr;
-wire   [31:0] main_basesoc_dat_r;
-reg     [3:0] main_basesoc_we = 4'd0;
-wire   [31:0] main_basesoc_dat_w;
-reg           main_basesoc_uartcrossover_rxtx_re = 1'd0;
-wire    [7:0] main_basesoc_uartcrossover_rxtx_r;
-reg           main_basesoc_uartcrossover_rxtx_we = 1'd0;
-wire    [7:0] main_basesoc_uartcrossover_rxtx_w;
-wire          main_basesoc_uartcrossover_txfull_status;
-wire          main_basesoc_uartcrossover_txfull_we;
-reg           main_basesoc_uartcrossover_txfull_re = 1'd0;
-wire          main_basesoc_uartcrossover_rxempty_status;
-wire          main_basesoc_uartcrossover_rxempty_we;
-reg           main_basesoc_uartcrossover_rxempty_re = 1'd0;
-wire          main_basesoc_uartcrossover_irq;
-wire          main_basesoc_uartcrossover_tx_status;
-reg           main_basesoc_uartcrossover_tx_pending = 1'd0;
-wire          main_basesoc_uartcrossover_tx_trigger;
-reg           main_basesoc_uartcrossover_tx_clear = 1'd0;
-reg           main_basesoc_uartcrossover_tx_trigger_d = 1'd0;
-wire          main_basesoc_uartcrossover_rx_status;
-reg           main_basesoc_uartcrossover_rx_pending = 1'd0;
-wire          main_basesoc_uartcrossover_rx_trigger;
-reg           main_basesoc_uartcrossover_rx_clear = 1'd0;
-reg           main_basesoc_uartcrossover_rx_trigger_d = 1'd0;
-wire          main_basesoc_uartcrossover_tx0;
-wire          main_basesoc_uartcrossover_rx0;
-reg     [1:0] main_basesoc_uartcrossover_status_status = 2'd0;
-wire          main_basesoc_uartcrossover_status_we;
-reg           main_basesoc_uartcrossover_status_re = 1'd0;
-wire          main_basesoc_uartcrossover_tx1;
-wire          main_basesoc_uartcrossover_rx1;
-reg     [1:0] main_basesoc_uartcrossover_pending_status = 2'd0;
-wire          main_basesoc_uartcrossover_pending_we;
-reg           main_basesoc_uartcrossover_pending_re = 1'd0;
-reg     [1:0] main_basesoc_uartcrossover_pending_r = 2'd0;
-wire          main_basesoc_uartcrossover_tx2;
-wire          main_basesoc_uartcrossover_rx2;
-reg     [1:0] main_basesoc_uartcrossover_enable_storage = 2'd0;
-reg           main_basesoc_uartcrossover_enable_re = 1'd0;
-wire          main_basesoc_uartcrossover_txempty_status;
-wire          main_basesoc_uartcrossover_txempty_we;
-reg           main_basesoc_uartcrossover_txempty_re = 1'd0;
-wire          main_basesoc_uartcrossover_rxfull_status;
-wire          main_basesoc_uartcrossover_rxfull_we;
-reg           main_basesoc_uartcrossover_rxfull_re = 1'd0;
-wire          main_basesoc_uartcrossover_uartcrossover_sink_valid;
-wire          main_basesoc_uartcrossover_uartcrossover_sink_ready;
-wire          main_basesoc_uartcrossover_uartcrossover_sink_first;
-wire          main_basesoc_uartcrossover_uartcrossover_sink_last;
-wire    [7:0] main_basesoc_uartcrossover_uartcrossover_sink_payload_data;
-wire          main_basesoc_uartcrossover_uartcrossover_source_valid;
-wire          main_basesoc_uartcrossover_uartcrossover_source_ready;
-wire          main_basesoc_uartcrossover_uartcrossover_source_first;
-wire          main_basesoc_uartcrossover_uartcrossover_source_last;
-wire    [7:0] main_basesoc_uartcrossover_uartcrossover_source_payload_data;
-wire          main_basesoc_uartcrossover_tx_fifo_sink_valid;
-wire          main_basesoc_uartcrossover_tx_fifo_sink_ready;
-reg           main_basesoc_uartcrossover_tx_fifo_sink_first = 1'd0;
-reg           main_basesoc_uartcrossover_tx_fifo_sink_last = 1'd0;
-wire    [7:0] main_basesoc_uartcrossover_tx_fifo_sink_payload_data;
-wire          main_basesoc_uartcrossover_tx_fifo_source_valid;
-wire          main_basesoc_uartcrossover_tx_fifo_source_ready;
-wire          main_basesoc_uartcrossover_tx_fifo_source_first;
-wire          main_basesoc_uartcrossover_tx_fifo_source_last;
-wire    [7:0] main_basesoc_uartcrossover_tx_fifo_source_payload_data;
-wire          main_basesoc_uartcrossover_tx_fifo_re;
-reg           main_basesoc_uartcrossover_tx_fifo_readable = 1'd0;
-wire          main_basesoc_uartcrossover_tx_fifo_syncfifo_we;
-wire          main_basesoc_uartcrossover_tx_fifo_syncfifo_writable;
-wire          main_basesoc_uartcrossover_tx_fifo_syncfifo_re;
-wire          main_basesoc_uartcrossover_tx_fifo_syncfifo_readable;
-wire    [9:0] main_basesoc_uartcrossover_tx_fifo_syncfifo_din;
-wire    [9:0] main_basesoc_uartcrossover_tx_fifo_syncfifo_dout;
-reg     [4:0] main_basesoc_uartcrossover_tx_fifo_level0 = 5'd0;
-reg           main_basesoc_uartcrossover_tx_fifo_replace = 1'd0;
-reg     [3:0] main_basesoc_uartcrossover_tx_fifo_produce = 4'd0;
-reg     [3:0] main_basesoc_uartcrossover_tx_fifo_consume = 4'd0;
-reg     [3:0] main_basesoc_uartcrossover_tx_fifo_wrport_adr = 4'd0;
-wire    [9:0] main_basesoc_uartcrossover_tx_fifo_wrport_dat_r;
-wire          main_basesoc_uartcrossover_tx_fifo_wrport_we;
-wire    [9:0] main_basesoc_uartcrossover_tx_fifo_wrport_dat_w;
-wire          main_basesoc_uartcrossover_tx_fifo_do_read;
-wire    [3:0] main_basesoc_uartcrossover_tx_fifo_rdport_adr;
-wire    [9:0] main_basesoc_uartcrossover_tx_fifo_rdport_dat_r;
-wire          main_basesoc_uartcrossover_tx_fifo_rdport_re;
-wire    [4:0] main_basesoc_uartcrossover_tx_fifo_level1;
-wire    [7:0] main_basesoc_uartcrossover_tx_fifo_fifo_in_payload_data;
-wire          main_basesoc_uartcrossover_tx_fifo_fifo_in_first;
-wire          main_basesoc_uartcrossover_tx_fifo_fifo_in_last;
-wire    [7:0] main_basesoc_uartcrossover_tx_fifo_fifo_out_payload_data;
-wire          main_basesoc_uartcrossover_tx_fifo_fifo_out_first;
-wire          main_basesoc_uartcrossover_tx_fifo_fifo_out_last;
-wire          main_basesoc_uartcrossover_rx_fifo_sink_valid;
-wire          main_basesoc_uartcrossover_rx_fifo_sink_ready;
-wire          main_basesoc_uartcrossover_rx_fifo_sink_first;
-wire          main_basesoc_uartcrossover_rx_fifo_sink_last;
-wire    [7:0] main_basesoc_uartcrossover_rx_fifo_sink_payload_data;
-wire          main_basesoc_uartcrossover_rx_fifo_source_valid;
-wire          main_basesoc_uartcrossover_rx_fifo_source_ready;
-wire          main_basesoc_uartcrossover_rx_fifo_source_first;
-wire          main_basesoc_uartcrossover_rx_fifo_source_last;
-wire    [7:0] main_basesoc_uartcrossover_rx_fifo_source_payload_data;
-wire          main_basesoc_uartcrossover_rx_fifo_re;
-reg           main_basesoc_uartcrossover_rx_fifo_readable = 1'd0;
-wire          main_basesoc_uartcrossover_rx_fifo_syncfifo_we;
-wire          main_basesoc_uartcrossover_rx_fifo_syncfifo_writable;
-wire          main_basesoc_uartcrossover_rx_fifo_syncfifo_re;
-wire          main_basesoc_uartcrossover_rx_fifo_syncfifo_readable;
-wire    [9:0] main_basesoc_uartcrossover_rx_fifo_syncfifo_din;
-wire    [9:0] main_basesoc_uartcrossover_rx_fifo_syncfifo_dout;
-reg     [4:0] main_basesoc_uartcrossover_rx_fifo_level0 = 5'd0;
-reg           main_basesoc_uartcrossover_rx_fifo_replace = 1'd0;
-reg     [3:0] main_basesoc_uartcrossover_rx_fifo_produce = 4'd0;
-reg     [3:0] main_basesoc_uartcrossover_rx_fifo_consume = 4'd0;
-reg     [3:0] main_basesoc_uartcrossover_rx_fifo_wrport_adr = 4'd0;
-wire    [9:0] main_basesoc_uartcrossover_rx_fifo_wrport_dat_r;
-wire          main_basesoc_uartcrossover_rx_fifo_wrport_we;
-wire    [9:0] main_basesoc_uartcrossover_rx_fifo_wrport_dat_w;
-wire          main_basesoc_uartcrossover_rx_fifo_do_read;
-wire    [3:0] main_basesoc_uartcrossover_rx_fifo_rdport_adr;
-wire    [9:0] main_basesoc_uartcrossover_rx_fifo_rdport_dat_r;
-wire          main_basesoc_uartcrossover_rx_fifo_rdport_re;
-wire    [4:0] main_basesoc_uartcrossover_rx_fifo_level1;
-wire    [7:0] main_basesoc_uartcrossover_rx_fifo_fifo_in_payload_data;
-wire          main_basesoc_uartcrossover_rx_fifo_fifo_in_first;
-wire          main_basesoc_uartcrossover_rx_fifo_fifo_in_last;
-wire    [7:0] main_basesoc_uartcrossover_rx_fifo_fifo_out_payload_data;
-wire          main_basesoc_uartcrossover_rx_fifo_fifo_out_first;
-wire          main_basesoc_uartcrossover_rx_fifo_fifo_out_last;
-reg           main_basesoc_xover_rxtx_re = 1'd0;
-wire    [7:0] main_basesoc_xover_rxtx_r;
-reg           main_basesoc_xover_rxtx_we = 1'd0;
-wire    [7:0] main_basesoc_xover_rxtx_w;
-wire          main_basesoc_xover_txfull_status;
-wire          main_basesoc_xover_txfull_we;
-reg           main_basesoc_xover_txfull_re = 1'd0;
-wire          main_basesoc_xover_rxempty_status;
-wire          main_basesoc_xover_rxempty_we;
-reg           main_basesoc_xover_rxempty_re = 1'd0;
-wire          main_basesoc_xover_irq;
-wire          main_basesoc_xover_tx_status;
-reg           main_basesoc_xover_tx_pending = 1'd0;
-wire          main_basesoc_xover_tx_trigger;
-reg           main_basesoc_xover_tx_clear = 1'd0;
-reg           main_basesoc_xover_tx_trigger_d = 1'd0;
-wire          main_basesoc_xover_rx_status;
-reg           main_basesoc_xover_rx_pending = 1'd0;
-wire          main_basesoc_xover_rx_trigger;
-reg           main_basesoc_xover_rx_clear = 1'd0;
-reg           main_basesoc_xover_rx_trigger_d = 1'd0;
-wire          main_basesoc_xover_tx0;
-wire          main_basesoc_xover_rx0;
-reg     [1:0] main_basesoc_xover_status_status = 2'd0;
-wire          main_basesoc_xover_status_we;
-reg           main_basesoc_xover_status_re = 1'd0;
-wire          main_basesoc_xover_tx1;
-wire          main_basesoc_xover_rx1;
-reg     [1:0] main_basesoc_xover_pending_status = 2'd0;
-wire          main_basesoc_xover_pending_we;
-reg           main_basesoc_xover_pending_re = 1'd0;
-reg     [1:0] main_basesoc_xover_pending_r = 2'd0;
-wire          main_basesoc_xover_tx2;
-wire          main_basesoc_xover_rx2;
-reg     [1:0] main_basesoc_xover_enable_storage = 2'd0;
-reg           main_basesoc_xover_enable_re = 1'd0;
-wire          main_basesoc_xover_txempty_status;
-wire          main_basesoc_xover_txempty_we;
-reg           main_basesoc_xover_txempty_re = 1'd0;
-wire          main_basesoc_xover_rxfull_status;
-wire          main_basesoc_xover_rxfull_we;
-reg           main_basesoc_xover_rxfull_re = 1'd0;
-wire          main_basesoc_xover_uart_sink_valid;
-wire          main_basesoc_xover_uart_sink_ready;
-wire          main_basesoc_xover_uart_sink_first;
-wire          main_basesoc_xover_uart_sink_last;
-wire    [7:0] main_basesoc_xover_uart_sink_payload_data;
-wire          main_basesoc_xover_uart_source_valid;
-wire          main_basesoc_xover_uart_source_ready;
-wire          main_basesoc_xover_uart_source_first;
-wire          main_basesoc_xover_uart_source_last;
-wire    [7:0] main_basesoc_xover_uart_source_payload_data;
-wire          main_basesoc_xover_sink_sink_valid;
-wire          main_basesoc_xover_sink_sink_ready;
-reg           main_basesoc_xover_sink_sink_first = 1'd0;
-reg           main_basesoc_xover_sink_sink_last = 1'd0;
-wire    [7:0] main_basesoc_xover_sink_sink_payload_data;
-wire          main_basesoc_xover_source_source_valid;
-wire          main_basesoc_xover_source_source_ready;
-wire          main_basesoc_xover_source_source_first;
-wire          main_basesoc_xover_source_source_last;
-wire    [7:0] main_basesoc_xover_source_source_payload_data;
-wire          main_basesoc_xover_pipe_valid_sink_valid;
-wire          main_basesoc_xover_pipe_valid_sink_ready;
-wire          main_basesoc_xover_pipe_valid_sink_first;
-wire          main_basesoc_xover_pipe_valid_sink_last;
-wire    [7:0] main_basesoc_xover_pipe_valid_sink_payload_data;
-reg           main_basesoc_xover_pipe_valid_source_valid = 1'd0;
-wire          main_basesoc_xover_pipe_valid_source_ready;
-reg           main_basesoc_xover_pipe_valid_source_first = 1'd0;
-reg           main_basesoc_xover_pipe_valid_source_last = 1'd0;
-reg     [7:0] main_basesoc_xover_pipe_valid_source_payload_data = 8'd0;
-wire          main_basesoc_xover_rx_fifo_sink_valid;
-wire          main_basesoc_xover_rx_fifo_sink_ready;
-wire          main_basesoc_xover_rx_fifo_sink_first;
-wire          main_basesoc_xover_rx_fifo_sink_last;
-wire    [7:0] main_basesoc_xover_rx_fifo_sink_payload_data;
-wire          main_basesoc_xover_rx_fifo_source_valid;
-wire          main_basesoc_xover_rx_fifo_source_ready;
-wire          main_basesoc_xover_rx_fifo_source_first;
-wire          main_basesoc_xover_rx_fifo_source_last;
-wire    [7:0] main_basesoc_xover_rx_fifo_source_payload_data;
-wire          main_basesoc_xover_rx_fifo_re;
-reg           main_basesoc_xover_rx_fifo_readable = 1'd0;
-wire          main_basesoc_xover_rx_fifo_syncfifo_we;
-wire          main_basesoc_xover_rx_fifo_syncfifo_writable;
-wire          main_basesoc_xover_rx_fifo_syncfifo_re;
-wire          main_basesoc_xover_rx_fifo_syncfifo_readable;
-wire    [9:0] main_basesoc_xover_rx_fifo_syncfifo_din;
-wire    [9:0] main_basesoc_xover_rx_fifo_syncfifo_dout;
-reg     [4:0] main_basesoc_xover_rx_fifo_level0 = 5'd0;
-reg           main_basesoc_xover_rx_fifo_replace = 1'd0;
-reg     [3:0] main_basesoc_xover_rx_fifo_produce = 4'd0;
-reg     [3:0] main_basesoc_xover_rx_fifo_consume = 4'd0;
-reg     [3:0] main_basesoc_xover_rx_fifo_wrport_adr = 4'd0;
-wire    [9:0] main_basesoc_xover_rx_fifo_wrport_dat_r;
-wire          main_basesoc_xover_rx_fifo_wrport_we;
-wire    [9:0] main_basesoc_xover_rx_fifo_wrport_dat_w;
-wire          main_basesoc_xover_rx_fifo_do_read;
-wire    [3:0] main_basesoc_xover_rx_fifo_rdport_adr;
-wire    [9:0] main_basesoc_xover_rx_fifo_rdport_dat_r;
-wire          main_basesoc_xover_rx_fifo_rdport_re;
-wire    [4:0] main_basesoc_xover_rx_fifo_level1;
-wire    [7:0] main_basesoc_xover_rx_fifo_fifo_in_payload_data;
-wire          main_basesoc_xover_rx_fifo_fifo_in_first;
-wire          main_basesoc_xover_rx_fifo_fifo_in_last;
-wire    [7:0] main_basesoc_xover_rx_fifo_fifo_out_payload_data;
-wire          main_basesoc_xover_rx_fifo_fifo_out_first;
-wire          main_basesoc_xover_rx_fifo_fifo_out_last;
-reg    [31:0] main_basesoc_load_storage = 32'd0;
-reg           main_basesoc_load_re = 1'd0;
-reg    [31:0] main_basesoc_reload_storage = 32'd0;
-reg           main_basesoc_reload_re = 1'd0;
-reg           main_basesoc_en_storage = 1'd0;
-reg           main_basesoc_en_re = 1'd0;
-reg           main_basesoc_update_value_storage = 1'd0;
-reg           main_basesoc_update_value_re = 1'd0;
-reg    [31:0] main_basesoc_value_status = 32'd0;
-wire          main_basesoc_value_we;
-reg           main_basesoc_value_re = 1'd0;
-wire          main_basesoc_irq;
-wire          main_basesoc_zero_status;
-reg           main_basesoc_zero_pending = 1'd0;
-wire          main_basesoc_zero_trigger;
-reg           main_basesoc_zero_clear = 1'd0;
-reg           main_basesoc_zero_trigger_d = 1'd0;
-wire          main_basesoc_zero0;
-wire          main_basesoc_status_status;
-wire          main_basesoc_status_we;
-reg           main_basesoc_status_re = 1'd0;
-wire          main_basesoc_zero1;
-wire          main_basesoc_pending_status;
-wire          main_basesoc_pending_we;
-reg           main_basesoc_pending_re = 1'd0;
-reg           main_basesoc_pending_r = 1'd0;
-wire          main_basesoc_zero2;
-reg           main_basesoc_enable_storage = 1'd0;
-reg           main_basesoc_enable_re = 1'd0;
-reg    [31:0] main_basesoc_value = 32'd0;
-reg           main_tx_sink_valid = 1'd0;
-reg           main_tx_sink_ready = 1'd0;
-wire          main_tx_sink_last;
-reg     [7:0] main_tx_sink_payload_data = 8'd0;
-reg     [7:0] main_tx_data = 8'd0;
-reg     [3:0] main_tx_count = 4'd0;
-reg           main_tx_enable = 1'd0;
-reg           main_tx_tick = 1'd0;
-reg    [31:0] main_tx_phase = 32'd0;
-reg           main_rx_source_valid = 1'd0;
-reg           main_rx_source_ready = 1'd0;
-reg     [7:0] main_rx_source_payload_data = 8'd0;
-reg     [7:0] main_rx_data = 8'd0;
-reg     [3:0] main_rx_count = 4'd0;
-reg           main_rx_enable = 1'd0;
-reg           main_rx_tick = 1'd0;
-reg    [31:0] main_rx_phase = 32'd0;
-wire          main_rx_rx;
-reg           main_rx_rx_d = 1'd0;
-wire   [31:0] main_uartbone_wishbone_adr;
-wire   [31:0] main_uartbone_wishbone_dat_w;
-wire   [31:0] main_uartbone_wishbone_dat_r;
-wire    [3:0] main_uartbone_wishbone_sel;
-reg           main_uartbone_wishbone_cyc = 1'd0;
-reg           main_uartbone_wishbone_stb = 1'd0;
-wire          main_uartbone_wishbone_ack;
-reg           main_uartbone_wishbone_we = 1'd0;
-reg     [2:0] main_uartbone_wishbone_cti = 3'd0;
-reg     [1:0] main_uartbone_wishbone_bte = 2'd0;
-wire          main_uartbone_wishbone_err;
-reg     [7:0] main_uartbone_cmd = 8'd0;
-reg           main_uartbone_incr = 1'd0;
-reg     [7:0] main_uartbone_length = 8'd0;
-reg    [31:0] main_uartbone_address = 32'd0;
-reg    [31:0] main_uartbone_data = 32'd0;
-reg     [1:0] main_uartbone_data_bytes_count = 2'd0;
-reg     [1:0] main_uartbone_addr_bytes_count = 2'd0;
-reg     [7:0] main_uartbone_words_count = 8'd0;
-wire          main_uartbone_reset;
-wire          main_uartbone_wait;
-wire          main_uartbone_done;
-reg    [23:0] main_uartbone_count = 24'd10000000;
-reg           main_uartbone_is_ongoing = 1'd0;
-wire          main_sink_valid;
-wire          main_sink_ready;
-wire          main_sink_first;
-wire          main_sink_last;
-wire          main_sink_payload_hsync;
-wire          main_sink_payload_vsync;
-wire          main_sink_payload_de;
-wire    [7:0] main_sink_payload_r;
-wire    [7:0] main_sink_payload_g;
-wire    [7:0] main_sink_payload_b;
-wire          main_pads_clk;
-wire    [7:0] main_tmdsencoder0_d0;
-wire    [1:0] main_tmdsencoder0_c;
-wire          main_tmdsencoder0_de;
-reg     [9:0] main_tmdsencoder0_out = 10'd0;
-reg     [7:0] main_tmdsencoder0_d1 = 8'd0;
-reg     [3:0] main_tmdsencoder0_n1d = 4'd0;
-reg     [8:0] main_tmdsencoder0_q_m = 9'd0;
-wire          main_tmdsencoder0_q_m8_n;
-reg     [8:0] main_tmdsencoder0_q_m_r = 9'd0;
-reg     [3:0] main_tmdsencoder0_n0q_m = 4'd0;
-reg     [3:0] main_tmdsencoder0_n1q_m = 4'd0;
-reg  signed   [5:0] main_tmdsencoder0_cnt = 6'd0;
-reg     [1:0] main_tmdsencoder0_new_c0 = 2'd0;
-reg           main_tmdsencoder0_new_de0 = 1'd0;
-reg     [1:0] main_tmdsencoder0_new_c1 = 2'd0;
-reg           main_tmdsencoder0_new_de1 = 1'd0;
-reg     [1:0] main_tmdsencoder0_new_c2 = 2'd0;
-reg           main_tmdsencoder0_new_de2 = 1'd0;
-wire          main_pad_o0;
-wire          main_videohdmi10to1serializer0_sink_sink_valid;
-wire          main_videohdmi10to1serializer0_sink_sink_ready;
-reg           main_videohdmi10to1serializer0_sink_sink_first = 1'd0;
-reg           main_videohdmi10to1serializer0_sink_sink_last = 1'd0;
-wire    [9:0] main_videohdmi10to1serializer0_sink_sink_payload_data;
-wire          main_videohdmi10to1serializer0_source_source_valid;
-wire          main_videohdmi10to1serializer0_source_source_ready;
-wire          main_videohdmi10to1serializer0_source_source_first;
-wire          main_videohdmi10to1serializer0_source_source_last;
-wire    [9:0] main_videohdmi10to1serializer0_source_source_payload_data;
-wire          main_videohdmi10to1serializer0_cdc_sink_valid;
-wire          main_videohdmi10to1serializer0_cdc_sink_ready;
-wire          main_videohdmi10to1serializer0_cdc_sink_first;
-wire          main_videohdmi10to1serializer0_cdc_sink_last;
-wire    [9:0] main_videohdmi10to1serializer0_cdc_sink_payload_data;
-wire          main_videohdmi10to1serializer0_cdc_source_valid;
-wire          main_videohdmi10to1serializer0_cdc_source_ready;
-wire          main_videohdmi10to1serializer0_cdc_source_first;
-wire          main_videohdmi10to1serializer0_cdc_source_last;
-wire    [9:0] main_videohdmi10to1serializer0_cdc_source_payload_data;
-wire          main_videohdmi10to1serializer0_cdc_asyncfifo0_we;
-wire          main_videohdmi10to1serializer0_cdc_asyncfifo0_writable;
-wire          main_videohdmi10to1serializer0_cdc_asyncfifo0_re;
-wire          main_videohdmi10to1serializer0_cdc_asyncfifo0_readable;
-wire   [11:0] main_videohdmi10to1serializer0_cdc_asyncfifo0_din;
-wire   [11:0] main_videohdmi10to1serializer0_cdc_asyncfifo0_dout;
-wire          main_videohdmi10to1serializer0_cdc_graycounter0_ce;
+wire          s7pll0_clkin;
+wire          s7pll0_clkout;
+wire          s7pll0_clkout_buf;
+wire          pll2_reset;
+reg           pll2_power_down = 1'd0;
+wire          pll2_locked;
+wire          s7pll1_clkin;
+wire          s7pll1_clkout0;
+wire          s7pll1_clkout_buf0;
+wire          s7pll1_clkout1;
+wire          s7pll1_clkout_buf1;
+reg           soc_rst = 1'd0;
+wire          cpu_rst;
+reg     [1:0] reset_storage = 2'd0;
+reg           reset_re = 1'd0;
+reg    [31:0] scratch_storage = 32'd305419896;
+reg           scratch_re = 1'd0;
+wire   [31:0] bus_errors_status;
+wire          bus_errors_we;
+reg           bus_errors_re = 1'd0;
+reg           bus_error = 1'd0;
+reg    [31:0] bus_errors = 32'd0;
+reg           uart_rxtx_re = 1'd0;
+wire    [7:0] uart_rxtx_r;
+reg           uart_rxtx_we = 1'd0;
+wire    [7:0] uart_rxtx_w;
+wire          uart_txfull_status;
+wire          uart_txfull_we;
+reg           uart_txfull_re = 1'd0;
+wire          uart_rxempty_status;
+wire          uart_rxempty_we;
+reg           uart_rxempty_re = 1'd0;
+wire          uart_irq;
+wire          uart_tx_status;
+reg           uart_tx_pending = 1'd0;
+wire          uart_tx_trigger;
+reg           uart_tx_clear = 1'd0;
+reg           uart_tx_trigger_d = 1'd0;
+wire          uart_rx_status;
+reg           uart_rx_pending = 1'd0;
+wire          uart_rx_trigger;
+reg           uart_rx_clear = 1'd0;
+reg           uart_rx_trigger_d = 1'd0;
+wire          uart_tx0;
+wire          uart_rx0;
+reg     [1:0] uart_status_status = 2'd0;
+wire          uart_status_we;
+reg           uart_status_re = 1'd0;
+wire          uart_tx1;
+wire          uart_rx1;
+reg     [1:0] uart_pending_status = 2'd0;
+wire          uart_pending_we;
+reg           uart_pending_re = 1'd0;
+reg     [1:0] uart_pending_r = 2'd0;
+wire          uart_tx2;
+wire          uart_rx2;
+reg     [1:0] uart_enable_storage = 2'd0;
+reg           uart_enable_re = 1'd0;
+wire          uart_txempty_status;
+wire          uart_txempty_we;
+reg           uart_txempty_re = 1'd0;
+wire          uart_rxfull_status;
+wire          uart_rxfull_we;
+reg           uart_rxfull_re = 1'd0;
+reg           uart_uart_sink_valid = 1'd0;
+reg           uart_uart_sink_ready = 1'd0;
+reg           uart_uart_sink_first = 1'd0;
+reg           uart_uart_sink_last = 1'd0;
+reg     [7:0] uart_uart_sink_payload_data = 8'd0;
+wire          uart_uart_source_valid;
+reg           uart_uart_source_ready = 1'd0;
+wire          uart_uart_source_first;
+wire          uart_uart_source_last;
+wire    [7:0] uart_uart_source_payload_data;
+wire          uart_tx_fifo_sink_valid;
+wire          uart_tx_fifo_sink_ready;
+reg           uart_tx_fifo_sink_first = 1'd0;
+reg           uart_tx_fifo_sink_last = 1'd0;
+wire    [7:0] uart_tx_fifo_sink_payload_data;
+wire          uart_tx_fifo_source_valid;
+wire          uart_tx_fifo_source_ready;
+wire          uart_tx_fifo_source_first;
+wire          uart_tx_fifo_source_last;
+wire    [7:0] uart_tx_fifo_source_payload_data;
+wire          uart_rx_fifo_sink_valid;
+wire          uart_rx_fifo_sink_ready;
+wire          uart_rx_fifo_sink_first;
+wire          uart_rx_fifo_sink_last;
+wire    [7:0] uart_rx_fifo_sink_payload_data;
+wire          uart_rx_fifo_source_valid;
+wire          uart_rx_fifo_source_ready;
+wire          uart_rx_fifo_source_first;
+wire          uart_rx_fifo_source_last;
+wire    [7:0] uart_rx_fifo_source_payload_data;
+reg    [31:0] timer_load_storage = 32'd0;
+reg           timer_load_re = 1'd0;
+reg    [31:0] timer_reload_storage = 32'd0;
+reg           timer_reload_re = 1'd0;
+reg           timer_en_storage = 1'd0;
+reg           timer_en_re = 1'd0;
+reg           timer_update_value_storage = 1'd0;
+reg           timer_update_value_re = 1'd0;
+reg    [31:0] timer_value_status = 32'd0;
+wire          timer_value_we;
+reg           timer_value_re = 1'd0;
+wire          timer_irq;
+wire          timer_zero_status;
+reg           timer_zero_pending = 1'd0;
+wire          timer_zero_trigger;
+reg           timer_zero_clear = 1'd0;
+reg           timer_zero_trigger_d = 1'd0;
+wire          timer_zero0;
+wire          timer_status_status;
+wire          timer_status_we;
+reg           timer_status_re = 1'd0;
+wire          timer_zero1;
+wire          timer_pending_status;
+wire          timer_pending_we;
+reg           timer_pending_re = 1'd0;
+reg           timer_pending_r = 1'd0;
+wire          timer_zero2;
+reg           timer_enable_storage = 1'd0;
+reg           timer_enable_re = 1'd0;
+reg    [31:0] timer_value = 32'd0;
+wire          sink_valid;
+wire          sink_ready;
+wire          sink_first;
+wire          sink_last;
+wire          sink_payload_hsync;
+wire          sink_payload_vsync;
+wire          sink_payload_de;
+wire    [7:0] sink_payload_r;
+wire    [7:0] sink_payload_g;
+wire    [7:0] sink_payload_b;
+wire          pads_clk;
+wire    [7:0] tmdsencoder0_d0;
+wire    [1:0] tmdsencoder0_c;
+wire          tmdsencoder0_de;
+reg     [9:0] tmdsencoder0_out = 10'd0;
+reg     [7:0] tmdsencoder0_d1 = 8'd0;
+reg     [3:0] tmdsencoder0_n1d = 4'd0;
+reg     [8:0] tmdsencoder0_q_m = 9'd0;
+wire          tmdsencoder0_q_m8_n;
+reg     [8:0] tmdsencoder0_q_m_r = 9'd0;
+reg     [3:0] tmdsencoder0_n0q_m = 4'd0;
+reg     [3:0] tmdsencoder0_n1q_m = 4'd0;
+reg  signed   [5:0] tmdsencoder0_cnt = 6'd0;
+reg     [1:0] tmdsencoder0_new_c0 = 2'd0;
+reg           tmdsencoder0_new_de0 = 1'd0;
+reg     [1:0] tmdsencoder0_new_c1 = 2'd0;
+reg           tmdsencoder0_new_de1 = 1'd0;
+reg     [1:0] tmdsencoder0_new_c2 = 2'd0;
+reg           tmdsencoder0_new_de2 = 1'd0;
+wire          pad_o0;
+wire          videohdmi10to1serializer0_sink_sink_valid;
+wire          videohdmi10to1serializer0_sink_sink_ready;
+reg           videohdmi10to1serializer0_sink_sink_first = 1'd0;
+reg           videohdmi10to1serializer0_sink_sink_last = 1'd0;
+wire    [9:0] videohdmi10to1serializer0_sink_sink_payload_data;
+wire          videohdmi10to1serializer0_source_source_valid;
+wire          videohdmi10to1serializer0_source_source_ready;
+wire          videohdmi10to1serializer0_source_source_first;
+wire          videohdmi10to1serializer0_source_source_last;
+wire    [9:0] videohdmi10to1serializer0_source_source_payload_data;
+wire          videohdmi10to1serializer0_cdc_sink_valid;
+wire          videohdmi10to1serializer0_cdc_sink_ready;
+wire          videohdmi10to1serializer0_cdc_sink_first;
+wire          videohdmi10to1serializer0_cdc_sink_last;
+wire    [9:0] videohdmi10to1serializer0_cdc_sink_payload_data;
+wire          videohdmi10to1serializer0_cdc_source_valid;
+wire          videohdmi10to1serializer0_cdc_source_ready;
+wire          videohdmi10to1serializer0_cdc_source_first;
+wire          videohdmi10to1serializer0_cdc_source_last;
+wire    [9:0] videohdmi10to1serializer0_cdc_source_payload_data;
+wire          videohdmi10to1serializer0_cdc_asyncfifo0_we;
+wire          videohdmi10to1serializer0_cdc_asyncfifo0_writable;
+wire          videohdmi10to1serializer0_cdc_asyncfifo0_re;
+wire          videohdmi10to1serializer0_cdc_asyncfifo0_readable;
+wire   [11:0] videohdmi10to1serializer0_cdc_asyncfifo0_din;
+wire   [11:0] videohdmi10to1serializer0_cdc_asyncfifo0_dout;
+wire          videohdmi10to1serializer0_cdc_graycounter0_ce;
 (* dont_touch = "true" *)
-reg     [2:0] main_videohdmi10to1serializer0_cdc_graycounter0_q = 3'd0;
-wire    [2:0] main_videohdmi10to1serializer0_cdc_graycounter0_q_next;
-reg     [2:0] main_videohdmi10to1serializer0_cdc_graycounter0_q_binary = 3'd0;
-reg     [2:0] main_videohdmi10to1serializer0_cdc_graycounter0_q_next_binary = 3'd0;
-wire          main_videohdmi10to1serializer0_cdc_graycounter1_ce;
+reg     [2:0] videohdmi10to1serializer0_cdc_graycounter0_q = 3'd0;
+wire    [2:0] videohdmi10to1serializer0_cdc_graycounter0_q_next;
+reg     [2:0] videohdmi10to1serializer0_cdc_graycounter0_q_binary = 3'd0;
+reg     [2:0] videohdmi10to1serializer0_cdc_graycounter0_q_next_binary = 3'd0;
+wire          videohdmi10to1serializer0_cdc_graycounter1_ce;
 (* dont_touch = "true" *)
-reg     [2:0] main_videohdmi10to1serializer0_cdc_graycounter1_q = 3'd0;
-wire    [2:0] main_videohdmi10to1serializer0_cdc_graycounter1_q_next;
-reg     [2:0] main_videohdmi10to1serializer0_cdc_graycounter1_q_binary = 3'd0;
-reg     [2:0] main_videohdmi10to1serializer0_cdc_graycounter1_q_next_binary = 3'd0;
-wire    [2:0] main_videohdmi10to1serializer0_cdc_produce_rdomain;
-wire    [2:0] main_videohdmi10to1serializer0_cdc_consume_wdomain;
-wire    [1:0] main_videohdmi10to1serializer0_cdc_wrport_adr;
-wire   [11:0] main_videohdmi10to1serializer0_cdc_wrport_dat_r;
-wire          main_videohdmi10to1serializer0_cdc_wrport_we;
-wire   [11:0] main_videohdmi10to1serializer0_cdc_wrport_dat_w;
-wire    [1:0] main_videohdmi10to1serializer0_cdc_rdport_adr;
-wire   [11:0] main_videohdmi10to1serializer0_cdc_rdport_dat_r;
-wire    [9:0] main_videohdmi10to1serializer0_cdc_fifo_in_payload_data;
-wire          main_videohdmi10to1serializer0_cdc_fifo_in_first;
-wire          main_videohdmi10to1serializer0_cdc_fifo_in_last;
-wire    [9:0] main_videohdmi10to1serializer0_cdc_fifo_out_payload_data;
-wire          main_videohdmi10to1serializer0_cdc_fifo_out_first;
-wire          main_videohdmi10to1serializer0_cdc_fifo_out_last;
-wire          main_videohdmi10to1serializer0_sink_valid;
-wire          main_videohdmi10to1serializer0_sink_ready;
-wire          main_videohdmi10to1serializer0_sink_first;
-wire          main_videohdmi10to1serializer0_sink_last;
-wire    [9:0] main_videohdmi10to1serializer0_sink_payload_data;
-wire          main_videohdmi10to1serializer0_source_valid;
-wire          main_videohdmi10to1serializer0_source_ready;
-wire    [1:0] main_videohdmi10to1serializer0_source_payload_data;
-reg     [4:0] main_videohdmi10to1serializer0_level = 5'd0;
-wire          main_videohdmi10to1serializer0_i_inc;
-reg           main_videohdmi10to1serializer0_i_count = 1'd0;
-wire          main_videohdmi10to1serializer0_o_inc;
-reg     [3:0] main_videohdmi10to1serializer0_o_count = 4'd0;
-reg    [19:0] main_videohdmi10to1serializer0_shift_register = 20'd0;
-wire    [9:0] main_videohdmi10to1serializer0_i_data;
-reg     [1:0] main_videohdmi10to1serializer0_o_data = 2'd0;
-wire    [7:0] main_tmdsencoder1_d0;
-wire    [1:0] main_tmdsencoder1_c;
-wire          main_tmdsencoder1_de;
-reg     [9:0] main_tmdsencoder1_out = 10'd0;
-reg     [7:0] main_tmdsencoder1_d1 = 8'd0;
-reg     [3:0] main_tmdsencoder1_n1d = 4'd0;
-reg     [8:0] main_tmdsencoder1_q_m = 9'd0;
-wire          main_tmdsencoder1_q_m8_n;
-reg     [8:0] main_tmdsencoder1_q_m_r = 9'd0;
-reg     [3:0] main_tmdsencoder1_n0q_m = 4'd0;
-reg     [3:0] main_tmdsencoder1_n1q_m = 4'd0;
-reg  signed   [5:0] main_tmdsencoder1_cnt = 6'd0;
-reg     [1:0] main_tmdsencoder1_new_c0 = 2'd0;
-reg           main_tmdsencoder1_new_de0 = 1'd0;
-reg     [1:0] main_tmdsencoder1_new_c1 = 2'd0;
-reg           main_tmdsencoder1_new_de1 = 1'd0;
-reg     [1:0] main_tmdsencoder1_new_c2 = 2'd0;
-reg           main_tmdsencoder1_new_de2 = 1'd0;
-wire          main_pad_o1;
-wire          main_videohdmi10to1serializer1_sink_sink_valid;
-wire          main_videohdmi10to1serializer1_sink_sink_ready;
-reg           main_videohdmi10to1serializer1_sink_sink_first = 1'd0;
-reg           main_videohdmi10to1serializer1_sink_sink_last = 1'd0;
-wire    [9:0] main_videohdmi10to1serializer1_sink_sink_payload_data;
-wire          main_videohdmi10to1serializer1_source_source_valid;
-wire          main_videohdmi10to1serializer1_source_source_ready;
-wire          main_videohdmi10to1serializer1_source_source_first;
-wire          main_videohdmi10to1serializer1_source_source_last;
-wire    [9:0] main_videohdmi10to1serializer1_source_source_payload_data;
-wire          main_videohdmi10to1serializer1_cdc_sink_valid;
-wire          main_videohdmi10to1serializer1_cdc_sink_ready;
-wire          main_videohdmi10to1serializer1_cdc_sink_first;
-wire          main_videohdmi10to1serializer1_cdc_sink_last;
-wire    [9:0] main_videohdmi10to1serializer1_cdc_sink_payload_data;
-wire          main_videohdmi10to1serializer1_cdc_source_valid;
-wire          main_videohdmi10to1serializer1_cdc_source_ready;
-wire          main_videohdmi10to1serializer1_cdc_source_first;
-wire          main_videohdmi10to1serializer1_cdc_source_last;
-wire    [9:0] main_videohdmi10to1serializer1_cdc_source_payload_data;
-wire          main_videohdmi10to1serializer1_cdc_asyncfifo1_we;
-wire          main_videohdmi10to1serializer1_cdc_asyncfifo1_writable;
-wire          main_videohdmi10to1serializer1_cdc_asyncfifo1_re;
-wire          main_videohdmi10to1serializer1_cdc_asyncfifo1_readable;
-wire   [11:0] main_videohdmi10to1serializer1_cdc_asyncfifo1_din;
-wire   [11:0] main_videohdmi10to1serializer1_cdc_asyncfifo1_dout;
-wire          main_videohdmi10to1serializer1_cdc_graycounter2_ce;
+reg     [2:0] videohdmi10to1serializer0_cdc_graycounter1_q = 3'd0;
+wire    [2:0] videohdmi10to1serializer0_cdc_graycounter1_q_next;
+reg     [2:0] videohdmi10to1serializer0_cdc_graycounter1_q_binary = 3'd0;
+reg     [2:0] videohdmi10to1serializer0_cdc_graycounter1_q_next_binary = 3'd0;
+wire    [2:0] videohdmi10to1serializer0_cdc_produce_rdomain;
+wire    [2:0] videohdmi10to1serializer0_cdc_consume_wdomain;
+wire    [1:0] videohdmi10to1serializer0_cdc_wrport_adr;
+wire   [11:0] videohdmi10to1serializer0_cdc_wrport_dat_r;
+wire          videohdmi10to1serializer0_cdc_wrport_we;
+wire   [11:0] videohdmi10to1serializer0_cdc_wrport_dat_w;
+wire    [1:0] videohdmi10to1serializer0_cdc_rdport_adr;
+wire   [11:0] videohdmi10to1serializer0_cdc_rdport_dat_r;
+wire    [9:0] videohdmi10to1serializer0_cdc_fifo_in_payload_data;
+wire          videohdmi10to1serializer0_cdc_fifo_in_first;
+wire          videohdmi10to1serializer0_cdc_fifo_in_last;
+wire    [9:0] videohdmi10to1serializer0_cdc_fifo_out_payload_data;
+wire          videohdmi10to1serializer0_cdc_fifo_out_first;
+wire          videohdmi10to1serializer0_cdc_fifo_out_last;
+wire          videohdmi10to1serializer0_sink_valid;
+wire          videohdmi10to1serializer0_sink_ready;
+wire          videohdmi10to1serializer0_sink_first;
+wire          videohdmi10to1serializer0_sink_last;
+wire    [9:0] videohdmi10to1serializer0_sink_payload_data;
+wire          videohdmi10to1serializer0_source_valid;
+wire          videohdmi10to1serializer0_source_ready;
+wire    [1:0] videohdmi10to1serializer0_source_payload_data;
+reg     [4:0] videohdmi10to1serializer0_level = 5'd0;
+wire          videohdmi10to1serializer0_i_inc;
+reg           videohdmi10to1serializer0_i_count = 1'd0;
+wire          videohdmi10to1serializer0_o_inc;
+reg     [3:0] videohdmi10to1serializer0_o_count = 4'd0;
+reg    [19:0] videohdmi10to1serializer0_shift_register = 20'd0;
+wire    [9:0] videohdmi10to1serializer0_i_data;
+reg     [1:0] videohdmi10to1serializer0_o_data = 2'd0;
+wire    [7:0] tmdsencoder1_d0;
+wire    [1:0] tmdsencoder1_c;
+wire          tmdsencoder1_de;
+reg     [9:0] tmdsencoder1_out = 10'd0;
+reg     [7:0] tmdsencoder1_d1 = 8'd0;
+reg     [3:0] tmdsencoder1_n1d = 4'd0;
+reg     [8:0] tmdsencoder1_q_m = 9'd0;
+wire          tmdsencoder1_q_m8_n;
+reg     [8:0] tmdsencoder1_q_m_r = 9'd0;
+reg     [3:0] tmdsencoder1_n0q_m = 4'd0;
+reg     [3:0] tmdsencoder1_n1q_m = 4'd0;
+reg  signed   [5:0] tmdsencoder1_cnt = 6'd0;
+reg     [1:0] tmdsencoder1_new_c0 = 2'd0;
+reg           tmdsencoder1_new_de0 = 1'd0;
+reg     [1:0] tmdsencoder1_new_c1 = 2'd0;
+reg           tmdsencoder1_new_de1 = 1'd0;
+reg     [1:0] tmdsencoder1_new_c2 = 2'd0;
+reg           tmdsencoder1_new_de2 = 1'd0;
+wire          pad_o1;
+wire          videohdmi10to1serializer1_sink_sink_valid;
+wire          videohdmi10to1serializer1_sink_sink_ready;
+reg           videohdmi10to1serializer1_sink_sink_first = 1'd0;
+reg           videohdmi10to1serializer1_sink_sink_last = 1'd0;
+wire    [9:0] videohdmi10to1serializer1_sink_sink_payload_data;
+wire          videohdmi10to1serializer1_source_source_valid;
+wire          videohdmi10to1serializer1_source_source_ready;
+wire          videohdmi10to1serializer1_source_source_first;
+wire          videohdmi10to1serializer1_source_source_last;
+wire    [9:0] videohdmi10to1serializer1_source_source_payload_data;
+wire          videohdmi10to1serializer1_cdc_sink_valid;
+wire          videohdmi10to1serializer1_cdc_sink_ready;
+wire          videohdmi10to1serializer1_cdc_sink_first;
+wire          videohdmi10to1serializer1_cdc_sink_last;
+wire    [9:0] videohdmi10to1serializer1_cdc_sink_payload_data;
+wire          videohdmi10to1serializer1_cdc_source_valid;
+wire          videohdmi10to1serializer1_cdc_source_ready;
+wire          videohdmi10to1serializer1_cdc_source_first;
+wire          videohdmi10to1serializer1_cdc_source_last;
+wire    [9:0] videohdmi10to1serializer1_cdc_source_payload_data;
+wire          videohdmi10to1serializer1_cdc_asyncfifo1_we;
+wire          videohdmi10to1serializer1_cdc_asyncfifo1_writable;
+wire          videohdmi10to1serializer1_cdc_asyncfifo1_re;
+wire          videohdmi10to1serializer1_cdc_asyncfifo1_readable;
+wire   [11:0] videohdmi10to1serializer1_cdc_asyncfifo1_din;
+wire   [11:0] videohdmi10to1serializer1_cdc_asyncfifo1_dout;
+wire          videohdmi10to1serializer1_cdc_graycounter2_ce;
 (* dont_touch = "true" *)
-reg     [2:0] main_videohdmi10to1serializer1_cdc_graycounter2_q = 3'd0;
-wire    [2:0] main_videohdmi10to1serializer1_cdc_graycounter2_q_next;
-reg     [2:0] main_videohdmi10to1serializer1_cdc_graycounter2_q_binary = 3'd0;
-reg     [2:0] main_videohdmi10to1serializer1_cdc_graycounter2_q_next_binary = 3'd0;
-wire          main_videohdmi10to1serializer1_cdc_graycounter3_ce;
+reg     [2:0] videohdmi10to1serializer1_cdc_graycounter2_q = 3'd0;
+wire    [2:0] videohdmi10to1serializer1_cdc_graycounter2_q_next;
+reg     [2:0] videohdmi10to1serializer1_cdc_graycounter2_q_binary = 3'd0;
+reg     [2:0] videohdmi10to1serializer1_cdc_graycounter2_q_next_binary = 3'd0;
+wire          videohdmi10to1serializer1_cdc_graycounter3_ce;
 (* dont_touch = "true" *)
-reg     [2:0] main_videohdmi10to1serializer1_cdc_graycounter3_q = 3'd0;
-wire    [2:0] main_videohdmi10to1serializer1_cdc_graycounter3_q_next;
-reg     [2:0] main_videohdmi10to1serializer1_cdc_graycounter3_q_binary = 3'd0;
-reg     [2:0] main_videohdmi10to1serializer1_cdc_graycounter3_q_next_binary = 3'd0;
-wire    [2:0] main_videohdmi10to1serializer1_cdc_produce_rdomain;
-wire    [2:0] main_videohdmi10to1serializer1_cdc_consume_wdomain;
-wire    [1:0] main_videohdmi10to1serializer1_cdc_wrport_adr;
-wire   [11:0] main_videohdmi10to1serializer1_cdc_wrport_dat_r;
-wire          main_videohdmi10to1serializer1_cdc_wrport_we;
-wire   [11:0] main_videohdmi10to1serializer1_cdc_wrport_dat_w;
-wire    [1:0] main_videohdmi10to1serializer1_cdc_rdport_adr;
-wire   [11:0] main_videohdmi10to1serializer1_cdc_rdport_dat_r;
-wire    [9:0] main_videohdmi10to1serializer1_cdc_fifo_in_payload_data;
-wire          main_videohdmi10to1serializer1_cdc_fifo_in_first;
-wire          main_videohdmi10to1serializer1_cdc_fifo_in_last;
-wire    [9:0] main_videohdmi10to1serializer1_cdc_fifo_out_payload_data;
-wire          main_videohdmi10to1serializer1_cdc_fifo_out_first;
-wire          main_videohdmi10to1serializer1_cdc_fifo_out_last;
-wire          main_videohdmi10to1serializer1_sink_valid;
-wire          main_videohdmi10to1serializer1_sink_ready;
-wire          main_videohdmi10to1serializer1_sink_first;
-wire          main_videohdmi10to1serializer1_sink_last;
-wire    [9:0] main_videohdmi10to1serializer1_sink_payload_data;
-wire          main_videohdmi10to1serializer1_source_valid;
-wire          main_videohdmi10to1serializer1_source_ready;
-wire    [1:0] main_videohdmi10to1serializer1_source_payload_data;
-reg     [4:0] main_videohdmi10to1serializer1_level = 5'd0;
-wire          main_videohdmi10to1serializer1_i_inc;
-reg           main_videohdmi10to1serializer1_i_count = 1'd0;
-wire          main_videohdmi10to1serializer1_o_inc;
-reg     [3:0] main_videohdmi10to1serializer1_o_count = 4'd0;
-reg    [19:0] main_videohdmi10to1serializer1_shift_register = 20'd0;
-wire    [9:0] main_videohdmi10to1serializer1_i_data;
-reg     [1:0] main_videohdmi10to1serializer1_o_data = 2'd0;
-wire    [7:0] main_tmdsencoder2_d0;
-wire    [1:0] main_tmdsencoder2_c;
-wire          main_tmdsencoder2_de;
-reg     [9:0] main_tmdsencoder2_out = 10'd0;
-reg     [7:0] main_tmdsencoder2_d1 = 8'd0;
-reg     [3:0] main_tmdsencoder2_n1d = 4'd0;
-reg     [8:0] main_tmdsencoder2_q_m = 9'd0;
-wire          main_tmdsencoder2_q_m8_n;
-reg     [8:0] main_tmdsencoder2_q_m_r = 9'd0;
-reg     [3:0] main_tmdsencoder2_n0q_m = 4'd0;
-reg     [3:0] main_tmdsencoder2_n1q_m = 4'd0;
-reg  signed   [5:0] main_tmdsencoder2_cnt = 6'd0;
-reg     [1:0] main_tmdsencoder2_new_c0 = 2'd0;
-reg           main_tmdsencoder2_new_de0 = 1'd0;
-reg     [1:0] main_tmdsencoder2_new_c1 = 2'd0;
-reg           main_tmdsencoder2_new_de1 = 1'd0;
-reg     [1:0] main_tmdsencoder2_new_c2 = 2'd0;
-reg           main_tmdsencoder2_new_de2 = 1'd0;
-wire          main_pad_o2;
-wire          main_videohdmi10to1serializer2_sink_sink_valid;
-wire          main_videohdmi10to1serializer2_sink_sink_ready;
-reg           main_videohdmi10to1serializer2_sink_sink_first = 1'd0;
-reg           main_videohdmi10to1serializer2_sink_sink_last = 1'd0;
-wire    [9:0] main_videohdmi10to1serializer2_sink_sink_payload_data;
-wire          main_videohdmi10to1serializer2_source_source_valid;
-wire          main_videohdmi10to1serializer2_source_source_ready;
-wire          main_videohdmi10to1serializer2_source_source_first;
-wire          main_videohdmi10to1serializer2_source_source_last;
-wire    [9:0] main_videohdmi10to1serializer2_source_source_payload_data;
-wire          main_videohdmi10to1serializer2_cdc_sink_valid;
-wire          main_videohdmi10to1serializer2_cdc_sink_ready;
-wire          main_videohdmi10to1serializer2_cdc_sink_first;
-wire          main_videohdmi10to1serializer2_cdc_sink_last;
-wire    [9:0] main_videohdmi10to1serializer2_cdc_sink_payload_data;
-wire          main_videohdmi10to1serializer2_cdc_source_valid;
-wire          main_videohdmi10to1serializer2_cdc_source_ready;
-wire          main_videohdmi10to1serializer2_cdc_source_first;
-wire          main_videohdmi10to1serializer2_cdc_source_last;
-wire    [9:0] main_videohdmi10to1serializer2_cdc_source_payload_data;
-wire          main_videohdmi10to1serializer2_cdc_asyncfifo2_we;
-wire          main_videohdmi10to1serializer2_cdc_asyncfifo2_writable;
-wire          main_videohdmi10to1serializer2_cdc_asyncfifo2_re;
-wire          main_videohdmi10to1serializer2_cdc_asyncfifo2_readable;
-wire   [11:0] main_videohdmi10to1serializer2_cdc_asyncfifo2_din;
-wire   [11:0] main_videohdmi10to1serializer2_cdc_asyncfifo2_dout;
-wire          main_videohdmi10to1serializer2_cdc_graycounter4_ce;
+reg     [2:0] videohdmi10to1serializer1_cdc_graycounter3_q = 3'd0;
+wire    [2:0] videohdmi10to1serializer1_cdc_graycounter3_q_next;
+reg     [2:0] videohdmi10to1serializer1_cdc_graycounter3_q_binary = 3'd0;
+reg     [2:0] videohdmi10to1serializer1_cdc_graycounter3_q_next_binary = 3'd0;
+wire    [2:0] videohdmi10to1serializer1_cdc_produce_rdomain;
+wire    [2:0] videohdmi10to1serializer1_cdc_consume_wdomain;
+wire    [1:0] videohdmi10to1serializer1_cdc_wrport_adr;
+wire   [11:0] videohdmi10to1serializer1_cdc_wrport_dat_r;
+wire          videohdmi10to1serializer1_cdc_wrport_we;
+wire   [11:0] videohdmi10to1serializer1_cdc_wrport_dat_w;
+wire    [1:0] videohdmi10to1serializer1_cdc_rdport_adr;
+wire   [11:0] videohdmi10to1serializer1_cdc_rdport_dat_r;
+wire    [9:0] videohdmi10to1serializer1_cdc_fifo_in_payload_data;
+wire          videohdmi10to1serializer1_cdc_fifo_in_first;
+wire          videohdmi10to1serializer1_cdc_fifo_in_last;
+wire    [9:0] videohdmi10to1serializer1_cdc_fifo_out_payload_data;
+wire          videohdmi10to1serializer1_cdc_fifo_out_first;
+wire          videohdmi10to1serializer1_cdc_fifo_out_last;
+wire          videohdmi10to1serializer1_sink_valid;
+wire          videohdmi10to1serializer1_sink_ready;
+wire          videohdmi10to1serializer1_sink_first;
+wire          videohdmi10to1serializer1_sink_last;
+wire    [9:0] videohdmi10to1serializer1_sink_payload_data;
+wire          videohdmi10to1serializer1_source_valid;
+wire          videohdmi10to1serializer1_source_ready;
+wire    [1:0] videohdmi10to1serializer1_source_payload_data;
+reg     [4:0] videohdmi10to1serializer1_level = 5'd0;
+wire          videohdmi10to1serializer1_i_inc;
+reg           videohdmi10to1serializer1_i_count = 1'd0;
+wire          videohdmi10to1serializer1_o_inc;
+reg     [3:0] videohdmi10to1serializer1_o_count = 4'd0;
+reg    [19:0] videohdmi10to1serializer1_shift_register = 20'd0;
+wire    [9:0] videohdmi10to1serializer1_i_data;
+reg     [1:0] videohdmi10to1serializer1_o_data = 2'd0;
+wire    [7:0] tmdsencoder2_d0;
+wire    [1:0] tmdsencoder2_c;
+wire          tmdsencoder2_de;
+reg     [9:0] tmdsencoder2_out = 10'd0;
+reg     [7:0] tmdsencoder2_d1 = 8'd0;
+reg     [3:0] tmdsencoder2_n1d = 4'd0;
+reg     [8:0] tmdsencoder2_q_m = 9'd0;
+wire          tmdsencoder2_q_m8_n;
+reg     [8:0] tmdsencoder2_q_m_r = 9'd0;
+reg     [3:0] tmdsencoder2_n0q_m = 4'd0;
+reg     [3:0] tmdsencoder2_n1q_m = 4'd0;
+reg  signed   [5:0] tmdsencoder2_cnt = 6'd0;
+reg     [1:0] tmdsencoder2_new_c0 = 2'd0;
+reg           tmdsencoder2_new_de0 = 1'd0;
+reg     [1:0] tmdsencoder2_new_c1 = 2'd0;
+reg           tmdsencoder2_new_de1 = 1'd0;
+reg     [1:0] tmdsencoder2_new_c2 = 2'd0;
+reg           tmdsencoder2_new_de2 = 1'd0;
+wire          pad_o2;
+wire          videohdmi10to1serializer2_sink_sink_valid;
+wire          videohdmi10to1serializer2_sink_sink_ready;
+reg           videohdmi10to1serializer2_sink_sink_first = 1'd0;
+reg           videohdmi10to1serializer2_sink_sink_last = 1'd0;
+wire    [9:0] videohdmi10to1serializer2_sink_sink_payload_data;
+wire          videohdmi10to1serializer2_source_source_valid;
+wire          videohdmi10to1serializer2_source_source_ready;
+wire          videohdmi10to1serializer2_source_source_first;
+wire          videohdmi10to1serializer2_source_source_last;
+wire    [9:0] videohdmi10to1serializer2_source_source_payload_data;
+wire          videohdmi10to1serializer2_cdc_sink_valid;
+wire          videohdmi10to1serializer2_cdc_sink_ready;
+wire          videohdmi10to1serializer2_cdc_sink_first;
+wire          videohdmi10to1serializer2_cdc_sink_last;
+wire    [9:0] videohdmi10to1serializer2_cdc_sink_payload_data;
+wire          videohdmi10to1serializer2_cdc_source_valid;
+wire          videohdmi10to1serializer2_cdc_source_ready;
+wire          videohdmi10to1serializer2_cdc_source_first;
+wire          videohdmi10to1serializer2_cdc_source_last;
+wire    [9:0] videohdmi10to1serializer2_cdc_source_payload_data;
+wire          videohdmi10to1serializer2_cdc_asyncfifo2_we;
+wire          videohdmi10to1serializer2_cdc_asyncfifo2_writable;
+wire          videohdmi10to1serializer2_cdc_asyncfifo2_re;
+wire          videohdmi10to1serializer2_cdc_asyncfifo2_readable;
+wire   [11:0] videohdmi10to1serializer2_cdc_asyncfifo2_din;
+wire   [11:0] videohdmi10to1serializer2_cdc_asyncfifo2_dout;
+wire          videohdmi10to1serializer2_cdc_graycounter4_ce;
 (* dont_touch = "true" *)
-reg     [2:0] main_videohdmi10to1serializer2_cdc_graycounter4_q = 3'd0;
-wire    [2:0] main_videohdmi10to1serializer2_cdc_graycounter4_q_next;
-reg     [2:0] main_videohdmi10to1serializer2_cdc_graycounter4_q_binary = 3'd0;
-reg     [2:0] main_videohdmi10to1serializer2_cdc_graycounter4_q_next_binary = 3'd0;
-wire          main_videohdmi10to1serializer2_cdc_graycounter5_ce;
+reg     [2:0] videohdmi10to1serializer2_cdc_graycounter4_q = 3'd0;
+wire    [2:0] videohdmi10to1serializer2_cdc_graycounter4_q_next;
+reg     [2:0] videohdmi10to1serializer2_cdc_graycounter4_q_binary = 3'd0;
+reg     [2:0] videohdmi10to1serializer2_cdc_graycounter4_q_next_binary = 3'd0;
+wire          videohdmi10to1serializer2_cdc_graycounter5_ce;
 (* dont_touch = "true" *)
-reg     [2:0] main_videohdmi10to1serializer2_cdc_graycounter5_q = 3'd0;
-wire    [2:0] main_videohdmi10to1serializer2_cdc_graycounter5_q_next;
-reg     [2:0] main_videohdmi10to1serializer2_cdc_graycounter5_q_binary = 3'd0;
-reg     [2:0] main_videohdmi10to1serializer2_cdc_graycounter5_q_next_binary = 3'd0;
-wire    [2:0] main_videohdmi10to1serializer2_cdc_produce_rdomain;
-wire    [2:0] main_videohdmi10to1serializer2_cdc_consume_wdomain;
-wire    [1:0] main_videohdmi10to1serializer2_cdc_wrport_adr;
-wire   [11:0] main_videohdmi10to1serializer2_cdc_wrport_dat_r;
-wire          main_videohdmi10to1serializer2_cdc_wrport_we;
-wire   [11:0] main_videohdmi10to1serializer2_cdc_wrport_dat_w;
-wire    [1:0] main_videohdmi10to1serializer2_cdc_rdport_adr;
-wire   [11:0] main_videohdmi10to1serializer2_cdc_rdport_dat_r;
-wire    [9:0] main_videohdmi10to1serializer2_cdc_fifo_in_payload_data;
-wire          main_videohdmi10to1serializer2_cdc_fifo_in_first;
-wire          main_videohdmi10to1serializer2_cdc_fifo_in_last;
-wire    [9:0] main_videohdmi10to1serializer2_cdc_fifo_out_payload_data;
-wire          main_videohdmi10to1serializer2_cdc_fifo_out_first;
-wire          main_videohdmi10to1serializer2_cdc_fifo_out_last;
-wire          main_videohdmi10to1serializer2_sink_valid;
-wire          main_videohdmi10to1serializer2_sink_ready;
-wire          main_videohdmi10to1serializer2_sink_first;
-wire          main_videohdmi10to1serializer2_sink_last;
-wire    [9:0] main_videohdmi10to1serializer2_sink_payload_data;
-wire          main_videohdmi10to1serializer2_source_valid;
-wire          main_videohdmi10to1serializer2_source_ready;
-wire    [1:0] main_videohdmi10to1serializer2_source_payload_data;
-reg     [4:0] main_videohdmi10to1serializer2_level = 5'd0;
-wire          main_videohdmi10to1serializer2_i_inc;
-reg           main_videohdmi10to1serializer2_i_count = 1'd0;
-wire          main_videohdmi10to1serializer2_o_inc;
-reg     [3:0] main_videohdmi10to1serializer2_o_count = 4'd0;
-reg    [19:0] main_videohdmi10to1serializer2_shift_register = 20'd0;
-wire    [9:0] main_videohdmi10to1serializer2_i_data;
-reg     [1:0] main_videohdmi10to1serializer2_o_data = 2'd0;
-reg           main_vtg_enable_storage = 1'd1;
-reg           main_vtg_enable_re = 1'd0;
-reg    [11:0] main_vtg_hres_storage = 12'd640;
-reg           main_vtg_hres_re = 1'd0;
-reg    [11:0] main_vtg_hsync_start_storage = 12'd656;
-reg           main_vtg_hsync_start_re = 1'd0;
-reg    [11:0] main_vtg_hsync_end_storage = 12'd752;
-reg           main_vtg_hsync_end_re = 1'd0;
-reg    [11:0] main_vtg_hscan_storage = 12'd799;
-reg           main_vtg_hscan_re = 1'd0;
-reg    [11:0] main_vtg_vres_storage = 12'd480;
-reg           main_vtg_vres_re = 1'd0;
-reg    [11:0] main_vtg_vsync_start_storage = 12'd490;
-reg           main_vtg_vsync_start_re = 1'd0;
-reg    [11:0] main_vtg_vsync_end_storage = 12'd492;
-reg           main_vtg_vsync_end_re = 1'd0;
-reg    [11:0] main_vtg_vscan_storage = 12'd524;
-reg           main_vtg_vscan_re = 1'd0;
-reg           main_vtg_source_valid = 1'd0;
-wire          main_vtg_source_ready;
-reg           main_vtg_source_first = 1'd0;
-reg           main_vtg_source_last = 1'd0;
-reg           main_vtg_source_payload_hsync = 1'd0;
-reg           main_vtg_source_payload_vsync = 1'd0;
-wire          main_vtg_source_payload_de;
-reg    [11:0] main_vtg_source_payload_hres = 12'd0;
-reg    [11:0] main_vtg_source_payload_vres = 12'd0;
-reg    [11:0] main_vtg_source_payload_hcount = 12'd0;
-reg    [11:0] main_vtg_source_payload_vcount = 12'd0;
-wire          main_vtg_enable;
-wire   [11:0] main_vtg_hres;
-wire   [11:0] main_vtg_hsync_start;
-wire   [11:0] main_vtg_hsync_end;
-wire   [11:0] main_vtg_hscan;
-wire   [11:0] main_vtg_vres;
-wire   [11:0] main_vtg_vsync_start;
-wire   [11:0] main_vtg_vsync_end;
-wire   [11:0] main_vtg_vscan;
-reg           main_vtg_hactive = 1'd0;
-reg           main_vtg_vactive = 1'd0;
-wire          main_vtg_reset;
-reg           main_colorbarspattern_enable0 = 1'd1;
-wire          main_colorbarspattern_vtg_sink_valid;
-reg           main_colorbarspattern_vtg_sink_ready = 1'd0;
-wire          main_colorbarspattern_vtg_sink_first;
-wire          main_colorbarspattern_vtg_sink_last;
-wire          main_colorbarspattern_vtg_sink_payload_hsync;
-wire          main_colorbarspattern_vtg_sink_payload_vsync;
-wire          main_colorbarspattern_vtg_sink_payload_de;
-wire   [11:0] main_colorbarspattern_vtg_sink_payload_hres;
-wire   [11:0] main_colorbarspattern_vtg_sink_payload_vres;
-wire   [11:0] main_colorbarspattern_vtg_sink_payload_hcount;
-wire   [11:0] main_colorbarspattern_vtg_sink_payload_vcount;
-reg           main_colorbarspattern_source_valid = 1'd0;
-wire          main_colorbarspattern_source_ready;
-reg           main_colorbarspattern_source_first = 1'd0;
-reg           main_colorbarspattern_source_last = 1'd0;
-reg           main_colorbarspattern_source_payload_hsync = 1'd0;
-reg           main_colorbarspattern_source_payload_vsync = 1'd0;
-reg           main_colorbarspattern_source_payload_de = 1'd0;
-reg     [7:0] main_colorbarspattern_source_payload_r = 8'd0;
-reg     [7:0] main_colorbarspattern_source_payload_g = 8'd0;
-reg     [7:0] main_colorbarspattern_source_payload_b = 8'd0;
-wire          main_colorbarspattern_enable1;
-reg    [11:0] main_colorbarspattern_pix = 12'd0;
-reg     [2:0] main_colorbarspattern_bar = 3'd0;
-wire          main_colorbarspattern_reset;
-reg     [7:0] main_storage = 8'd0;
-reg           main_re = 1'd0;
-reg     [7:0] main_chaser = 8'd0;
-reg           main_mode = 1'd0;
-wire          main_wait;
-wire          main_done;
-reg    [22:0] main_count = 23'd6250000;
-reg     [7:0] main_leds = 8'd0;
-reg    [13:0] builder_basesoc_adr = 14'd0;
-reg           builder_basesoc_we = 1'd0;
-reg    [31:0] builder_basesoc_dat_w = 32'd0;
-wire   [31:0] builder_basesoc_dat_r;
-wire   [29:0] builder_basesoc_wishbone_adr;
-wire   [31:0] builder_basesoc_wishbone_dat_w;
-reg    [31:0] builder_basesoc_wishbone_dat_r = 32'd0;
-wire    [3:0] builder_basesoc_wishbone_sel;
-wire          builder_basesoc_wishbone_cyc;
-wire          builder_basesoc_wishbone_stb;
-reg           builder_basesoc_wishbone_ack = 1'd0;
-wire          builder_basesoc_wishbone_we;
-wire    [2:0] builder_basesoc_wishbone_cti;
-wire    [1:0] builder_basesoc_wishbone_bte;
-reg           builder_basesoc_wishbone_err = 1'd0;
-wire   [29:0] builder_shared_adr;
-wire   [31:0] builder_shared_dat_w;
-reg    [31:0] builder_shared_dat_r = 32'd0;
-wire    [3:0] builder_shared_sel;
-wire          builder_shared_cyc;
-wire          builder_shared_stb;
-reg           builder_shared_ack = 1'd0;
-wire          builder_shared_we;
-wire    [2:0] builder_shared_cti;
-wire    [1:0] builder_shared_bte;
-wire          builder_shared_err;
-wire          builder_request;
-wire          builder_grant;
-reg     [1:0] builder_slave_sel = 2'd0;
-reg     [1:0] builder_slave_sel_r = 2'd0;
-reg           builder_error = 1'd0;
-wire          builder_wait;
-wire          builder_done;
-reg    [19:0] builder_count = 20'd1000000;
-wire   [13:0] builder_csr_bankarray_interface0_bank_bus_adr;
-wire          builder_csr_bankarray_interface0_bank_bus_we;
-wire   [31:0] builder_csr_bankarray_interface0_bank_bus_dat_w;
-reg    [31:0] builder_csr_bankarray_interface0_bank_bus_dat_r = 32'd0;
-reg           builder_csr_bankarray_csrbank0_reset0_re = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank0_reset0_r;
-reg           builder_csr_bankarray_csrbank0_reset0_we = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank0_reset0_w;
-reg           builder_csr_bankarray_csrbank0_scratch0_re = 1'd0;
-wire   [31:0] builder_csr_bankarray_csrbank0_scratch0_r;
-reg           builder_csr_bankarray_csrbank0_scratch0_we = 1'd0;
-wire   [31:0] builder_csr_bankarray_csrbank0_scratch0_w;
-reg           builder_csr_bankarray_csrbank0_bus_errors_re = 1'd0;
-wire   [31:0] builder_csr_bankarray_csrbank0_bus_errors_r;
-reg           builder_csr_bankarray_csrbank0_bus_errors_we = 1'd0;
-wire   [31:0] builder_csr_bankarray_csrbank0_bus_errors_w;
-wire          builder_csr_bankarray_csrbank0_sel;
-wire   [13:0] builder_csr_bankarray_sram_bus_adr;
-wire          builder_csr_bankarray_sram_bus_we;
-wire   [31:0] builder_csr_bankarray_sram_bus_dat_w;
-reg    [31:0] builder_csr_bankarray_sram_bus_dat_r = 32'd0;
-wire    [5:0] builder_csr_bankarray_adr;
-wire    [7:0] builder_csr_bankarray_dat_r;
-wire          builder_csr_bankarray_sel;
-reg           builder_csr_bankarray_sel_r = 1'd0;
-wire   [13:0] builder_csr_bankarray_interface1_bank_bus_adr;
-wire          builder_csr_bankarray_interface1_bank_bus_we;
-wire   [31:0] builder_csr_bankarray_interface1_bank_bus_dat_w;
-reg    [31:0] builder_csr_bankarray_interface1_bank_bus_dat_r = 32'd0;
-reg           builder_csr_bankarray_csrbank1_out0_re = 1'd0;
-wire    [7:0] builder_csr_bankarray_csrbank1_out0_r;
-reg           builder_csr_bankarray_csrbank1_out0_we = 1'd0;
-wire    [7:0] builder_csr_bankarray_csrbank1_out0_w;
-wire          builder_csr_bankarray_csrbank1_sel;
-wire   [13:0] builder_csr_bankarray_interface2_bank_bus_adr;
-wire          builder_csr_bankarray_interface2_bank_bus_we;
-wire   [31:0] builder_csr_bankarray_interface2_bank_bus_dat_w;
-reg    [31:0] builder_csr_bankarray_interface2_bank_bus_dat_r = 32'd0;
-reg           builder_csr_bankarray_csrbank2_load0_re = 1'd0;
-wire   [31:0] builder_csr_bankarray_csrbank2_load0_r;
-reg           builder_csr_bankarray_csrbank2_load0_we = 1'd0;
-wire   [31:0] builder_csr_bankarray_csrbank2_load0_w;
-reg           builder_csr_bankarray_csrbank2_reload0_re = 1'd0;
-wire   [31:0] builder_csr_bankarray_csrbank2_reload0_r;
-reg           builder_csr_bankarray_csrbank2_reload0_we = 1'd0;
-wire   [31:0] builder_csr_bankarray_csrbank2_reload0_w;
-reg           builder_csr_bankarray_csrbank2_en0_re = 1'd0;
-wire          builder_csr_bankarray_csrbank2_en0_r;
-reg           builder_csr_bankarray_csrbank2_en0_we = 1'd0;
-wire          builder_csr_bankarray_csrbank2_en0_w;
-reg           builder_csr_bankarray_csrbank2_update_value0_re = 1'd0;
-wire          builder_csr_bankarray_csrbank2_update_value0_r;
-reg           builder_csr_bankarray_csrbank2_update_value0_we = 1'd0;
-wire          builder_csr_bankarray_csrbank2_update_value0_w;
-reg           builder_csr_bankarray_csrbank2_value_re = 1'd0;
-wire   [31:0] builder_csr_bankarray_csrbank2_value_r;
-reg           builder_csr_bankarray_csrbank2_value_we = 1'd0;
-wire   [31:0] builder_csr_bankarray_csrbank2_value_w;
-reg           builder_csr_bankarray_csrbank2_ev_status_re = 1'd0;
-wire          builder_csr_bankarray_csrbank2_ev_status_r;
-reg           builder_csr_bankarray_csrbank2_ev_status_we = 1'd0;
-wire          builder_csr_bankarray_csrbank2_ev_status_w;
-reg           builder_csr_bankarray_csrbank2_ev_pending_re = 1'd0;
-wire          builder_csr_bankarray_csrbank2_ev_pending_r;
-reg           builder_csr_bankarray_csrbank2_ev_pending_we = 1'd0;
-wire          builder_csr_bankarray_csrbank2_ev_pending_w;
-reg           builder_csr_bankarray_csrbank2_ev_enable0_re = 1'd0;
-wire          builder_csr_bankarray_csrbank2_ev_enable0_r;
-reg           builder_csr_bankarray_csrbank2_ev_enable0_we = 1'd0;
-wire          builder_csr_bankarray_csrbank2_ev_enable0_w;
-wire          builder_csr_bankarray_csrbank2_sel;
-wire   [13:0] builder_csr_bankarray_interface3_bank_bus_adr;
-wire          builder_csr_bankarray_interface3_bank_bus_we;
-wire   [31:0] builder_csr_bankarray_interface3_bank_bus_dat_w;
-reg    [31:0] builder_csr_bankarray_interface3_bank_bus_dat_r = 32'd0;
-reg           builder_csr_bankarray_csrbank3_txfull_re = 1'd0;
-wire          builder_csr_bankarray_csrbank3_txfull_r;
-reg           builder_csr_bankarray_csrbank3_txfull_we = 1'd0;
-wire          builder_csr_bankarray_csrbank3_txfull_w;
-reg           builder_csr_bankarray_csrbank3_rxempty_re = 1'd0;
-wire          builder_csr_bankarray_csrbank3_rxempty_r;
-reg           builder_csr_bankarray_csrbank3_rxempty_we = 1'd0;
-wire          builder_csr_bankarray_csrbank3_rxempty_w;
-reg           builder_csr_bankarray_csrbank3_ev_status_re = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_ev_status_r;
-reg           builder_csr_bankarray_csrbank3_ev_status_we = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_ev_status_w;
-reg           builder_csr_bankarray_csrbank3_ev_pending_re = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_ev_pending_r;
-reg           builder_csr_bankarray_csrbank3_ev_pending_we = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_ev_pending_w;
-reg           builder_csr_bankarray_csrbank3_ev_enable0_re = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_ev_enable0_r;
-reg           builder_csr_bankarray_csrbank3_ev_enable0_we = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_ev_enable0_w;
-reg           builder_csr_bankarray_csrbank3_txempty_re = 1'd0;
-wire          builder_csr_bankarray_csrbank3_txempty_r;
-reg           builder_csr_bankarray_csrbank3_txempty_we = 1'd0;
-wire          builder_csr_bankarray_csrbank3_txempty_w;
-reg           builder_csr_bankarray_csrbank3_rxfull_re = 1'd0;
-wire          builder_csr_bankarray_csrbank3_rxfull_r;
-reg           builder_csr_bankarray_csrbank3_rxfull_we = 1'd0;
-wire          builder_csr_bankarray_csrbank3_rxfull_w;
-reg           builder_csr_bankarray_csrbank3_xover_txfull_re = 1'd0;
-wire          builder_csr_bankarray_csrbank3_xover_txfull_r;
-reg           builder_csr_bankarray_csrbank3_xover_txfull_we = 1'd0;
-wire          builder_csr_bankarray_csrbank3_xover_txfull_w;
-reg           builder_csr_bankarray_csrbank3_xover_rxempty_re = 1'd0;
-wire          builder_csr_bankarray_csrbank3_xover_rxempty_r;
-reg           builder_csr_bankarray_csrbank3_xover_rxempty_we = 1'd0;
-wire          builder_csr_bankarray_csrbank3_xover_rxempty_w;
-reg           builder_csr_bankarray_csrbank3_xover_ev_status_re = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_xover_ev_status_r;
-reg           builder_csr_bankarray_csrbank3_xover_ev_status_we = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_xover_ev_status_w;
-reg           builder_csr_bankarray_csrbank3_xover_ev_pending_re = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_xover_ev_pending_r;
-reg           builder_csr_bankarray_csrbank3_xover_ev_pending_we = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_xover_ev_pending_w;
-reg           builder_csr_bankarray_csrbank3_xover_ev_enable0_re = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_xover_ev_enable0_r;
-reg           builder_csr_bankarray_csrbank3_xover_ev_enable0_we = 1'd0;
-wire    [1:0] builder_csr_bankarray_csrbank3_xover_ev_enable0_w;
-reg           builder_csr_bankarray_csrbank3_xover_txempty_re = 1'd0;
-wire          builder_csr_bankarray_csrbank3_xover_txempty_r;
-reg           builder_csr_bankarray_csrbank3_xover_txempty_we = 1'd0;
-wire          builder_csr_bankarray_csrbank3_xover_txempty_w;
-reg           builder_csr_bankarray_csrbank3_xover_rxfull_re = 1'd0;
-wire          builder_csr_bankarray_csrbank3_xover_rxfull_r;
-reg           builder_csr_bankarray_csrbank3_xover_rxfull_we = 1'd0;
-wire          builder_csr_bankarray_csrbank3_xover_rxfull_w;
-wire          builder_csr_bankarray_csrbank3_sel;
-wire   [13:0] builder_csr_bankarray_interface4_bank_bus_adr;
-wire          builder_csr_bankarray_interface4_bank_bus_we;
-wire   [31:0] builder_csr_bankarray_interface4_bank_bus_dat_w;
-reg    [31:0] builder_csr_bankarray_interface4_bank_bus_dat_r = 32'd0;
-reg           builder_csr_bankarray_csrbank4_enable0_re = 1'd0;
-wire          builder_csr_bankarray_csrbank4_enable0_r;
-reg           builder_csr_bankarray_csrbank4_enable0_we = 1'd0;
-wire          builder_csr_bankarray_csrbank4_enable0_w;
-reg           builder_csr_bankarray_csrbank4_hres0_re = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_hres0_r;
-reg           builder_csr_bankarray_csrbank4_hres0_we = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_hres0_w;
-reg           builder_csr_bankarray_csrbank4_hsync_start0_re = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_hsync_start0_r;
-reg           builder_csr_bankarray_csrbank4_hsync_start0_we = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_hsync_start0_w;
-reg           builder_csr_bankarray_csrbank4_hsync_end0_re = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_hsync_end0_r;
-reg           builder_csr_bankarray_csrbank4_hsync_end0_we = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_hsync_end0_w;
-reg           builder_csr_bankarray_csrbank4_hscan0_re = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_hscan0_r;
-reg           builder_csr_bankarray_csrbank4_hscan0_we = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_hscan0_w;
-reg           builder_csr_bankarray_csrbank4_vres0_re = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_vres0_r;
-reg           builder_csr_bankarray_csrbank4_vres0_we = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_vres0_w;
-reg           builder_csr_bankarray_csrbank4_vsync_start0_re = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_vsync_start0_r;
-reg           builder_csr_bankarray_csrbank4_vsync_start0_we = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_vsync_start0_w;
-reg           builder_csr_bankarray_csrbank4_vsync_end0_re = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_vsync_end0_r;
-reg           builder_csr_bankarray_csrbank4_vsync_end0_we = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_vsync_end0_w;
-reg           builder_csr_bankarray_csrbank4_vscan0_re = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_vscan0_r;
-reg           builder_csr_bankarray_csrbank4_vscan0_we = 1'd0;
-wire   [11:0] builder_csr_bankarray_csrbank4_vscan0_w;
-wire          builder_csr_bankarray_csrbank4_sel;
-wire   [13:0] builder_csr_interconnect_adr;
-wire          builder_csr_interconnect_we;
-wire   [31:0] builder_csr_interconnect_dat_w;
-wire   [31:0] builder_csr_interconnect_dat_r;
-wire          builder_basesoc_s7pll0_reset0;
-wire          builder_basesoc_s7pll0_reset1;
-wire          builder_basesoc_s7pll0_reset2;
-wire          builder_basesoc_s7pll0_reset3;
-wire          builder_basesoc_s7pll0_reset4;
-wire          builder_basesoc_s7pll0_reset5;
-wire          builder_basesoc_s7pll0_reset6;
-wire          builder_basesoc_s7pll0_reset7;
-wire          builder_basesoc_s7pll0_pll_fb;
-wire          builder_basesoc_s7pll1_reset0;
-wire          builder_basesoc_s7pll1_reset1;
-wire          builder_basesoc_s7pll1_reset2;
-wire          builder_basesoc_s7pll1_reset3;
-wire          builder_basesoc_s7pll1_reset4;
-wire          builder_basesoc_s7pll1_reset5;
-wire          builder_basesoc_s7pll1_reset6;
-wire          builder_basesoc_s7pll1_reset7;
-wire          builder_basesoc_s7pll1_pll_fb;
-reg           builder_basesoc_rs232phytx_state = 1'd0;
-reg           builder_basesoc_rs232phytx_next_state = 1'd0;
-reg     [3:0] main_tx_count_rs232phytx_next_value0 = 4'd0;
-reg           main_tx_count_rs232phytx_next_value_ce0 = 1'd0;
-reg           main_serial_tx_rs232phytx_next_value1 = 1'd0;
-reg           main_serial_tx_rs232phytx_next_value_ce1 = 1'd0;
-reg     [7:0] main_tx_data_rs232phytx_next_value2 = 8'd0;
-reg           main_tx_data_rs232phytx_next_value_ce2 = 1'd0;
-reg           builder_basesoc_rs232phyrx_state = 1'd0;
-reg           builder_basesoc_rs232phyrx_next_state = 1'd0;
-reg     [3:0] main_rx_count_rs232phyrx_next_value0 = 4'd0;
-reg           main_rx_count_rs232phyrx_next_value_ce0 = 1'd0;
-reg     [7:0] main_rx_data_rs232phyrx_next_value1 = 8'd0;
-reg           main_rx_data_rs232phyrx_next_value_ce1 = 1'd0;
-reg     [2:0] builder_basesoc_uartbone_state = 3'd0;
-reg     [2:0] builder_basesoc_uartbone_next_state = 3'd0;
-reg     [1:0] main_uartbone_data_bytes_count_uartbone_next_value0 = 2'd0;
-reg           main_uartbone_data_bytes_count_uartbone_next_value_ce0 = 1'd0;
-reg     [1:0] main_uartbone_addr_bytes_count_uartbone_next_value1 = 2'd0;
-reg           main_uartbone_addr_bytes_count_uartbone_next_value_ce1 = 1'd0;
-reg     [7:0] main_uartbone_words_count_uartbone_next_value2 = 8'd0;
-reg           main_uartbone_words_count_uartbone_next_value_ce2 = 1'd0;
-reg     [7:0] main_uartbone_cmd_uartbone_next_value3 = 8'd0;
-reg           main_uartbone_cmd_uartbone_next_value_ce3 = 1'd0;
-reg     [7:0] main_uartbone_length_uartbone_next_value4 = 8'd0;
-reg           main_uartbone_length_uartbone_next_value_ce4 = 1'd0;
-reg    [31:0] main_uartbone_address_uartbone_next_value5 = 32'd0;
-reg           main_uartbone_address_uartbone_next_value_ce5 = 1'd0;
-reg           main_uartbone_incr_uartbone_next_value6 = 1'd0;
-reg           main_uartbone_incr_uartbone_next_value_ce6 = 1'd0;
-reg    [31:0] main_uartbone_data_uartbone_next_value7 = 32'd0;
-reg           main_uartbone_data_uartbone_next_value_ce7 = 1'd0;
-reg           builder_basesoc_videotiminggenerator_state = 1'd0;
-reg           builder_basesoc_videotiminggenerator_next_state = 1'd0;
-reg           main_vtg_hactive_clockdomainsrenamer0_next_value0 = 1'd0;
-reg           main_vtg_hactive_clockdomainsrenamer0_next_value_ce0 = 1'd0;
-reg           main_vtg_vactive_clockdomainsrenamer0_next_value1 = 1'd0;
-reg           main_vtg_vactive_clockdomainsrenamer0_next_value_ce1 = 1'd0;
-reg    [11:0] main_vtg_source_payload_hres_clockdomainsrenamer0_next_value2 = 12'd0;
-reg           main_vtg_source_payload_hres_clockdomainsrenamer0_next_value_ce2 = 1'd0;
-reg    [11:0] main_vtg_source_payload_vres_clockdomainsrenamer0_next_value3 = 12'd0;
-reg           main_vtg_source_payload_vres_clockdomainsrenamer0_next_value_ce3 = 1'd0;
-reg    [11:0] main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value4 = 12'd0;
-reg           main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4 = 1'd0;
-reg    [11:0] main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value5 = 12'd0;
-reg           main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5 = 1'd0;
-reg           main_vtg_source_payload_hsync_clockdomainsrenamer0_next_value6 = 1'd0;
-reg           main_vtg_source_payload_hsync_clockdomainsrenamer0_next_value_ce6 = 1'd0;
-reg           main_vtg_source_payload_vsync_clockdomainsrenamer0_next_value7 = 1'd0;
-reg           main_vtg_source_payload_vsync_clockdomainsrenamer0_next_value_ce7 = 1'd0;
-reg           builder_basesoc_colorbarspattern_state = 1'd0;
-reg           builder_basesoc_colorbarspattern_next_state = 1'd0;
-reg    [11:0] main_colorbarspattern_pix_clockdomainsrenamer1_next_value0 = 12'd0;
-reg           main_colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 = 1'd0;
-reg     [2:0] main_colorbarspattern_bar_clockdomainsrenamer1_next_value1 = 3'd0;
-reg           main_colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1 = 1'd0;
-reg           builder_basesoc_wishbone2csr_state = 1'd0;
-reg           builder_basesoc_wishbone2csr_next_state = 1'd0;
-reg    [31:0] builder_comb_array_muxed0 = 32'd0;
-reg    [31:0] builder_comb_array_muxed1 = 32'd0;
-reg     [3:0] builder_comb_array_muxed2 = 4'd0;
-reg           builder_comb_array_muxed3 = 1'd0;
-reg           builder_comb_array_muxed4 = 1'd0;
-reg           builder_comb_array_muxed5 = 1'd0;
-reg     [2:0] builder_comb_array_muxed6 = 3'd0;
-reg     [1:0] builder_comb_array_muxed7 = 2'd0;
-reg     [9:0] builder_sync_array_muxed0 = 10'd0;
-reg     [9:0] builder_sync_array_muxed1 = 10'd0;
-reg     [9:0] builder_sync_array_muxed2 = 10'd0;
-wire          builder_xilinxasyncresetsynchronizerimpl0;
-wire          builder_xilinxasyncresetsynchronizerimpl0_rst_meta;
-wire          builder_xilinxasyncresetsynchronizerimpl1;
-wire          builder_xilinxasyncresetsynchronizerimpl1_rst_meta;
-wire          builder_xilinxasyncresetsynchronizerimpl2;
-wire          builder_xilinxasyncresetsynchronizerimpl2_rst_meta;
+reg     [2:0] videohdmi10to1serializer2_cdc_graycounter5_q = 3'd0;
+wire    [2:0] videohdmi10to1serializer2_cdc_graycounter5_q_next;
+reg     [2:0] videohdmi10to1serializer2_cdc_graycounter5_q_binary = 3'd0;
+reg     [2:0] videohdmi10to1serializer2_cdc_graycounter5_q_next_binary = 3'd0;
+wire    [2:0] videohdmi10to1serializer2_cdc_produce_rdomain;
+wire    [2:0] videohdmi10to1serializer2_cdc_consume_wdomain;
+wire    [1:0] videohdmi10to1serializer2_cdc_wrport_adr;
+wire   [11:0] videohdmi10to1serializer2_cdc_wrport_dat_r;
+wire          videohdmi10to1serializer2_cdc_wrport_we;
+wire   [11:0] videohdmi10to1serializer2_cdc_wrport_dat_w;
+wire    [1:0] videohdmi10to1serializer2_cdc_rdport_adr;
+wire   [11:0] videohdmi10to1serializer2_cdc_rdport_dat_r;
+wire    [9:0] videohdmi10to1serializer2_cdc_fifo_in_payload_data;
+wire          videohdmi10to1serializer2_cdc_fifo_in_first;
+wire          videohdmi10to1serializer2_cdc_fifo_in_last;
+wire    [9:0] videohdmi10to1serializer2_cdc_fifo_out_payload_data;
+wire          videohdmi10to1serializer2_cdc_fifo_out_first;
+wire          videohdmi10to1serializer2_cdc_fifo_out_last;
+wire          videohdmi10to1serializer2_sink_valid;
+wire          videohdmi10to1serializer2_sink_ready;
+wire          videohdmi10to1serializer2_sink_first;
+wire          videohdmi10to1serializer2_sink_last;
+wire    [9:0] videohdmi10to1serializer2_sink_payload_data;
+wire          videohdmi10to1serializer2_source_valid;
+wire          videohdmi10to1serializer2_source_ready;
+wire    [1:0] videohdmi10to1serializer2_source_payload_data;
+reg     [4:0] videohdmi10to1serializer2_level = 5'd0;
+wire          videohdmi10to1serializer2_i_inc;
+reg           videohdmi10to1serializer2_i_count = 1'd0;
+wire          videohdmi10to1serializer2_o_inc;
+reg     [3:0] videohdmi10to1serializer2_o_count = 4'd0;
+reg    [19:0] videohdmi10to1serializer2_shift_register = 20'd0;
+wire    [9:0] videohdmi10to1serializer2_i_data;
+reg     [1:0] videohdmi10to1serializer2_o_data = 2'd0;
+reg           vtg_enable_storage = 1'd1;
+reg           vtg_enable_re = 1'd0;
+reg    [11:0] vtg_hres_storage = 12'd640;
+reg           vtg_hres_re = 1'd0;
+reg    [11:0] vtg_hsync_start_storage = 12'd656;
+reg           vtg_hsync_start_re = 1'd0;
+reg    [11:0] vtg_hsync_end_storage = 12'd752;
+reg           vtg_hsync_end_re = 1'd0;
+reg    [11:0] vtg_hscan_storage = 12'd799;
+reg           vtg_hscan_re = 1'd0;
+reg    [11:0] vtg_vres_storage = 12'd480;
+reg           vtg_vres_re = 1'd0;
+reg    [11:0] vtg_vsync_start_storage = 12'd490;
+reg           vtg_vsync_start_re = 1'd0;
+reg    [11:0] vtg_vsync_end_storage = 12'd492;
+reg           vtg_vsync_end_re = 1'd0;
+reg    [11:0] vtg_vscan_storage = 12'd524;
+reg           vtg_vscan_re = 1'd0;
+reg           vtg_source_valid = 1'd0;
+wire          vtg_source_ready;
+reg           vtg_source_first = 1'd0;
+reg           vtg_source_last = 1'd0;
+reg           vtg_source_payload_hsync = 1'd0;
+reg           vtg_source_payload_vsync = 1'd0;
+wire          vtg_source_payload_de;
+reg    [11:0] vtg_source_payload_hres = 12'd0;
+reg    [11:0] vtg_source_payload_vres = 12'd0;
+reg    [11:0] vtg_source_payload_hcount = 12'd0;
+reg    [11:0] vtg_source_payload_vcount = 12'd0;
+wire          vtg_enable;
+wire   [11:0] vtg_hres;
+wire   [11:0] vtg_hsync_start;
+wire   [11:0] vtg_hsync_end;
+wire   [11:0] vtg_hscan;
+wire   [11:0] vtg_vres;
+wire   [11:0] vtg_vsync_start;
+wire   [11:0] vtg_vsync_end;
+wire   [11:0] vtg_vscan;
+reg           vtg_hactive = 1'd0;
+reg           vtg_vactive = 1'd0;
+wire          vtg_reset;
+reg           colorbarspattern_enable0 = 1'd1;
+wire          colorbarspattern_vtg_sink_valid;
+reg           colorbarspattern_vtg_sink_ready = 1'd0;
+wire          colorbarspattern_vtg_sink_first;
+wire          colorbarspattern_vtg_sink_last;
+wire          colorbarspattern_vtg_sink_payload_hsync;
+wire          colorbarspattern_vtg_sink_payload_vsync;
+wire          colorbarspattern_vtg_sink_payload_de;
+wire   [11:0] colorbarspattern_vtg_sink_payload_hres;
+wire   [11:0] colorbarspattern_vtg_sink_payload_vres;
+wire   [11:0] colorbarspattern_vtg_sink_payload_hcount;
+wire   [11:0] colorbarspattern_vtg_sink_payload_vcount;
+reg           colorbarspattern_source_valid = 1'd0;
+wire          colorbarspattern_source_ready;
+reg           colorbarspattern_source_first = 1'd0;
+reg           colorbarspattern_source_last = 1'd0;
+reg           colorbarspattern_source_payload_hsync = 1'd0;
+reg           colorbarspattern_source_payload_vsync = 1'd0;
+reg           colorbarspattern_source_payload_de = 1'd0;
+reg     [7:0] colorbarspattern_source_payload_r = 8'd0;
+reg     [7:0] colorbarspattern_source_payload_g = 8'd0;
+reg     [7:0] colorbarspattern_source_payload_b = 8'd0;
+wire          colorbarspattern_enable1;
+reg    [11:0] colorbarspattern_pix = 12'd0;
+reg     [2:0] colorbarspattern_bar = 3'd0;
+wire          colorbarspattern_reset;
+reg     [7:0] storage = 8'd0;
+reg           re = 1'd0;
+reg     [7:0] chaser = 8'd0;
+reg           mode = 1'd0;
+wire          wait_1;
+wire          done;
+reg    [22:0] count = 23'd6250000;
+reg     [7:0] leds = 8'd0;
+reg    [13:0] basesoc_adr = 14'd0;
+reg           basesoc_we = 1'd0;
+reg    [31:0] basesoc_dat_w = 32'd0;
+wire   [31:0] basesoc_dat_r;
+reg    [29:0] basesoc_wishbone_adr = 30'd0;
+reg    [31:0] basesoc_wishbone_dat_w = 32'd0;
+reg    [31:0] basesoc_wishbone_dat_r = 32'd0;
+reg     [3:0] basesoc_wishbone_sel = 4'd0;
+reg           basesoc_wishbone_cyc = 1'd0;
+reg           basesoc_wishbone_stb = 1'd0;
+reg           basesoc_wishbone_ack = 1'd0;
+reg           basesoc_wishbone_we = 1'd0;
+wire   [13:0] csr_bankarray_interface0_bank_bus_adr;
+wire          csr_bankarray_interface0_bank_bus_we;
+wire   [31:0] csr_bankarray_interface0_bank_bus_dat_w;
+reg    [31:0] csr_bankarray_interface0_bank_bus_dat_r = 32'd0;
+reg           csr_bankarray_csrbank0_reset0_re = 1'd0;
+wire    [1:0] csr_bankarray_csrbank0_reset0_r;
+reg           csr_bankarray_csrbank0_reset0_we = 1'd0;
+wire    [1:0] csr_bankarray_csrbank0_reset0_w;
+reg           csr_bankarray_csrbank0_scratch0_re = 1'd0;
+wire   [31:0] csr_bankarray_csrbank0_scratch0_r;
+reg           csr_bankarray_csrbank0_scratch0_we = 1'd0;
+wire   [31:0] csr_bankarray_csrbank0_scratch0_w;
+reg           csr_bankarray_csrbank0_bus_errors_re = 1'd0;
+wire   [31:0] csr_bankarray_csrbank0_bus_errors_r;
+reg           csr_bankarray_csrbank0_bus_errors_we = 1'd0;
+wire   [31:0] csr_bankarray_csrbank0_bus_errors_w;
+wire          csr_bankarray_csrbank0_sel;
+wire   [13:0] csr_bankarray_sram_bus_adr;
+wire          csr_bankarray_sram_bus_we;
+wire   [31:0] csr_bankarray_sram_bus_dat_w;
+reg    [31:0] csr_bankarray_sram_bus_dat_r = 32'd0;
+wire    [5:0] csr_bankarray_adr;
+wire    [7:0] csr_bankarray_dat_r;
+wire          csr_bankarray_sel;
+reg           csr_bankarray_sel_r = 1'd0;
+wire   [13:0] csr_bankarray_interface1_bank_bus_adr;
+wire          csr_bankarray_interface1_bank_bus_we;
+wire   [31:0] csr_bankarray_interface1_bank_bus_dat_w;
+reg    [31:0] csr_bankarray_interface1_bank_bus_dat_r = 32'd0;
+reg           csr_bankarray_csrbank1_out0_re = 1'd0;
+wire    [7:0] csr_bankarray_csrbank1_out0_r;
+reg           csr_bankarray_csrbank1_out0_we = 1'd0;
+wire    [7:0] csr_bankarray_csrbank1_out0_w;
+wire          csr_bankarray_csrbank1_sel;
+wire   [13:0] csr_bankarray_interface2_bank_bus_adr;
+wire          csr_bankarray_interface2_bank_bus_we;
+wire   [31:0] csr_bankarray_interface2_bank_bus_dat_w;
+reg    [31:0] csr_bankarray_interface2_bank_bus_dat_r = 32'd0;
+reg           csr_bankarray_csrbank2_load0_re = 1'd0;
+wire   [31:0] csr_bankarray_csrbank2_load0_r;
+reg           csr_bankarray_csrbank2_load0_we = 1'd0;
+wire   [31:0] csr_bankarray_csrbank2_load0_w;
+reg           csr_bankarray_csrbank2_reload0_re = 1'd0;
+wire   [31:0] csr_bankarray_csrbank2_reload0_r;
+reg           csr_bankarray_csrbank2_reload0_we = 1'd0;
+wire   [31:0] csr_bankarray_csrbank2_reload0_w;
+reg           csr_bankarray_csrbank2_en0_re = 1'd0;
+wire          csr_bankarray_csrbank2_en0_r;
+reg           csr_bankarray_csrbank2_en0_we = 1'd0;
+wire          csr_bankarray_csrbank2_en0_w;
+reg           csr_bankarray_csrbank2_update_value0_re = 1'd0;
+wire          csr_bankarray_csrbank2_update_value0_r;
+reg           csr_bankarray_csrbank2_update_value0_we = 1'd0;
+wire          csr_bankarray_csrbank2_update_value0_w;
+reg           csr_bankarray_csrbank2_value_re = 1'd0;
+wire   [31:0] csr_bankarray_csrbank2_value_r;
+reg           csr_bankarray_csrbank2_value_we = 1'd0;
+wire   [31:0] csr_bankarray_csrbank2_value_w;
+reg           csr_bankarray_csrbank2_ev_status_re = 1'd0;
+wire          csr_bankarray_csrbank2_ev_status_r;
+reg           csr_bankarray_csrbank2_ev_status_we = 1'd0;
+wire          csr_bankarray_csrbank2_ev_status_w;
+reg           csr_bankarray_csrbank2_ev_pending_re = 1'd0;
+wire          csr_bankarray_csrbank2_ev_pending_r;
+reg           csr_bankarray_csrbank2_ev_pending_we = 1'd0;
+wire          csr_bankarray_csrbank2_ev_pending_w;
+reg           csr_bankarray_csrbank2_ev_enable0_re = 1'd0;
+wire          csr_bankarray_csrbank2_ev_enable0_r;
+reg           csr_bankarray_csrbank2_ev_enable0_we = 1'd0;
+wire          csr_bankarray_csrbank2_ev_enable0_w;
+wire          csr_bankarray_csrbank2_sel;
+wire   [13:0] csr_bankarray_interface3_bank_bus_adr;
+wire          csr_bankarray_interface3_bank_bus_we;
+wire   [31:0] csr_bankarray_interface3_bank_bus_dat_w;
+reg    [31:0] csr_bankarray_interface3_bank_bus_dat_r = 32'd0;
+reg           csr_bankarray_csrbank3_txfull_re = 1'd0;
+wire          csr_bankarray_csrbank3_txfull_r;
+reg           csr_bankarray_csrbank3_txfull_we = 1'd0;
+wire          csr_bankarray_csrbank3_txfull_w;
+reg           csr_bankarray_csrbank3_rxempty_re = 1'd0;
+wire          csr_bankarray_csrbank3_rxempty_r;
+reg           csr_bankarray_csrbank3_rxempty_we = 1'd0;
+wire          csr_bankarray_csrbank3_rxempty_w;
+reg           csr_bankarray_csrbank3_ev_status_re = 1'd0;
+wire    [1:0] csr_bankarray_csrbank3_ev_status_r;
+reg           csr_bankarray_csrbank3_ev_status_we = 1'd0;
+wire    [1:0] csr_bankarray_csrbank3_ev_status_w;
+reg           csr_bankarray_csrbank3_ev_pending_re = 1'd0;
+wire    [1:0] csr_bankarray_csrbank3_ev_pending_r;
+reg           csr_bankarray_csrbank3_ev_pending_we = 1'd0;
+wire    [1:0] csr_bankarray_csrbank3_ev_pending_w;
+reg           csr_bankarray_csrbank3_ev_enable0_re = 1'd0;
+wire    [1:0] csr_bankarray_csrbank3_ev_enable0_r;
+reg           csr_bankarray_csrbank3_ev_enable0_we = 1'd0;
+wire    [1:0] csr_bankarray_csrbank3_ev_enable0_w;
+reg           csr_bankarray_csrbank3_txempty_re = 1'd0;
+wire          csr_bankarray_csrbank3_txempty_r;
+reg           csr_bankarray_csrbank3_txempty_we = 1'd0;
+wire          csr_bankarray_csrbank3_txempty_w;
+reg           csr_bankarray_csrbank3_rxfull_re = 1'd0;
+wire          csr_bankarray_csrbank3_rxfull_r;
+reg           csr_bankarray_csrbank3_rxfull_we = 1'd0;
+wire          csr_bankarray_csrbank3_rxfull_w;
+wire          csr_bankarray_csrbank3_sel;
+wire   [13:0] csr_bankarray_interface4_bank_bus_adr;
+wire          csr_bankarray_interface4_bank_bus_we;
+wire   [31:0] csr_bankarray_interface4_bank_bus_dat_w;
+reg    [31:0] csr_bankarray_interface4_bank_bus_dat_r = 32'd0;
+reg           csr_bankarray_csrbank4_enable0_re = 1'd0;
+wire          csr_bankarray_csrbank4_enable0_r;
+reg           csr_bankarray_csrbank4_enable0_we = 1'd0;
+wire          csr_bankarray_csrbank4_enable0_w;
+reg           csr_bankarray_csrbank4_hres0_re = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_hres0_r;
+reg           csr_bankarray_csrbank4_hres0_we = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_hres0_w;
+reg           csr_bankarray_csrbank4_hsync_start0_re = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_hsync_start0_r;
+reg           csr_bankarray_csrbank4_hsync_start0_we = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_hsync_start0_w;
+reg           csr_bankarray_csrbank4_hsync_end0_re = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_hsync_end0_r;
+reg           csr_bankarray_csrbank4_hsync_end0_we = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_hsync_end0_w;
+reg           csr_bankarray_csrbank4_hscan0_re = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_hscan0_r;
+reg           csr_bankarray_csrbank4_hscan0_we = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_hscan0_w;
+reg           csr_bankarray_csrbank4_vres0_re = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_vres0_r;
+reg           csr_bankarray_csrbank4_vres0_we = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_vres0_w;
+reg           csr_bankarray_csrbank4_vsync_start0_re = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_vsync_start0_r;
+reg           csr_bankarray_csrbank4_vsync_start0_we = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_vsync_start0_w;
+reg           csr_bankarray_csrbank4_vsync_end0_re = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_vsync_end0_r;
+reg           csr_bankarray_csrbank4_vsync_end0_we = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_vsync_end0_w;
+reg           csr_bankarray_csrbank4_vscan0_re = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_vscan0_r;
+reg           csr_bankarray_csrbank4_vscan0_we = 1'd0;
+wire   [11:0] csr_bankarray_csrbank4_vscan0_w;
+wire          csr_bankarray_csrbank4_sel;
+wire   [13:0] csr_interconnect_adr;
+wire          csr_interconnect_we;
+wire   [31:0] csr_interconnect_dat_w;
+wire   [31:0] csr_interconnect_dat_r;
+wire          basesoc_s7pll0_reset0;
+wire          basesoc_s7pll0_reset1;
+wire          basesoc_s7pll0_reset2;
+wire          basesoc_s7pll0_reset3;
+wire          basesoc_s7pll0_reset4;
+wire          basesoc_s7pll0_reset5;
+wire          basesoc_s7pll0_reset6;
+wire          basesoc_s7pll0_reset7;
+wire          basesoc_s7pll0_pll_fb;
+wire          basesoc_s7pll1_reset0;
+wire          basesoc_s7pll1_reset1;
+wire          basesoc_s7pll1_reset2;
+wire          basesoc_s7pll1_reset3;
+wire          basesoc_s7pll1_reset4;
+wire          basesoc_s7pll1_reset5;
+wire          basesoc_s7pll1_reset6;
+wire          basesoc_s7pll1_reset7;
+wire          basesoc_s7pll1_pll_fb;
+reg           basesoc_videotiminggenerator_state = 1'd0;
+reg           basesoc_videotiminggenerator_next_state = 1'd0;
+reg           vtg_hactive_clockdomainsrenamer0_next_value0 = 1'd0;
+reg           vtg_hactive_clockdomainsrenamer0_next_value_ce0 = 1'd0;
+reg           vtg_vactive_clockdomainsrenamer0_next_value1 = 1'd0;
+reg           vtg_vactive_clockdomainsrenamer0_next_value_ce1 = 1'd0;
+reg    [11:0] vtg_source_payload_hres_clockdomainsrenamer0_next_value2 = 12'd0;
+reg           vtg_source_payload_hres_clockdomainsrenamer0_next_value_ce2 = 1'd0;
+reg    [11:0] vtg_source_payload_vres_clockdomainsrenamer0_next_value3 = 12'd0;
+reg           vtg_source_payload_vres_clockdomainsrenamer0_next_value_ce3 = 1'd0;
+reg    [11:0] vtg_source_payload_hcount_clockdomainsrenamer0_next_value4 = 12'd0;
+reg           vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4 = 1'd0;
+reg    [11:0] vtg_source_payload_vcount_clockdomainsrenamer0_next_value5 = 12'd0;
+reg           vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5 = 1'd0;
+reg           vtg_source_payload_hsync_clockdomainsrenamer0_next_value6 = 1'd0;
+reg           vtg_source_payload_hsync_clockdomainsrenamer0_next_value_ce6 = 1'd0;
+reg           vtg_source_payload_vsync_clockdomainsrenamer0_next_value7 = 1'd0;
+reg           vtg_source_payload_vsync_clockdomainsrenamer0_next_value_ce7 = 1'd0;
+reg           basesoc_colorbarspattern_state = 1'd0;
+reg           basesoc_colorbarspattern_next_state = 1'd0;
+reg    [11:0] colorbarspattern_pix_clockdomainsrenamer1_next_value0 = 12'd0;
+reg           colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 = 1'd0;
+reg     [2:0] colorbarspattern_bar_clockdomainsrenamer1_next_value1 = 3'd0;
+reg           colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1 = 1'd0;
+reg           basesoc_state = 1'd0;
+reg           basesoc_next_state = 1'd0;
+reg     [9:0] array_muxed0 = 10'd0;
+reg     [9:0] array_muxed1 = 10'd0;
+reg     [9:0] array_muxed2 = 10'd0;
+wire          xilinxasyncresetsynchronizerimpl0;
+wire          xilinxasyncresetsynchronizerimpl0_rst_meta;
+wire          xilinxasyncresetsynchronizerimpl1;
+wire          xilinxasyncresetsynchronizerimpl1_rst_meta;
+wire          xilinxasyncresetsynchronizerimpl2;
+wire          xilinxasyncresetsynchronizerimpl2_rst_meta;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg           builder_xilinxmultiregimpl0_regs0 = 1'd0;
+reg     [2:0] xilinxmultiregimpl0_regs0 = 3'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg           builder_xilinxmultiregimpl0_regs1 = 1'd0;
+reg     [2:0] xilinxmultiregimpl0_regs1 = 3'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl1_regs0 = 3'd0;
+reg     [2:0] xilinxmultiregimpl1_regs0 = 3'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl1_regs1 = 3'd0;
+reg     [2:0] xilinxmultiregimpl1_regs1 = 3'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl2_regs0 = 3'd0;
+reg     [2:0] xilinxmultiregimpl2_regs0 = 3'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl2_regs1 = 3'd0;
+reg     [2:0] xilinxmultiregimpl2_regs1 = 3'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl3_regs0 = 3'd0;
+reg     [2:0] xilinxmultiregimpl3_regs0 = 3'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl3_regs1 = 3'd0;
+reg     [2:0] xilinxmultiregimpl3_regs1 = 3'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl4_regs0 = 3'd0;
+reg     [2:0] xilinxmultiregimpl4_regs0 = 3'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl4_regs1 = 3'd0;
+reg     [2:0] xilinxmultiregimpl4_regs1 = 3'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl5_regs0 = 3'd0;
+reg     [2:0] xilinxmultiregimpl5_regs0 = 3'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl5_regs1 = 3'd0;
+reg     [2:0] xilinxmultiregimpl5_regs1 = 3'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl6_regs0 = 3'd0;
+reg           xilinxmultiregimpl6_regs0 = 1'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg     [2:0] builder_xilinxmultiregimpl6_regs1 = 3'd0;
+reg           xilinxmultiregimpl6_regs1 = 1'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg           builder_xilinxmultiregimpl7_regs0 = 1'd0;
+reg    [11:0] xilinxmultiregimpl7_regs0 = 12'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg           builder_xilinxmultiregimpl7_regs1 = 1'd0;
+reg    [11:0] xilinxmultiregimpl7_regs1 = 12'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl8_regs0 = 12'd0;
+reg    [11:0] xilinxmultiregimpl8_regs0 = 12'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl8_regs1 = 12'd0;
+reg    [11:0] xilinxmultiregimpl8_regs1 = 12'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl9_regs0 = 12'd0;
+reg    [11:0] xilinxmultiregimpl9_regs0 = 12'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl9_regs1 = 12'd0;
+reg    [11:0] xilinxmultiregimpl9_regs1 = 12'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl10_regs0 = 12'd0;
+reg    [11:0] xilinxmultiregimpl10_regs0 = 12'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl10_regs1 = 12'd0;
+reg    [11:0] xilinxmultiregimpl10_regs1 = 12'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl11_regs0 = 12'd0;
+reg    [11:0] xilinxmultiregimpl11_regs0 = 12'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl11_regs1 = 12'd0;
+reg    [11:0] xilinxmultiregimpl11_regs1 = 12'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl12_regs0 = 12'd0;
+reg    [11:0] xilinxmultiregimpl12_regs0 = 12'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl12_regs1 = 12'd0;
+reg    [11:0] xilinxmultiregimpl12_regs1 = 12'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl13_regs0 = 12'd0;
+reg    [11:0] xilinxmultiregimpl13_regs0 = 12'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl13_regs1 = 12'd0;
+reg    [11:0] xilinxmultiregimpl13_regs1 = 12'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl14_regs0 = 12'd0;
+reg    [11:0] xilinxmultiregimpl14_regs0 = 12'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl14_regs1 = 12'd0;
+reg    [11:0] xilinxmultiregimpl14_regs1 = 12'd0;
 (* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl15_regs0 = 12'd0;
+reg           xilinxmultiregimpl15_regs0 = 1'd0;
 (* async_reg = "true", dont_touch = "true" *)
-reg    [11:0] builder_xilinxmultiregimpl15_regs1 = 12'd0;
-(* async_reg = "true", mr_ff = "true", dont_touch = "true" *)
-reg           builder_xilinxmultiregimpl16_regs0 = 1'd0;
-(* async_reg = "true", dont_touch = "true" *)
-reg           builder_xilinxmultiregimpl16_regs1 = 1'd0;
+reg           xilinxmultiregimpl15_regs1 = 1'd0;
 
 //------------------------------------------------------------------------------
 // Combinatorial Logic
 //------------------------------------------------------------------------------
 
-assign main_colorbarspattern_vtg_sink_valid = main_vtg_source_valid;
-assign main_vtg_source_ready = main_colorbarspattern_vtg_sink_ready;
-assign main_colorbarspattern_vtg_sink_first = main_vtg_source_first;
-assign main_colorbarspattern_vtg_sink_last = main_vtg_source_last;
-assign main_colorbarspattern_vtg_sink_payload_hsync = main_vtg_source_payload_hsync;
-assign main_colorbarspattern_vtg_sink_payload_vsync = main_vtg_source_payload_vsync;
-assign main_colorbarspattern_vtg_sink_payload_de = main_vtg_source_payload_de;
-assign main_colorbarspattern_vtg_sink_payload_hres = main_vtg_source_payload_hres;
-assign main_colorbarspattern_vtg_sink_payload_vres = main_vtg_source_payload_vres;
-assign main_colorbarspattern_vtg_sink_payload_hcount = main_vtg_source_payload_hcount;
-assign main_colorbarspattern_vtg_sink_payload_vcount = main_vtg_source_payload_vcount;
-assign main_sink_valid = main_colorbarspattern_source_valid;
-assign main_colorbarspattern_source_ready = main_sink_ready;
-assign main_sink_first = main_colorbarspattern_source_first;
-assign main_sink_last = main_colorbarspattern_source_last;
-assign main_sink_payload_hsync = main_colorbarspattern_source_payload_hsync;
-assign main_sink_payload_vsync = main_colorbarspattern_source_payload_vsync;
-assign main_sink_payload_de = main_colorbarspattern_source_payload_de;
-assign main_sink_payload_r = main_colorbarspattern_source_payload_r;
-assign main_sink_payload_g = main_colorbarspattern_source_payload_g;
-assign main_sink_payload_b = main_colorbarspattern_source_payload_b;
+assign colorbarspattern_vtg_sink_valid = vtg_source_valid;
+assign vtg_source_ready = colorbarspattern_vtg_sink_ready;
+assign colorbarspattern_vtg_sink_first = vtg_source_first;
+assign colorbarspattern_vtg_sink_last = vtg_source_last;
+assign colorbarspattern_vtg_sink_payload_hsync = vtg_source_payload_hsync;
+assign colorbarspattern_vtg_sink_payload_vsync = vtg_source_payload_vsync;
+assign colorbarspattern_vtg_sink_payload_de = vtg_source_payload_de;
+assign colorbarspattern_vtg_sink_payload_hres = vtg_source_payload_hres;
+assign colorbarspattern_vtg_sink_payload_vres = vtg_source_payload_vres;
+assign colorbarspattern_vtg_sink_payload_hcount = vtg_source_payload_hcount;
+assign colorbarspattern_vtg_sink_payload_vcount = vtg_source_payload_vcount;
+assign sink_valid = colorbarspattern_source_valid;
+assign colorbarspattern_source_ready = sink_ready;
+assign sink_first = colorbarspattern_source_first;
+assign sink_last = colorbarspattern_source_last;
+assign sink_payload_hsync = colorbarspattern_source_payload_hsync;
+assign sink_payload_vsync = colorbarspattern_source_payload_vsync;
+assign sink_payload_de = colorbarspattern_source_payload_de;
+assign sink_payload_r = colorbarspattern_source_payload_r;
+assign sink_payload_g = colorbarspattern_source_payload_g;
+assign sink_payload_b = colorbarspattern_source_payload_b;
 always @(*) begin
-    main_rst <= 1'd0;
-    if (main_basesoc_soc_rst) begin
-        main_rst <= 1'd1;
+    rst <= 1'd0;
+    if (soc_rst) begin
+        rst <= 1'd1;
     end
 end
-assign main_basesoc_bus_error = builder_error;
-assign main_pll_reset = ((~cpu_reset_n) | main_rst);
-assign main_pll2_reset = ((~cpu_reset_n) | main_rst);
-assign sys_clk = main_s7pll0_clkout_buf;
-assign main_s7pll1_clkin = clk50;
-assign hdmi_clk = main_s7pll1_clkout_buf0;
-assign hdmi5x_clk = main_s7pll1_clkout_buf1;
-assign builder_shared_adr = builder_comb_array_muxed0;
-assign builder_shared_dat_w = builder_comb_array_muxed1;
-assign builder_shared_sel = builder_comb_array_muxed2;
-assign builder_shared_cyc = builder_comb_array_muxed3;
-assign builder_shared_stb = builder_comb_array_muxed4;
-assign builder_shared_we = builder_comb_array_muxed5;
-assign builder_shared_cti = builder_comb_array_muxed6;
-assign builder_shared_bte = builder_comb_array_muxed7;
-assign main_uartbone_wishbone_dat_r = builder_shared_dat_r;
-assign main_uartbone_wishbone_ack = (builder_shared_ack & (builder_grant == 1'd0));
-assign main_uartbone_wishbone_err = (builder_shared_err & (builder_grant == 1'd0));
-assign builder_request = {main_uartbone_wishbone_cyc};
-assign builder_grant = 1'd0;
+assign pll_reset = ((~cpu_reset_n) | rst);
+assign pll2_reset = ((~cpu_reset_n) | rst);
+assign sys_clk = s7pll0_clkout_buf;
+assign s7pll1_clkin = clk50;
+assign hdmi_clk = s7pll1_clkout_buf0;
+assign hdmi5x_clk = s7pll1_clkout_buf1;
+assign bus_errors_status = bus_errors;
 always @(*) begin
-    builder_slave_sel <= 2'd0;
-    builder_slave_sel[0] <= (builder_shared_adr[29:11] == 12'd2048);
-    builder_slave_sel[1] <= (builder_shared_adr[29:14] == 1'd0);
-end
-assign main_basesoc_ram_bus_adr = builder_shared_adr;
-assign main_basesoc_ram_bus_dat_w = builder_shared_dat_w;
-assign main_basesoc_ram_bus_sel = builder_shared_sel;
-assign main_basesoc_ram_bus_stb = builder_shared_stb;
-assign main_basesoc_ram_bus_we = builder_shared_we;
-assign main_basesoc_ram_bus_cti = builder_shared_cti;
-assign main_basesoc_ram_bus_bte = builder_shared_bte;
-assign builder_basesoc_wishbone_adr = builder_shared_adr;
-assign builder_basesoc_wishbone_dat_w = builder_shared_dat_w;
-assign builder_basesoc_wishbone_sel = builder_shared_sel;
-assign builder_basesoc_wishbone_stb = builder_shared_stb;
-assign builder_basesoc_wishbone_we = builder_shared_we;
-assign builder_basesoc_wishbone_cti = builder_shared_cti;
-assign builder_basesoc_wishbone_bte = builder_shared_bte;
-assign main_basesoc_ram_bus_cyc = (builder_shared_cyc & builder_slave_sel[0]);
-assign builder_basesoc_wishbone_cyc = (builder_shared_cyc & builder_slave_sel[1]);
-assign builder_shared_err = (main_basesoc_ram_bus_err | builder_basesoc_wishbone_err);
-assign builder_wait = ((builder_shared_stb & builder_shared_cyc) & (~builder_shared_ack));
-always @(*) begin
-    builder_shared_dat_r <= 32'd0;
-    builder_shared_ack <= 1'd0;
-    builder_error <= 1'd0;
-    builder_shared_ack <= (main_basesoc_ram_bus_ack | builder_basesoc_wishbone_ack);
-    builder_shared_dat_r <= (({32{builder_slave_sel_r[0]}} & main_basesoc_ram_bus_dat_r) | ({32{builder_slave_sel_r[1]}} & builder_basesoc_wishbone_dat_r));
-    if (builder_done) begin
-        builder_shared_dat_r <= 32'd4294967295;
-        builder_shared_ack <= 1'd1;
-        builder_error <= 1'd1;
+    soc_rst <= 1'd0;
+    if (reset_re) begin
+        soc_rst <= reset_storage[0];
     end
 end
-assign builder_done = (builder_count == 1'd0);
-assign main_basesoc_bus_errors_status = main_basesoc_bus_errors;
+assign cpu_rst = reset_storage[1];
+assign csr_bankarray_csrbank0_reset0_w = reset_storage[1:0];
+assign csr_bankarray_csrbank0_scratch0_w = scratch_storage[31:0];
+assign csr_bankarray_csrbank0_bus_errors_w = bus_errors_status[31:0];
+assign bus_errors_we = csr_bankarray_csrbank0_bus_errors_we;
+assign uart_tx_fifo_sink_valid = uart_rxtx_re;
+assign uart_tx_fifo_sink_payload_data = uart_rxtx_r;
+assign uart_uart_source_valid = uart_tx_fifo_source_valid;
+assign uart_tx_fifo_source_ready = uart_uart_source_ready;
+assign uart_uart_source_first = uart_tx_fifo_source_first;
+assign uart_uart_source_last = uart_tx_fifo_source_last;
+assign uart_uart_source_payload_data = uart_tx_fifo_source_payload_data;
+assign uart_txfull_status = (~uart_tx_fifo_sink_ready);
+assign uart_txempty_status = (~uart_tx_fifo_source_valid);
+assign uart_tx_trigger = uart_tx_fifo_sink_ready;
+assign uart_rx_fifo_sink_valid = uart_uart_sink_valid;
 always @(*) begin
-    main_basesoc_soc_rst <= 1'd0;
-    if (main_basesoc_reset_re) begin
-        main_basesoc_soc_rst <= main_basesoc_reset_storage[0];
+    uart_uart_sink_ready <= 1'd0;
+    uart_uart_sink_ready <= 1'd1;
+    uart_uart_sink_ready <= uart_rx_fifo_sink_ready;
+end
+assign uart_rx_fifo_sink_first = uart_uart_sink_first;
+assign uart_rx_fifo_sink_last = uart_uart_sink_last;
+assign uart_rx_fifo_sink_payload_data = uart_uart_sink_payload_data;
+assign uart_rxtx_w = uart_rx_fifo_source_payload_data;
+assign uart_rx_fifo_source_ready = (uart_rx_clear | (1'd0 & uart_rxtx_we));
+assign uart_rxempty_status = (~uart_rx_fifo_source_valid);
+assign uart_rxfull_status = (~uart_rx_fifo_sink_ready);
+assign uart_rx_trigger = uart_rx_fifo_source_valid;
+assign uart_tx0 = uart_tx_status;
+assign uart_tx1 = uart_tx_pending;
+always @(*) begin
+    uart_tx_clear <= 1'd0;
+    if ((uart_pending_re & uart_pending_r[0])) begin
+        uart_tx_clear <= 1'd1;
     end
 end
-assign main_basesoc_cpu_rst = main_basesoc_reset_storage[1];
-assign builder_csr_bankarray_csrbank0_reset0_w = main_basesoc_reset_storage[1:0];
-assign builder_csr_bankarray_csrbank0_scratch0_w = main_basesoc_scratch_storage[31:0];
-assign builder_csr_bankarray_csrbank0_bus_errors_w = main_basesoc_bus_errors_status[31:0];
-assign main_basesoc_bus_errors_we = builder_csr_bankarray_csrbank0_bus_errors_we;
+assign uart_rx0 = uart_rx_status;
+assign uart_rx1 = uart_rx_pending;
 always @(*) begin
-    main_basesoc_we <= 4'd0;
-    main_basesoc_we[0] <= (((main_basesoc_ram_bus_cyc & main_basesoc_ram_bus_stb) & main_basesoc_ram_bus_we) & main_basesoc_ram_bus_sel[0]);
-    main_basesoc_we[1] <= (((main_basesoc_ram_bus_cyc & main_basesoc_ram_bus_stb) & main_basesoc_ram_bus_we) & main_basesoc_ram_bus_sel[1]);
-    main_basesoc_we[2] <= (((main_basesoc_ram_bus_cyc & main_basesoc_ram_bus_stb) & main_basesoc_ram_bus_we) & main_basesoc_ram_bus_sel[2]);
-    main_basesoc_we[3] <= (((main_basesoc_ram_bus_cyc & main_basesoc_ram_bus_stb) & main_basesoc_ram_bus_we) & main_basesoc_ram_bus_sel[3]);
-end
-assign main_basesoc_adr = main_basesoc_ram_bus_adr[10:0];
-assign main_basesoc_ram_bus_dat_r = main_basesoc_dat_r;
-assign main_basesoc_dat_w = main_basesoc_ram_bus_dat_w;
-assign main_basesoc_uartcrossover_tx_fifo_sink_valid = main_basesoc_uartcrossover_rxtx_re;
-assign main_basesoc_uartcrossover_tx_fifo_sink_payload_data = main_basesoc_uartcrossover_rxtx_r;
-assign main_basesoc_uartcrossover_uartcrossover_source_valid = main_basesoc_uartcrossover_tx_fifo_source_valid;
-assign main_basesoc_uartcrossover_tx_fifo_source_ready = main_basesoc_uartcrossover_uartcrossover_source_ready;
-assign main_basesoc_uartcrossover_uartcrossover_source_first = main_basesoc_uartcrossover_tx_fifo_source_first;
-assign main_basesoc_uartcrossover_uartcrossover_source_last = main_basesoc_uartcrossover_tx_fifo_source_last;
-assign main_basesoc_uartcrossover_uartcrossover_source_payload_data = main_basesoc_uartcrossover_tx_fifo_source_payload_data;
-assign main_basesoc_uartcrossover_txfull_status = (~main_basesoc_uartcrossover_tx_fifo_sink_ready);
-assign main_basesoc_uartcrossover_txempty_status = (~main_basesoc_uartcrossover_tx_fifo_source_valid);
-assign main_basesoc_uartcrossover_tx_trigger = main_basesoc_uartcrossover_tx_fifo_sink_ready;
-assign main_basesoc_uartcrossover_rx_fifo_sink_valid = main_basesoc_uartcrossover_uartcrossover_sink_valid;
-assign main_basesoc_uartcrossover_uartcrossover_sink_ready = main_basesoc_uartcrossover_rx_fifo_sink_ready;
-assign main_basesoc_uartcrossover_rx_fifo_sink_first = main_basesoc_uartcrossover_uartcrossover_sink_first;
-assign main_basesoc_uartcrossover_rx_fifo_sink_last = main_basesoc_uartcrossover_uartcrossover_sink_last;
-assign main_basesoc_uartcrossover_rx_fifo_sink_payload_data = main_basesoc_uartcrossover_uartcrossover_sink_payload_data;
-assign main_basesoc_uartcrossover_rxtx_w = main_basesoc_uartcrossover_rx_fifo_source_payload_data;
-assign main_basesoc_uartcrossover_rx_fifo_source_ready = (main_basesoc_uartcrossover_rx_clear | (1'd0 & main_basesoc_uartcrossover_rxtx_we));
-assign main_basesoc_uartcrossover_rxempty_status = (~main_basesoc_uartcrossover_rx_fifo_source_valid);
-assign main_basesoc_uartcrossover_rxfull_status = (~main_basesoc_uartcrossover_rx_fifo_sink_ready);
-assign main_basesoc_uartcrossover_rx_trigger = main_basesoc_uartcrossover_rx_fifo_source_valid;
-assign main_basesoc_xover_uart_sink_valid = main_basesoc_uartcrossover_uartcrossover_source_valid;
-assign main_basesoc_uartcrossover_uartcrossover_source_ready = main_basesoc_xover_uart_sink_ready;
-assign main_basesoc_xover_uart_sink_first = main_basesoc_uartcrossover_uartcrossover_source_first;
-assign main_basesoc_xover_uart_sink_last = main_basesoc_uartcrossover_uartcrossover_source_last;
-assign main_basesoc_xover_uart_sink_payload_data = main_basesoc_uartcrossover_uartcrossover_source_payload_data;
-assign main_basesoc_uartcrossover_uartcrossover_sink_valid = main_basesoc_xover_uart_source_valid;
-assign main_basesoc_xover_uart_source_ready = main_basesoc_uartcrossover_uartcrossover_sink_ready;
-assign main_basesoc_uartcrossover_uartcrossover_sink_first = main_basesoc_xover_uart_source_first;
-assign main_basesoc_uartcrossover_uartcrossover_sink_last = main_basesoc_xover_uart_source_last;
-assign main_basesoc_uartcrossover_uartcrossover_sink_payload_data = main_basesoc_xover_uart_source_payload_data;
-assign main_basesoc_uartcrossover_tx0 = main_basesoc_uartcrossover_tx_status;
-assign main_basesoc_uartcrossover_tx1 = main_basesoc_uartcrossover_tx_pending;
-always @(*) begin
-    main_basesoc_uartcrossover_tx_clear <= 1'd0;
-    if ((main_basesoc_uartcrossover_pending_re & main_basesoc_uartcrossover_pending_r[0])) begin
-        main_basesoc_uartcrossover_tx_clear <= 1'd1;
+    uart_rx_clear <= 1'd0;
+    if ((uart_pending_re & uart_pending_r[1])) begin
+        uart_rx_clear <= 1'd1;
     end
 end
-assign main_basesoc_uartcrossover_rx0 = main_basesoc_uartcrossover_rx_status;
-assign main_basesoc_uartcrossover_rx1 = main_basesoc_uartcrossover_rx_pending;
+assign uart_irq = ((uart_pending_status[0] & uart_enable_storage[0]) | (uart_pending_status[1] & uart_enable_storage[1]));
+assign uart_tx_status = uart_tx_trigger;
+assign uart_rx_status = uart_rx_trigger;
+assign uart_tx_fifo_source_valid = uart_tx_fifo_sink_valid;
+assign uart_tx_fifo_sink_ready = uart_tx_fifo_source_ready;
+assign uart_tx_fifo_source_first = uart_tx_fifo_sink_first;
+assign uart_tx_fifo_source_last = uart_tx_fifo_sink_last;
+assign uart_tx_fifo_source_payload_data = uart_tx_fifo_sink_payload_data;
+assign uart_rx_fifo_source_valid = uart_rx_fifo_sink_valid;
+assign uart_rx_fifo_sink_ready = uart_rx_fifo_source_ready;
+assign uart_rx_fifo_source_first = uart_rx_fifo_sink_first;
+assign uart_rx_fifo_source_last = uart_rx_fifo_sink_last;
+assign uart_rx_fifo_source_payload_data = uart_rx_fifo_sink_payload_data;
+assign timer_zero_trigger = (timer_value == 1'd0);
+assign timer_zero0 = timer_zero_status;
+assign timer_zero1 = timer_zero_pending;
 always @(*) begin
-    main_basesoc_uartcrossover_rx_clear <= 1'd0;
-    if ((main_basesoc_uartcrossover_pending_re & main_basesoc_uartcrossover_pending_r[1])) begin
-        main_basesoc_uartcrossover_rx_clear <= 1'd1;
+    timer_zero_clear <= 1'd0;
+    if ((timer_pending_re & timer_pending_r)) begin
+        timer_zero_clear <= 1'd1;
     end
 end
-assign main_basesoc_uartcrossover_irq = ((main_basesoc_uartcrossover_pending_status[0] & main_basesoc_uartcrossover_enable_storage[0]) | (main_basesoc_uartcrossover_pending_status[1] & main_basesoc_uartcrossover_enable_storage[1]));
-assign main_basesoc_uartcrossover_tx_status = main_basesoc_uartcrossover_tx_trigger;
-assign main_basesoc_uartcrossover_rx_status = main_basesoc_uartcrossover_rx_trigger;
-assign main_basesoc_uartcrossover_tx_fifo_syncfifo_din = {main_basesoc_uartcrossover_tx_fifo_fifo_in_last, main_basesoc_uartcrossover_tx_fifo_fifo_in_first, main_basesoc_uartcrossover_tx_fifo_fifo_in_payload_data};
-assign {main_basesoc_uartcrossover_tx_fifo_fifo_out_last, main_basesoc_uartcrossover_tx_fifo_fifo_out_first, main_basesoc_uartcrossover_tx_fifo_fifo_out_payload_data} = main_basesoc_uartcrossover_tx_fifo_syncfifo_dout;
-assign main_basesoc_uartcrossover_tx_fifo_sink_ready = main_basesoc_uartcrossover_tx_fifo_syncfifo_writable;
-assign main_basesoc_uartcrossover_tx_fifo_syncfifo_we = main_basesoc_uartcrossover_tx_fifo_sink_valid;
-assign main_basesoc_uartcrossover_tx_fifo_fifo_in_first = main_basesoc_uartcrossover_tx_fifo_sink_first;
-assign main_basesoc_uartcrossover_tx_fifo_fifo_in_last = main_basesoc_uartcrossover_tx_fifo_sink_last;
-assign main_basesoc_uartcrossover_tx_fifo_fifo_in_payload_data = main_basesoc_uartcrossover_tx_fifo_sink_payload_data;
-assign main_basesoc_uartcrossover_tx_fifo_source_valid = main_basesoc_uartcrossover_tx_fifo_readable;
-assign main_basesoc_uartcrossover_tx_fifo_source_first = main_basesoc_uartcrossover_tx_fifo_fifo_out_first;
-assign main_basesoc_uartcrossover_tx_fifo_source_last = main_basesoc_uartcrossover_tx_fifo_fifo_out_last;
-assign main_basesoc_uartcrossover_tx_fifo_source_payload_data = main_basesoc_uartcrossover_tx_fifo_fifo_out_payload_data;
-assign main_basesoc_uartcrossover_tx_fifo_re = main_basesoc_uartcrossover_tx_fifo_source_ready;
-assign main_basesoc_uartcrossover_tx_fifo_syncfifo_re = (main_basesoc_uartcrossover_tx_fifo_syncfifo_readable & ((~main_basesoc_uartcrossover_tx_fifo_readable) | main_basesoc_uartcrossover_tx_fifo_re));
-assign main_basesoc_uartcrossover_tx_fifo_level1 = (main_basesoc_uartcrossover_tx_fifo_level0 + main_basesoc_uartcrossover_tx_fifo_readable);
+assign timer_irq = (timer_pending_status & timer_enable_storage);
+assign timer_zero_status = timer_zero_trigger;
+assign sink_ready = 1'd1;
+assign tmdsencoder0_d0 = sink_payload_b;
+assign tmdsencoder0_c = {sink_payload_vsync, sink_payload_hsync};
+assign tmdsencoder0_de = sink_payload_de;
+assign tmdsencoder1_d0 = sink_payload_g;
+assign tmdsencoder1_c = 1'd0;
+assign tmdsencoder1_de = sink_payload_de;
+assign tmdsencoder2_d0 = sink_payload_r;
+assign tmdsencoder2_c = 1'd0;
+assign tmdsencoder2_de = sink_payload_de;
+assign tmdsencoder0_q_m8_n = ((tmdsencoder0_n1d > 3'd4) | ((tmdsencoder0_n1d == 3'd4) & (~tmdsencoder0_d1[0])));
+assign videohdmi10to1serializer0_sink_sink_valid = 1'd1;
+assign videohdmi10to1serializer0_sink_sink_payload_data = tmdsencoder0_out;
+assign videohdmi10to1serializer0_sink_valid = videohdmi10to1serializer0_source_source_valid;
+assign videohdmi10to1serializer0_source_source_ready = videohdmi10to1serializer0_sink_ready;
+assign videohdmi10to1serializer0_sink_first = videohdmi10to1serializer0_source_source_first;
+assign videohdmi10to1serializer0_sink_last = videohdmi10to1serializer0_source_source_last;
+assign videohdmi10to1serializer0_sink_payload_data = videohdmi10to1serializer0_source_source_payload_data;
+assign videohdmi10to1serializer0_source_ready = 1'd1;
+assign videohdmi10to1serializer0_cdc_sink_valid = videohdmi10to1serializer0_sink_sink_valid;
+assign videohdmi10to1serializer0_sink_sink_ready = videohdmi10to1serializer0_cdc_sink_ready;
+assign videohdmi10to1serializer0_cdc_sink_first = videohdmi10to1serializer0_sink_sink_first;
+assign videohdmi10to1serializer0_cdc_sink_last = videohdmi10to1serializer0_sink_sink_last;
+assign videohdmi10to1serializer0_cdc_sink_payload_data = videohdmi10to1serializer0_sink_sink_payload_data;
+assign videohdmi10to1serializer0_source_source_valid = videohdmi10to1serializer0_cdc_source_valid;
+assign videohdmi10to1serializer0_cdc_source_ready = videohdmi10to1serializer0_source_source_ready;
+assign videohdmi10to1serializer0_source_source_first = videohdmi10to1serializer0_cdc_source_first;
+assign videohdmi10to1serializer0_source_source_last = videohdmi10to1serializer0_cdc_source_last;
+assign videohdmi10to1serializer0_source_source_payload_data = videohdmi10to1serializer0_cdc_source_payload_data;
+assign videohdmi10to1serializer0_cdc_asyncfifo0_din = {videohdmi10to1serializer0_cdc_fifo_in_last, videohdmi10to1serializer0_cdc_fifo_in_first, videohdmi10to1serializer0_cdc_fifo_in_payload_data};
+assign {videohdmi10to1serializer0_cdc_fifo_out_last, videohdmi10to1serializer0_cdc_fifo_out_first, videohdmi10to1serializer0_cdc_fifo_out_payload_data} = videohdmi10to1serializer0_cdc_asyncfifo0_dout;
+assign videohdmi10to1serializer0_cdc_sink_ready = videohdmi10to1serializer0_cdc_asyncfifo0_writable;
+assign videohdmi10to1serializer0_cdc_asyncfifo0_we = videohdmi10to1serializer0_cdc_sink_valid;
+assign videohdmi10to1serializer0_cdc_fifo_in_first = videohdmi10to1serializer0_cdc_sink_first;
+assign videohdmi10to1serializer0_cdc_fifo_in_last = videohdmi10to1serializer0_cdc_sink_last;
+assign videohdmi10to1serializer0_cdc_fifo_in_payload_data = videohdmi10to1serializer0_cdc_sink_payload_data;
+assign videohdmi10to1serializer0_cdc_source_valid = videohdmi10to1serializer0_cdc_asyncfifo0_readable;
+assign videohdmi10to1serializer0_cdc_source_first = videohdmi10to1serializer0_cdc_fifo_out_first;
+assign videohdmi10to1serializer0_cdc_source_last = videohdmi10to1serializer0_cdc_fifo_out_last;
+assign videohdmi10to1serializer0_cdc_source_payload_data = videohdmi10to1serializer0_cdc_fifo_out_payload_data;
+assign videohdmi10to1serializer0_cdc_asyncfifo0_re = videohdmi10to1serializer0_cdc_source_ready;
+assign videohdmi10to1serializer0_cdc_graycounter0_ce = (videohdmi10to1serializer0_cdc_asyncfifo0_writable & videohdmi10to1serializer0_cdc_asyncfifo0_we);
+assign videohdmi10to1serializer0_cdc_graycounter1_ce = (videohdmi10to1serializer0_cdc_asyncfifo0_readable & videohdmi10to1serializer0_cdc_asyncfifo0_re);
+assign videohdmi10to1serializer0_cdc_asyncfifo0_writable = (((videohdmi10to1serializer0_cdc_graycounter0_q[2] == videohdmi10to1serializer0_cdc_consume_wdomain[2]) | (videohdmi10to1serializer0_cdc_graycounter0_q[1] == videohdmi10to1serializer0_cdc_consume_wdomain[1])) | (videohdmi10to1serializer0_cdc_graycounter0_q[0] != videohdmi10to1serializer0_cdc_consume_wdomain[0]));
+assign videohdmi10to1serializer0_cdc_asyncfifo0_readable = (videohdmi10to1serializer0_cdc_graycounter1_q != videohdmi10to1serializer0_cdc_produce_rdomain);
+assign videohdmi10to1serializer0_cdc_wrport_adr = videohdmi10to1serializer0_cdc_graycounter0_q_binary[1:0];
+assign videohdmi10to1serializer0_cdc_wrport_dat_w = videohdmi10to1serializer0_cdc_asyncfifo0_din;
+assign videohdmi10to1serializer0_cdc_wrport_we = videohdmi10to1serializer0_cdc_graycounter0_ce;
+assign videohdmi10to1serializer0_cdc_rdport_adr = videohdmi10to1serializer0_cdc_graycounter1_q_next_binary[1:0];
+assign videohdmi10to1serializer0_cdc_asyncfifo0_dout = videohdmi10to1serializer0_cdc_rdport_dat_r;
 always @(*) begin
-    main_basesoc_uartcrossover_tx_fifo_wrport_adr <= 4'd0;
-    if (main_basesoc_uartcrossover_tx_fifo_replace) begin
-        main_basesoc_uartcrossover_tx_fifo_wrport_adr <= (main_basesoc_uartcrossover_tx_fifo_produce - 1'd1);
+    videohdmi10to1serializer0_cdc_graycounter0_q_next_binary <= 3'd0;
+    if (videohdmi10to1serializer0_cdc_graycounter0_ce) begin
+        videohdmi10to1serializer0_cdc_graycounter0_q_next_binary <= (videohdmi10to1serializer0_cdc_graycounter0_q_binary + 1'd1);
     end else begin
-        main_basesoc_uartcrossover_tx_fifo_wrport_adr <= main_basesoc_uartcrossover_tx_fifo_produce;
+        videohdmi10to1serializer0_cdc_graycounter0_q_next_binary <= videohdmi10to1serializer0_cdc_graycounter0_q_binary;
     end
 end
-assign main_basesoc_uartcrossover_tx_fifo_wrport_dat_w = main_basesoc_uartcrossover_tx_fifo_syncfifo_din;
-assign main_basesoc_uartcrossover_tx_fifo_wrport_we = (main_basesoc_uartcrossover_tx_fifo_syncfifo_we & (main_basesoc_uartcrossover_tx_fifo_syncfifo_writable | main_basesoc_uartcrossover_tx_fifo_replace));
-assign main_basesoc_uartcrossover_tx_fifo_do_read = (main_basesoc_uartcrossover_tx_fifo_syncfifo_readable & main_basesoc_uartcrossover_tx_fifo_syncfifo_re);
-assign main_basesoc_uartcrossover_tx_fifo_rdport_adr = main_basesoc_uartcrossover_tx_fifo_consume;
-assign main_basesoc_uartcrossover_tx_fifo_syncfifo_dout = main_basesoc_uartcrossover_tx_fifo_rdport_dat_r;
-assign main_basesoc_uartcrossover_tx_fifo_rdport_re = main_basesoc_uartcrossover_tx_fifo_do_read;
-assign main_basesoc_uartcrossover_tx_fifo_syncfifo_writable = (main_basesoc_uartcrossover_tx_fifo_level0 != 5'd16);
-assign main_basesoc_uartcrossover_tx_fifo_syncfifo_readable = (main_basesoc_uartcrossover_tx_fifo_level0 != 1'd0);
-assign main_basesoc_uartcrossover_rx_fifo_syncfifo_din = {main_basesoc_uartcrossover_rx_fifo_fifo_in_last, main_basesoc_uartcrossover_rx_fifo_fifo_in_first, main_basesoc_uartcrossover_rx_fifo_fifo_in_payload_data};
-assign {main_basesoc_uartcrossover_rx_fifo_fifo_out_last, main_basesoc_uartcrossover_rx_fifo_fifo_out_first, main_basesoc_uartcrossover_rx_fifo_fifo_out_payload_data} = main_basesoc_uartcrossover_rx_fifo_syncfifo_dout;
-assign main_basesoc_uartcrossover_rx_fifo_sink_ready = main_basesoc_uartcrossover_rx_fifo_syncfifo_writable;
-assign main_basesoc_uartcrossover_rx_fifo_syncfifo_we = main_basesoc_uartcrossover_rx_fifo_sink_valid;
-assign main_basesoc_uartcrossover_rx_fifo_fifo_in_first = main_basesoc_uartcrossover_rx_fifo_sink_first;
-assign main_basesoc_uartcrossover_rx_fifo_fifo_in_last = main_basesoc_uartcrossover_rx_fifo_sink_last;
-assign main_basesoc_uartcrossover_rx_fifo_fifo_in_payload_data = main_basesoc_uartcrossover_rx_fifo_sink_payload_data;
-assign main_basesoc_uartcrossover_rx_fifo_source_valid = main_basesoc_uartcrossover_rx_fifo_readable;
-assign main_basesoc_uartcrossover_rx_fifo_source_first = main_basesoc_uartcrossover_rx_fifo_fifo_out_first;
-assign main_basesoc_uartcrossover_rx_fifo_source_last = main_basesoc_uartcrossover_rx_fifo_fifo_out_last;
-assign main_basesoc_uartcrossover_rx_fifo_source_payload_data = main_basesoc_uartcrossover_rx_fifo_fifo_out_payload_data;
-assign main_basesoc_uartcrossover_rx_fifo_re = main_basesoc_uartcrossover_rx_fifo_source_ready;
-assign main_basesoc_uartcrossover_rx_fifo_syncfifo_re = (main_basesoc_uartcrossover_rx_fifo_syncfifo_readable & ((~main_basesoc_uartcrossover_rx_fifo_readable) | main_basesoc_uartcrossover_rx_fifo_re));
-assign main_basesoc_uartcrossover_rx_fifo_level1 = (main_basesoc_uartcrossover_rx_fifo_level0 + main_basesoc_uartcrossover_rx_fifo_readable);
+assign videohdmi10to1serializer0_cdc_graycounter0_q_next = (videohdmi10to1serializer0_cdc_graycounter0_q_next_binary ^ videohdmi10to1serializer0_cdc_graycounter0_q_next_binary[2:1]);
 always @(*) begin
-    main_basesoc_uartcrossover_rx_fifo_wrport_adr <= 4'd0;
-    if (main_basesoc_uartcrossover_rx_fifo_replace) begin
-        main_basesoc_uartcrossover_rx_fifo_wrport_adr <= (main_basesoc_uartcrossover_rx_fifo_produce - 1'd1);
+    videohdmi10to1serializer0_cdc_graycounter1_q_next_binary <= 3'd0;
+    if (videohdmi10to1serializer0_cdc_graycounter1_ce) begin
+        videohdmi10to1serializer0_cdc_graycounter1_q_next_binary <= (videohdmi10to1serializer0_cdc_graycounter1_q_binary + 1'd1);
     end else begin
-        main_basesoc_uartcrossover_rx_fifo_wrport_adr <= main_basesoc_uartcrossover_rx_fifo_produce;
+        videohdmi10to1serializer0_cdc_graycounter1_q_next_binary <= videohdmi10to1serializer0_cdc_graycounter1_q_binary;
     end
 end
-assign main_basesoc_uartcrossover_rx_fifo_wrport_dat_w = main_basesoc_uartcrossover_rx_fifo_syncfifo_din;
-assign main_basesoc_uartcrossover_rx_fifo_wrport_we = (main_basesoc_uartcrossover_rx_fifo_syncfifo_we & (main_basesoc_uartcrossover_rx_fifo_syncfifo_writable | main_basesoc_uartcrossover_rx_fifo_replace));
-assign main_basesoc_uartcrossover_rx_fifo_do_read = (main_basesoc_uartcrossover_rx_fifo_syncfifo_readable & main_basesoc_uartcrossover_rx_fifo_syncfifo_re);
-assign main_basesoc_uartcrossover_rx_fifo_rdport_adr = main_basesoc_uartcrossover_rx_fifo_consume;
-assign main_basesoc_uartcrossover_rx_fifo_syncfifo_dout = main_basesoc_uartcrossover_rx_fifo_rdport_dat_r;
-assign main_basesoc_uartcrossover_rx_fifo_rdport_re = main_basesoc_uartcrossover_rx_fifo_do_read;
-assign main_basesoc_uartcrossover_rx_fifo_syncfifo_writable = (main_basesoc_uartcrossover_rx_fifo_level0 != 5'd16);
-assign main_basesoc_uartcrossover_rx_fifo_syncfifo_readable = (main_basesoc_uartcrossover_rx_fifo_level0 != 1'd0);
-assign main_basesoc_xover_sink_sink_valid = main_basesoc_xover_rxtx_re;
-assign main_basesoc_xover_sink_sink_payload_data = main_basesoc_xover_rxtx_r;
-assign main_basesoc_xover_uart_source_valid = main_basesoc_xover_source_source_valid;
-assign main_basesoc_xover_source_source_ready = main_basesoc_xover_uart_source_ready;
-assign main_basesoc_xover_uart_source_first = main_basesoc_xover_source_source_first;
-assign main_basesoc_xover_uart_source_last = main_basesoc_xover_source_source_last;
-assign main_basesoc_xover_uart_source_payload_data = main_basesoc_xover_source_source_payload_data;
-assign main_basesoc_xover_txfull_status = (~main_basesoc_xover_sink_sink_ready);
-assign main_basesoc_xover_txempty_status = (~main_basesoc_xover_source_source_valid);
-assign main_basesoc_xover_tx_trigger = main_basesoc_xover_sink_sink_ready;
-assign main_basesoc_xover_rx_fifo_sink_valid = main_basesoc_xover_uart_sink_valid;
-assign main_basesoc_xover_uart_sink_ready = main_basesoc_xover_rx_fifo_sink_ready;
-assign main_basesoc_xover_rx_fifo_sink_first = main_basesoc_xover_uart_sink_first;
-assign main_basesoc_xover_rx_fifo_sink_last = main_basesoc_xover_uart_sink_last;
-assign main_basesoc_xover_rx_fifo_sink_payload_data = main_basesoc_xover_uart_sink_payload_data;
-assign main_basesoc_xover_rxtx_w = main_basesoc_xover_rx_fifo_source_payload_data;
-assign main_basesoc_xover_rx_fifo_source_ready = (main_basesoc_xover_rx_clear | (1'd1 & main_basesoc_xover_rxtx_we));
-assign main_basesoc_xover_rxempty_status = (~main_basesoc_xover_rx_fifo_source_valid);
-assign main_basesoc_xover_rxfull_status = (~main_basesoc_xover_rx_fifo_sink_ready);
-assign main_basesoc_xover_rx_trigger = main_basesoc_xover_rx_fifo_source_valid;
-assign main_basesoc_xover_tx0 = main_basesoc_xover_tx_status;
-assign main_basesoc_xover_tx1 = main_basesoc_xover_tx_pending;
+assign videohdmi10to1serializer0_cdc_graycounter1_q_next = (videohdmi10to1serializer0_cdc_graycounter1_q_next_binary ^ videohdmi10to1serializer0_cdc_graycounter1_q_next_binary[2:1]);
+assign videohdmi10to1serializer0_sink_ready = (videohdmi10to1serializer0_level < 4'd10);
+assign videohdmi10to1serializer0_source_valid = (videohdmi10to1serializer0_level >= 2'd2);
+assign videohdmi10to1serializer0_i_inc = (videohdmi10to1serializer0_sink_valid & videohdmi10to1serializer0_sink_ready);
+assign videohdmi10to1serializer0_o_inc = (videohdmi10to1serializer0_source_valid & videohdmi10to1serializer0_source_ready);
+assign videohdmi10to1serializer0_i_data = {videohdmi10to1serializer0_sink_payload_data[0], videohdmi10to1serializer0_sink_payload_data[1], videohdmi10to1serializer0_sink_payload_data[2], videohdmi10to1serializer0_sink_payload_data[3], videohdmi10to1serializer0_sink_payload_data[4], videohdmi10to1serializer0_sink_payload_data[5], videohdmi10to1serializer0_sink_payload_data[6], videohdmi10to1serializer0_sink_payload_data[7], videohdmi10to1serializer0_sink_payload_data[8], videohdmi10to1serializer0_sink_payload_data[9]};
 always @(*) begin
-    main_basesoc_xover_tx_clear <= 1'd0;
-    if ((main_basesoc_xover_pending_re & main_basesoc_xover_pending_r[0])) begin
-        main_basesoc_xover_tx_clear <= 1'd1;
-    end
-end
-assign main_basesoc_xover_rx0 = main_basesoc_xover_rx_status;
-assign main_basesoc_xover_rx1 = main_basesoc_xover_rx_pending;
-always @(*) begin
-    main_basesoc_xover_rx_clear <= 1'd0;
-    if ((main_basesoc_xover_pending_re & main_basesoc_xover_pending_r[1])) begin
-        main_basesoc_xover_rx_clear <= 1'd1;
-    end
-end
-assign main_basesoc_xover_irq = ((main_basesoc_xover_pending_status[0] & main_basesoc_xover_enable_storage[0]) | (main_basesoc_xover_pending_status[1] & main_basesoc_xover_enable_storage[1]));
-assign main_basesoc_xover_tx_status = main_basesoc_xover_tx_trigger;
-assign main_basesoc_xover_rx_status = main_basesoc_xover_rx_trigger;
-assign main_basesoc_xover_pipe_valid_sink_ready = ((~main_basesoc_xover_pipe_valid_source_valid) | main_basesoc_xover_pipe_valid_source_ready);
-assign main_basesoc_xover_pipe_valid_sink_valid = main_basesoc_xover_sink_sink_valid;
-assign main_basesoc_xover_sink_sink_ready = main_basesoc_xover_pipe_valid_sink_ready;
-assign main_basesoc_xover_pipe_valid_sink_first = main_basesoc_xover_sink_sink_first;
-assign main_basesoc_xover_pipe_valid_sink_last = main_basesoc_xover_sink_sink_last;
-assign main_basesoc_xover_pipe_valid_sink_payload_data = main_basesoc_xover_sink_sink_payload_data;
-assign main_basesoc_xover_source_source_valid = main_basesoc_xover_pipe_valid_source_valid;
-assign main_basesoc_xover_pipe_valid_source_ready = main_basesoc_xover_source_source_ready;
-assign main_basesoc_xover_source_source_first = main_basesoc_xover_pipe_valid_source_first;
-assign main_basesoc_xover_source_source_last = main_basesoc_xover_pipe_valid_source_last;
-assign main_basesoc_xover_source_source_payload_data = main_basesoc_xover_pipe_valid_source_payload_data;
-assign main_basesoc_xover_rx_fifo_syncfifo_din = {main_basesoc_xover_rx_fifo_fifo_in_last, main_basesoc_xover_rx_fifo_fifo_in_first, main_basesoc_xover_rx_fifo_fifo_in_payload_data};
-assign {main_basesoc_xover_rx_fifo_fifo_out_last, main_basesoc_xover_rx_fifo_fifo_out_first, main_basesoc_xover_rx_fifo_fifo_out_payload_data} = main_basesoc_xover_rx_fifo_syncfifo_dout;
-assign main_basesoc_xover_rx_fifo_sink_ready = main_basesoc_xover_rx_fifo_syncfifo_writable;
-assign main_basesoc_xover_rx_fifo_syncfifo_we = main_basesoc_xover_rx_fifo_sink_valid;
-assign main_basesoc_xover_rx_fifo_fifo_in_first = main_basesoc_xover_rx_fifo_sink_first;
-assign main_basesoc_xover_rx_fifo_fifo_in_last = main_basesoc_xover_rx_fifo_sink_last;
-assign main_basesoc_xover_rx_fifo_fifo_in_payload_data = main_basesoc_xover_rx_fifo_sink_payload_data;
-assign main_basesoc_xover_rx_fifo_source_valid = main_basesoc_xover_rx_fifo_readable;
-assign main_basesoc_xover_rx_fifo_source_first = main_basesoc_xover_rx_fifo_fifo_out_first;
-assign main_basesoc_xover_rx_fifo_source_last = main_basesoc_xover_rx_fifo_fifo_out_last;
-assign main_basesoc_xover_rx_fifo_source_payload_data = main_basesoc_xover_rx_fifo_fifo_out_payload_data;
-assign main_basesoc_xover_rx_fifo_re = main_basesoc_xover_rx_fifo_source_ready;
-assign main_basesoc_xover_rx_fifo_syncfifo_re = (main_basesoc_xover_rx_fifo_syncfifo_readable & ((~main_basesoc_xover_rx_fifo_readable) | main_basesoc_xover_rx_fifo_re));
-assign main_basesoc_xover_rx_fifo_level1 = (main_basesoc_xover_rx_fifo_level0 + main_basesoc_xover_rx_fifo_readable);
-always @(*) begin
-    main_basesoc_xover_rx_fifo_wrport_adr <= 4'd0;
-    if (main_basesoc_xover_rx_fifo_replace) begin
-        main_basesoc_xover_rx_fifo_wrport_adr <= (main_basesoc_xover_rx_fifo_produce - 1'd1);
-    end else begin
-        main_basesoc_xover_rx_fifo_wrport_adr <= main_basesoc_xover_rx_fifo_produce;
-    end
-end
-assign main_basesoc_xover_rx_fifo_wrport_dat_w = main_basesoc_xover_rx_fifo_syncfifo_din;
-assign main_basesoc_xover_rx_fifo_wrport_we = (main_basesoc_xover_rx_fifo_syncfifo_we & (main_basesoc_xover_rx_fifo_syncfifo_writable | main_basesoc_xover_rx_fifo_replace));
-assign main_basesoc_xover_rx_fifo_do_read = (main_basesoc_xover_rx_fifo_syncfifo_readable & main_basesoc_xover_rx_fifo_syncfifo_re);
-assign main_basesoc_xover_rx_fifo_rdport_adr = main_basesoc_xover_rx_fifo_consume;
-assign main_basesoc_xover_rx_fifo_syncfifo_dout = main_basesoc_xover_rx_fifo_rdport_dat_r;
-assign main_basesoc_xover_rx_fifo_rdport_re = main_basesoc_xover_rx_fifo_do_read;
-assign main_basesoc_xover_rx_fifo_syncfifo_writable = (main_basesoc_xover_rx_fifo_level0 != 5'd16);
-assign main_basesoc_xover_rx_fifo_syncfifo_readable = (main_basesoc_xover_rx_fifo_level0 != 1'd0);
-assign main_basesoc_zero_trigger = (main_basesoc_value == 1'd0);
-assign main_basesoc_zero0 = main_basesoc_zero_status;
-assign main_basesoc_zero1 = main_basesoc_zero_pending;
-always @(*) begin
-    main_basesoc_zero_clear <= 1'd0;
-    if ((main_basesoc_pending_re & main_basesoc_pending_r)) begin
-        main_basesoc_zero_clear <= 1'd1;
-    end
-end
-assign main_basesoc_irq = (main_basesoc_pending_status & main_basesoc_enable_storage);
-assign main_basesoc_zero_status = main_basesoc_zero_trigger;
-always @(*) begin
-    builder_basesoc_rs232phytx_next_state <= 1'd0;
-    main_tx_count_rs232phytx_next_value0 <= 4'd0;
-    main_tx_count_rs232phytx_next_value_ce0 <= 1'd0;
-    main_tx_sink_ready <= 1'd0;
-    main_serial_tx_rs232phytx_next_value1 <= 1'd0;
-    main_serial_tx_rs232phytx_next_value_ce1 <= 1'd0;
-    main_tx_data_rs232phytx_next_value2 <= 8'd0;
-    main_tx_enable <= 1'd0;
-    main_tx_data_rs232phytx_next_value_ce2 <= 1'd0;
-    builder_basesoc_rs232phytx_next_state <= builder_basesoc_rs232phytx_state;
-    case (builder_basesoc_rs232phytx_state)
-        1'd1: begin
-            main_tx_enable <= 1'd1;
-            if (main_tx_tick) begin
-                main_serial_tx_rs232phytx_next_value1 <= main_tx_data;
-                main_serial_tx_rs232phytx_next_value_ce1 <= 1'd1;
-                main_tx_count_rs232phytx_next_value0 <= (main_tx_count + 1'd1);
-                main_tx_count_rs232phytx_next_value_ce0 <= 1'd1;
-                main_tx_data_rs232phytx_next_value2 <= {1'd1, main_tx_data[7:1]};
-                main_tx_data_rs232phytx_next_value_ce2 <= 1'd1;
-                if ((main_tx_count == 4'd9)) begin
-                    main_tx_sink_ready <= 1'd1;
-                    builder_basesoc_rs232phytx_next_state <= 1'd0;
-                end
-            end
-        end
-        default: begin
-            main_tx_count_rs232phytx_next_value0 <= 1'd0;
-            main_tx_count_rs232phytx_next_value_ce0 <= 1'd1;
-            main_serial_tx_rs232phytx_next_value1 <= 1'd1;
-            main_serial_tx_rs232phytx_next_value_ce1 <= 1'd1;
-            if (main_tx_sink_valid) begin
-                main_serial_tx_rs232phytx_next_value1 <= 1'd0;
-                main_serial_tx_rs232phytx_next_value_ce1 <= 1'd1;
-                main_tx_data_rs232phytx_next_value2 <= main_tx_sink_payload_data;
-                main_tx_data_rs232phytx_next_value_ce2 <= 1'd1;
-                builder_basesoc_rs232phytx_next_state <= 1'd1;
-            end
-        end
-    endcase
-end
-always @(*) begin
-    builder_basesoc_rs232phyrx_next_state <= 1'd0;
-    main_rx_count_rs232phyrx_next_value0 <= 4'd0;
-    main_rx_source_valid <= 1'd0;
-    main_rx_count_rs232phyrx_next_value_ce0 <= 1'd0;
-    main_rx_source_payload_data <= 8'd0;
-    main_rx_data_rs232phyrx_next_value1 <= 8'd0;
-    main_rx_data_rs232phyrx_next_value_ce1 <= 1'd0;
-    main_rx_enable <= 1'd0;
-    builder_basesoc_rs232phyrx_next_state <= builder_basesoc_rs232phyrx_state;
-    case (builder_basesoc_rs232phyrx_state)
-        1'd1: begin
-            main_rx_enable <= 1'd1;
-            if (main_rx_tick) begin
-                main_rx_count_rs232phyrx_next_value0 <= (main_rx_count + 1'd1);
-                main_rx_count_rs232phyrx_next_value_ce0 <= 1'd1;
-                main_rx_data_rs232phyrx_next_value1 <= {main_rx_rx, main_rx_data[7:1]};
-                main_rx_data_rs232phyrx_next_value_ce1 <= 1'd1;
-                if ((main_rx_count == 4'd9)) begin
-                    main_rx_source_valid <= (main_rx_rx == 1'd1);
-                    main_rx_source_payload_data <= main_rx_data;
-                    builder_basesoc_rs232phyrx_next_state <= 1'd0;
-                end
-            end
-        end
-        default: begin
-            main_rx_count_rs232phyrx_next_value0 <= 1'd0;
-            main_rx_count_rs232phyrx_next_value_ce0 <= 1'd1;
-            if (((main_rx_rx == 1'd0) & (main_rx_rx_d == 1'd1))) begin
-                builder_basesoc_rs232phyrx_next_state <= 1'd1;
-            end
-        end
-    endcase
-end
-assign main_uartbone_wait = (~main_uartbone_is_ongoing);
-assign main_uartbone_reset = main_uartbone_done;
-assign main_uartbone_wishbone_adr = main_uartbone_address;
-assign main_uartbone_wishbone_dat_w = main_uartbone_data;
-assign main_uartbone_wishbone_sel = 4'd15;
-always @(*) begin
-    main_tx_sink_payload_data <= 8'd0;
-    case (main_uartbone_data_bytes_count)
+    videohdmi10to1serializer0_o_data <= 2'd0;
+    case (videohdmi10to1serializer0_o_count)
         1'd0: begin
-            main_tx_sink_payload_data <= main_uartbone_data[31:24];
+            videohdmi10to1serializer0_o_data <= videohdmi10to1serializer0_shift_register[19:18];
         end
         1'd1: begin
-            main_tx_sink_payload_data <= main_uartbone_data[31:16];
+            videohdmi10to1serializer0_o_data <= videohdmi10to1serializer0_shift_register[17:16];
         end
         2'd2: begin
-            main_tx_sink_payload_data <= main_uartbone_data[31:8];
+            videohdmi10to1serializer0_o_data <= videohdmi10to1serializer0_shift_register[15:14];
         end
         2'd3: begin
-            main_tx_sink_payload_data <= main_uartbone_data[31:0];
-        end
-    endcase
-end
-assign main_tx_sink_last = ((main_uartbone_data_bytes_count == 2'd3) & (main_uartbone_words_count == (main_uartbone_length - 1'd1)));
-always @(*) begin
-    main_uartbone_length_uartbone_next_value4 <= 8'd0;
-    main_uartbone_length_uartbone_next_value_ce4 <= 1'd0;
-    main_uartbone_address_uartbone_next_value5 <= 32'd0;
-    main_uartbone_address_uartbone_next_value_ce5 <= 1'd0;
-    main_tx_sink_valid <= 1'd0;
-    main_uartbone_incr_uartbone_next_value6 <= 1'd0;
-    main_uartbone_incr_uartbone_next_value_ce6 <= 1'd0;
-    main_uartbone_is_ongoing <= 1'd0;
-    main_uartbone_data_uartbone_next_value7 <= 32'd0;
-    main_uartbone_data_uartbone_next_value_ce7 <= 1'd0;
-    main_uartbone_wishbone_cyc <= 1'd0;
-    main_uartbone_wishbone_stb <= 1'd0;
-    builder_basesoc_uartbone_next_state <= 3'd0;
-    main_uartbone_wishbone_we <= 1'd0;
-    main_uartbone_data_bytes_count_uartbone_next_value0 <= 2'd0;
-    main_uartbone_data_bytes_count_uartbone_next_value_ce0 <= 1'd0;
-    main_uartbone_addr_bytes_count_uartbone_next_value1 <= 2'd0;
-    main_rx_source_ready <= 1'd0;
-    main_uartbone_addr_bytes_count_uartbone_next_value_ce1 <= 1'd0;
-    main_uartbone_words_count_uartbone_next_value2 <= 8'd0;
-    main_uartbone_words_count_uartbone_next_value_ce2 <= 1'd0;
-    main_uartbone_cmd_uartbone_next_value3 <= 8'd0;
-    main_uartbone_cmd_uartbone_next_value_ce3 <= 1'd0;
-    builder_basesoc_uartbone_next_state <= builder_basesoc_uartbone_state;
-    case (builder_basesoc_uartbone_state)
-        1'd1: begin
-            main_rx_source_ready <= 1'd1;
-            if (main_rx_source_valid) begin
-                main_uartbone_length_uartbone_next_value4 <= main_rx_source_payload_data;
-                main_uartbone_length_uartbone_next_value_ce4 <= 1'd1;
-                builder_basesoc_uartbone_next_state <= 2'd2;
-            end
-        end
-        2'd2: begin
-            main_rx_source_ready <= 1'd1;
-            if (main_rx_source_valid) begin
-                main_uartbone_address_uartbone_next_value5 <= {main_uartbone_address, main_rx_source_payload_data};
-                main_uartbone_address_uartbone_next_value_ce5 <= 1'd1;
-                main_uartbone_addr_bytes_count_uartbone_next_value1 <= (main_uartbone_addr_bytes_count + 1'd1);
-                main_uartbone_addr_bytes_count_uartbone_next_value_ce1 <= 1'd1;
-                if ((main_uartbone_addr_bytes_count == 2'd3)) begin
-                    if (((main_uartbone_cmd == 1'd1) | (main_uartbone_cmd == 2'd3))) begin
-                        main_uartbone_incr_uartbone_next_value6 <= (main_uartbone_cmd == 1'd1);
-                        main_uartbone_incr_uartbone_next_value_ce6 <= 1'd1;
-                        builder_basesoc_uartbone_next_state <= 2'd3;
-                    end else begin
-                        if (((main_uartbone_cmd == 2'd2) | (main_uartbone_cmd == 3'd4))) begin
-                            main_uartbone_incr_uartbone_next_value6 <= (main_uartbone_cmd == 2'd2);
-                            main_uartbone_incr_uartbone_next_value_ce6 <= 1'd1;
-                            builder_basesoc_uartbone_next_state <= 3'd5;
-                        end else begin
-                            builder_basesoc_uartbone_next_state <= 1'd0;
-                        end
-                    end
-                end
-            end
-        end
-        2'd3: begin
-            main_rx_source_ready <= 1'd1;
-            if (main_rx_source_valid) begin
-                main_uartbone_data_uartbone_next_value7 <= {main_uartbone_data, main_rx_source_payload_data};
-                main_uartbone_data_uartbone_next_value_ce7 <= 1'd1;
-                main_uartbone_data_bytes_count_uartbone_next_value0 <= (main_uartbone_data_bytes_count + 1'd1);
-                main_uartbone_data_bytes_count_uartbone_next_value_ce0 <= 1'd1;
-                if ((main_uartbone_data_bytes_count == 2'd3)) begin
-                    builder_basesoc_uartbone_next_state <= 3'd4;
-                end
-            end
+            videohdmi10to1serializer0_o_data <= videohdmi10to1serializer0_shift_register[13:12];
         end
         3'd4: begin
-            main_rx_source_ready <= 1'd0;
-            main_uartbone_wishbone_stb <= 1'd1;
-            main_uartbone_wishbone_we <= 1'd1;
-            main_uartbone_wishbone_cyc <= 1'd1;
-            if (main_uartbone_wishbone_ack) begin
-                main_uartbone_words_count_uartbone_next_value2 <= (main_uartbone_words_count + 1'd1);
-                main_uartbone_words_count_uartbone_next_value_ce2 <= 1'd1;
-                main_uartbone_address_uartbone_next_value5 <= (main_uartbone_address + main_uartbone_incr);
-                main_uartbone_address_uartbone_next_value_ce5 <= 1'd1;
-                if ((main_uartbone_words_count == (main_uartbone_length - 1'd1))) begin
-                    builder_basesoc_uartbone_next_state <= 1'd0;
-                end else begin
-                    builder_basesoc_uartbone_next_state <= 2'd3;
-                end
-            end
+            videohdmi10to1serializer0_o_data <= videohdmi10to1serializer0_shift_register[11:10];
         end
         3'd5: begin
-            main_rx_source_ready <= 1'd0;
-            main_uartbone_wishbone_stb <= 1'd1;
-            main_uartbone_wishbone_we <= 1'd0;
-            main_uartbone_wishbone_cyc <= 1'd1;
-            if (main_uartbone_wishbone_ack) begin
-                main_uartbone_data_uartbone_next_value7 <= main_uartbone_wishbone_dat_r;
-                main_uartbone_data_uartbone_next_value_ce7 <= 1'd1;
-                builder_basesoc_uartbone_next_state <= 3'd6;
-            end
+            videohdmi10to1serializer0_o_data <= videohdmi10to1serializer0_shift_register[9:8];
         end
         3'd6: begin
-            main_rx_source_ready <= 1'd0;
-            main_tx_sink_valid <= 1'd1;
-            if (main_tx_sink_ready) begin
-                main_uartbone_data_bytes_count_uartbone_next_value0 <= (main_uartbone_data_bytes_count + 1'd1);
-                main_uartbone_data_bytes_count_uartbone_next_value_ce0 <= 1'd1;
-                if ((main_uartbone_data_bytes_count == 2'd3)) begin
-                    main_uartbone_words_count_uartbone_next_value2 <= (main_uartbone_words_count + 1'd1);
-                    main_uartbone_words_count_uartbone_next_value_ce2 <= 1'd1;
-                    main_uartbone_address_uartbone_next_value5 <= (main_uartbone_address + main_uartbone_incr);
-                    main_uartbone_address_uartbone_next_value_ce5 <= 1'd1;
-                    if ((main_uartbone_words_count == (main_uartbone_length - 1'd1))) begin
-                        builder_basesoc_uartbone_next_state <= 1'd0;
-                    end else begin
-                        builder_basesoc_uartbone_next_state <= 3'd5;
-                    end
-                end
-            end
-        end
-        default: begin
-            main_uartbone_is_ongoing <= 1'd1;
-            main_rx_source_ready <= 1'd1;
-            main_uartbone_data_bytes_count_uartbone_next_value0 <= 1'd0;
-            main_uartbone_data_bytes_count_uartbone_next_value_ce0 <= 1'd1;
-            main_uartbone_addr_bytes_count_uartbone_next_value1 <= 1'd0;
-            main_uartbone_addr_bytes_count_uartbone_next_value_ce1 <= 1'd1;
-            main_uartbone_words_count_uartbone_next_value2 <= 1'd0;
-            main_uartbone_words_count_uartbone_next_value_ce2 <= 1'd1;
-            if (main_rx_source_valid) begin
-                main_uartbone_cmd_uartbone_next_value3 <= main_rx_source_payload_data;
-                main_uartbone_cmd_uartbone_next_value_ce3 <= 1'd1;
-                builder_basesoc_uartbone_next_state <= 1'd1;
-            end
-        end
-    endcase
-end
-assign main_uartbone_done = (main_uartbone_count == 1'd0);
-assign main_sink_ready = 1'd1;
-assign main_tmdsencoder0_d0 = main_sink_payload_b;
-assign main_tmdsencoder0_c = {main_sink_payload_vsync, main_sink_payload_hsync};
-assign main_tmdsencoder0_de = main_sink_payload_de;
-assign main_tmdsencoder1_d0 = main_sink_payload_g;
-assign main_tmdsencoder1_c = 1'd0;
-assign main_tmdsencoder1_de = main_sink_payload_de;
-assign main_tmdsencoder2_d0 = main_sink_payload_r;
-assign main_tmdsencoder2_c = 1'd0;
-assign main_tmdsencoder2_de = main_sink_payload_de;
-assign main_tmdsencoder0_q_m8_n = ((main_tmdsencoder0_n1d > 3'd4) | ((main_tmdsencoder0_n1d == 3'd4) & (~main_tmdsencoder0_d1[0])));
-assign main_videohdmi10to1serializer0_sink_sink_valid = 1'd1;
-assign main_videohdmi10to1serializer0_sink_sink_payload_data = main_tmdsencoder0_out;
-assign main_videohdmi10to1serializer0_sink_valid = main_videohdmi10to1serializer0_source_source_valid;
-assign main_videohdmi10to1serializer0_source_source_ready = main_videohdmi10to1serializer0_sink_ready;
-assign main_videohdmi10to1serializer0_sink_first = main_videohdmi10to1serializer0_source_source_first;
-assign main_videohdmi10to1serializer0_sink_last = main_videohdmi10to1serializer0_source_source_last;
-assign main_videohdmi10to1serializer0_sink_payload_data = main_videohdmi10to1serializer0_source_source_payload_data;
-assign main_videohdmi10to1serializer0_source_ready = 1'd1;
-assign main_videohdmi10to1serializer0_cdc_sink_valid = main_videohdmi10to1serializer0_sink_sink_valid;
-assign main_videohdmi10to1serializer0_sink_sink_ready = main_videohdmi10to1serializer0_cdc_sink_ready;
-assign main_videohdmi10to1serializer0_cdc_sink_first = main_videohdmi10to1serializer0_sink_sink_first;
-assign main_videohdmi10to1serializer0_cdc_sink_last = main_videohdmi10to1serializer0_sink_sink_last;
-assign main_videohdmi10to1serializer0_cdc_sink_payload_data = main_videohdmi10to1serializer0_sink_sink_payload_data;
-assign main_videohdmi10to1serializer0_source_source_valid = main_videohdmi10to1serializer0_cdc_source_valid;
-assign main_videohdmi10to1serializer0_cdc_source_ready = main_videohdmi10to1serializer0_source_source_ready;
-assign main_videohdmi10to1serializer0_source_source_first = main_videohdmi10to1serializer0_cdc_source_first;
-assign main_videohdmi10to1serializer0_source_source_last = main_videohdmi10to1serializer0_cdc_source_last;
-assign main_videohdmi10to1serializer0_source_source_payload_data = main_videohdmi10to1serializer0_cdc_source_payload_data;
-assign main_videohdmi10to1serializer0_cdc_asyncfifo0_din = {main_videohdmi10to1serializer0_cdc_fifo_in_last, main_videohdmi10to1serializer0_cdc_fifo_in_first, main_videohdmi10to1serializer0_cdc_fifo_in_payload_data};
-assign {main_videohdmi10to1serializer0_cdc_fifo_out_last, main_videohdmi10to1serializer0_cdc_fifo_out_first, main_videohdmi10to1serializer0_cdc_fifo_out_payload_data} = main_videohdmi10to1serializer0_cdc_asyncfifo0_dout;
-assign main_videohdmi10to1serializer0_cdc_sink_ready = main_videohdmi10to1serializer0_cdc_asyncfifo0_writable;
-assign main_videohdmi10to1serializer0_cdc_asyncfifo0_we = main_videohdmi10to1serializer0_cdc_sink_valid;
-assign main_videohdmi10to1serializer0_cdc_fifo_in_first = main_videohdmi10to1serializer0_cdc_sink_first;
-assign main_videohdmi10to1serializer0_cdc_fifo_in_last = main_videohdmi10to1serializer0_cdc_sink_last;
-assign main_videohdmi10to1serializer0_cdc_fifo_in_payload_data = main_videohdmi10to1serializer0_cdc_sink_payload_data;
-assign main_videohdmi10to1serializer0_cdc_source_valid = main_videohdmi10to1serializer0_cdc_asyncfifo0_readable;
-assign main_videohdmi10to1serializer0_cdc_source_first = main_videohdmi10to1serializer0_cdc_fifo_out_first;
-assign main_videohdmi10to1serializer0_cdc_source_last = main_videohdmi10to1serializer0_cdc_fifo_out_last;
-assign main_videohdmi10to1serializer0_cdc_source_payload_data = main_videohdmi10to1serializer0_cdc_fifo_out_payload_data;
-assign main_videohdmi10to1serializer0_cdc_asyncfifo0_re = main_videohdmi10to1serializer0_cdc_source_ready;
-assign main_videohdmi10to1serializer0_cdc_graycounter0_ce = (main_videohdmi10to1serializer0_cdc_asyncfifo0_writable & main_videohdmi10to1serializer0_cdc_asyncfifo0_we);
-assign main_videohdmi10to1serializer0_cdc_graycounter1_ce = (main_videohdmi10to1serializer0_cdc_asyncfifo0_readable & main_videohdmi10to1serializer0_cdc_asyncfifo0_re);
-assign main_videohdmi10to1serializer0_cdc_asyncfifo0_writable = (((main_videohdmi10to1serializer0_cdc_graycounter0_q[2] == main_videohdmi10to1serializer0_cdc_consume_wdomain[2]) | (main_videohdmi10to1serializer0_cdc_graycounter0_q[1] == main_videohdmi10to1serializer0_cdc_consume_wdomain[1])) | (main_videohdmi10to1serializer0_cdc_graycounter0_q[0] != main_videohdmi10to1serializer0_cdc_consume_wdomain[0]));
-assign main_videohdmi10to1serializer0_cdc_asyncfifo0_readable = (main_videohdmi10to1serializer0_cdc_graycounter1_q != main_videohdmi10to1serializer0_cdc_produce_rdomain);
-assign main_videohdmi10to1serializer0_cdc_wrport_adr = main_videohdmi10to1serializer0_cdc_graycounter0_q_binary[1:0];
-assign main_videohdmi10to1serializer0_cdc_wrport_dat_w = main_videohdmi10to1serializer0_cdc_asyncfifo0_din;
-assign main_videohdmi10to1serializer0_cdc_wrport_we = main_videohdmi10to1serializer0_cdc_graycounter0_ce;
-assign main_videohdmi10to1serializer0_cdc_rdport_adr = main_videohdmi10to1serializer0_cdc_graycounter1_q_next_binary[1:0];
-assign main_videohdmi10to1serializer0_cdc_asyncfifo0_dout = main_videohdmi10to1serializer0_cdc_rdport_dat_r;
-always @(*) begin
-    main_videohdmi10to1serializer0_cdc_graycounter0_q_next_binary <= 3'd0;
-    if (main_videohdmi10to1serializer0_cdc_graycounter0_ce) begin
-        main_videohdmi10to1serializer0_cdc_graycounter0_q_next_binary <= (main_videohdmi10to1serializer0_cdc_graycounter0_q_binary + 1'd1);
-    end else begin
-        main_videohdmi10to1serializer0_cdc_graycounter0_q_next_binary <= main_videohdmi10to1serializer0_cdc_graycounter0_q_binary;
-    end
-end
-assign main_videohdmi10to1serializer0_cdc_graycounter0_q_next = (main_videohdmi10to1serializer0_cdc_graycounter0_q_next_binary ^ main_videohdmi10to1serializer0_cdc_graycounter0_q_next_binary[2:1]);
-always @(*) begin
-    main_videohdmi10to1serializer0_cdc_graycounter1_q_next_binary <= 3'd0;
-    if (main_videohdmi10to1serializer0_cdc_graycounter1_ce) begin
-        main_videohdmi10to1serializer0_cdc_graycounter1_q_next_binary <= (main_videohdmi10to1serializer0_cdc_graycounter1_q_binary + 1'd1);
-    end else begin
-        main_videohdmi10to1serializer0_cdc_graycounter1_q_next_binary <= main_videohdmi10to1serializer0_cdc_graycounter1_q_binary;
-    end
-end
-assign main_videohdmi10to1serializer0_cdc_graycounter1_q_next = (main_videohdmi10to1serializer0_cdc_graycounter1_q_next_binary ^ main_videohdmi10to1serializer0_cdc_graycounter1_q_next_binary[2:1]);
-assign main_videohdmi10to1serializer0_sink_ready = (main_videohdmi10to1serializer0_level < 4'd10);
-assign main_videohdmi10to1serializer0_source_valid = (main_videohdmi10to1serializer0_level >= 2'd2);
-assign main_videohdmi10to1serializer0_i_inc = (main_videohdmi10to1serializer0_sink_valid & main_videohdmi10to1serializer0_sink_ready);
-assign main_videohdmi10to1serializer0_o_inc = (main_videohdmi10to1serializer0_source_valid & main_videohdmi10to1serializer0_source_ready);
-assign main_videohdmi10to1serializer0_i_data = {main_videohdmi10to1serializer0_sink_payload_data[0], main_videohdmi10to1serializer0_sink_payload_data[1], main_videohdmi10to1serializer0_sink_payload_data[2], main_videohdmi10to1serializer0_sink_payload_data[3], main_videohdmi10to1serializer0_sink_payload_data[4], main_videohdmi10to1serializer0_sink_payload_data[5], main_videohdmi10to1serializer0_sink_payload_data[6], main_videohdmi10to1serializer0_sink_payload_data[7], main_videohdmi10to1serializer0_sink_payload_data[8], main_videohdmi10to1serializer0_sink_payload_data[9]};
-always @(*) begin
-    main_videohdmi10to1serializer0_o_data <= 2'd0;
-    case (main_videohdmi10to1serializer0_o_count)
-        1'd0: begin
-            main_videohdmi10to1serializer0_o_data <= main_videohdmi10to1serializer0_shift_register[19:18];
-        end
-        1'd1: begin
-            main_videohdmi10to1serializer0_o_data <= main_videohdmi10to1serializer0_shift_register[17:16];
-        end
-        2'd2: begin
-            main_videohdmi10to1serializer0_o_data <= main_videohdmi10to1serializer0_shift_register[15:14];
-        end
-        2'd3: begin
-            main_videohdmi10to1serializer0_o_data <= main_videohdmi10to1serializer0_shift_register[13:12];
-        end
-        3'd4: begin
-            main_videohdmi10to1serializer0_o_data <= main_videohdmi10to1serializer0_shift_register[11:10];
-        end
-        3'd5: begin
-            main_videohdmi10to1serializer0_o_data <= main_videohdmi10to1serializer0_shift_register[9:8];
-        end
-        3'd6: begin
-            main_videohdmi10to1serializer0_o_data <= main_videohdmi10to1serializer0_shift_register[7:6];
+            videohdmi10to1serializer0_o_data <= videohdmi10to1serializer0_shift_register[7:6];
         end
         3'd7: begin
-            main_videohdmi10to1serializer0_o_data <= main_videohdmi10to1serializer0_shift_register[5:4];
+            videohdmi10to1serializer0_o_data <= videohdmi10to1serializer0_shift_register[5:4];
         end
         4'd8: begin
-            main_videohdmi10to1serializer0_o_data <= main_videohdmi10to1serializer0_shift_register[3:2];
+            videohdmi10to1serializer0_o_data <= videohdmi10to1serializer0_shift_register[3:2];
         end
         4'd9: begin
-            main_videohdmi10to1serializer0_o_data <= main_videohdmi10to1serializer0_shift_register[1:0];
+            videohdmi10to1serializer0_o_data <= videohdmi10to1serializer0_shift_register[1:0];
         end
     endcase
 end
-assign main_videohdmi10to1serializer0_source_payload_data = {main_videohdmi10to1serializer0_o_data[0], main_videohdmi10to1serializer0_o_data[1]};
-assign main_tmdsencoder1_q_m8_n = ((main_tmdsencoder1_n1d > 3'd4) | ((main_tmdsencoder1_n1d == 3'd4) & (~main_tmdsencoder1_d1[0])));
-assign main_videohdmi10to1serializer1_sink_sink_valid = 1'd1;
-assign main_videohdmi10to1serializer1_sink_sink_payload_data = main_tmdsencoder1_out;
-assign main_videohdmi10to1serializer1_sink_valid = main_videohdmi10to1serializer1_source_source_valid;
-assign main_videohdmi10to1serializer1_source_source_ready = main_videohdmi10to1serializer1_sink_ready;
-assign main_videohdmi10to1serializer1_sink_first = main_videohdmi10to1serializer1_source_source_first;
-assign main_videohdmi10to1serializer1_sink_last = main_videohdmi10to1serializer1_source_source_last;
-assign main_videohdmi10to1serializer1_sink_payload_data = main_videohdmi10to1serializer1_source_source_payload_data;
-assign main_videohdmi10to1serializer1_source_ready = 1'd1;
-assign main_videohdmi10to1serializer1_cdc_sink_valid = main_videohdmi10to1serializer1_sink_sink_valid;
-assign main_videohdmi10to1serializer1_sink_sink_ready = main_videohdmi10to1serializer1_cdc_sink_ready;
-assign main_videohdmi10to1serializer1_cdc_sink_first = main_videohdmi10to1serializer1_sink_sink_first;
-assign main_videohdmi10to1serializer1_cdc_sink_last = main_videohdmi10to1serializer1_sink_sink_last;
-assign main_videohdmi10to1serializer1_cdc_sink_payload_data = main_videohdmi10to1serializer1_sink_sink_payload_data;
-assign main_videohdmi10to1serializer1_source_source_valid = main_videohdmi10to1serializer1_cdc_source_valid;
-assign main_videohdmi10to1serializer1_cdc_source_ready = main_videohdmi10to1serializer1_source_source_ready;
-assign main_videohdmi10to1serializer1_source_source_first = main_videohdmi10to1serializer1_cdc_source_first;
-assign main_videohdmi10to1serializer1_source_source_last = main_videohdmi10to1serializer1_cdc_source_last;
-assign main_videohdmi10to1serializer1_source_source_payload_data = main_videohdmi10to1serializer1_cdc_source_payload_data;
-assign main_videohdmi10to1serializer1_cdc_asyncfifo1_din = {main_videohdmi10to1serializer1_cdc_fifo_in_last, main_videohdmi10to1serializer1_cdc_fifo_in_first, main_videohdmi10to1serializer1_cdc_fifo_in_payload_data};
-assign {main_videohdmi10to1serializer1_cdc_fifo_out_last, main_videohdmi10to1serializer1_cdc_fifo_out_first, main_videohdmi10to1serializer1_cdc_fifo_out_payload_data} = main_videohdmi10to1serializer1_cdc_asyncfifo1_dout;
-assign main_videohdmi10to1serializer1_cdc_sink_ready = main_videohdmi10to1serializer1_cdc_asyncfifo1_writable;
-assign main_videohdmi10to1serializer1_cdc_asyncfifo1_we = main_videohdmi10to1serializer1_cdc_sink_valid;
-assign main_videohdmi10to1serializer1_cdc_fifo_in_first = main_videohdmi10to1serializer1_cdc_sink_first;
-assign main_videohdmi10to1serializer1_cdc_fifo_in_last = main_videohdmi10to1serializer1_cdc_sink_last;
-assign main_videohdmi10to1serializer1_cdc_fifo_in_payload_data = main_videohdmi10to1serializer1_cdc_sink_payload_data;
-assign main_videohdmi10to1serializer1_cdc_source_valid = main_videohdmi10to1serializer1_cdc_asyncfifo1_readable;
-assign main_videohdmi10to1serializer1_cdc_source_first = main_videohdmi10to1serializer1_cdc_fifo_out_first;
-assign main_videohdmi10to1serializer1_cdc_source_last = main_videohdmi10to1serializer1_cdc_fifo_out_last;
-assign main_videohdmi10to1serializer1_cdc_source_payload_data = main_videohdmi10to1serializer1_cdc_fifo_out_payload_data;
-assign main_videohdmi10to1serializer1_cdc_asyncfifo1_re = main_videohdmi10to1serializer1_cdc_source_ready;
-assign main_videohdmi10to1serializer1_cdc_graycounter2_ce = (main_videohdmi10to1serializer1_cdc_asyncfifo1_writable & main_videohdmi10to1serializer1_cdc_asyncfifo1_we);
-assign main_videohdmi10to1serializer1_cdc_graycounter3_ce = (main_videohdmi10to1serializer1_cdc_asyncfifo1_readable & main_videohdmi10to1serializer1_cdc_asyncfifo1_re);
-assign main_videohdmi10to1serializer1_cdc_asyncfifo1_writable = (((main_videohdmi10to1serializer1_cdc_graycounter2_q[2] == main_videohdmi10to1serializer1_cdc_consume_wdomain[2]) | (main_videohdmi10to1serializer1_cdc_graycounter2_q[1] == main_videohdmi10to1serializer1_cdc_consume_wdomain[1])) | (main_videohdmi10to1serializer1_cdc_graycounter2_q[0] != main_videohdmi10to1serializer1_cdc_consume_wdomain[0]));
-assign main_videohdmi10to1serializer1_cdc_asyncfifo1_readable = (main_videohdmi10to1serializer1_cdc_graycounter3_q != main_videohdmi10to1serializer1_cdc_produce_rdomain);
-assign main_videohdmi10to1serializer1_cdc_wrport_adr = main_videohdmi10to1serializer1_cdc_graycounter2_q_binary[1:0];
-assign main_videohdmi10to1serializer1_cdc_wrport_dat_w = main_videohdmi10to1serializer1_cdc_asyncfifo1_din;
-assign main_videohdmi10to1serializer1_cdc_wrport_we = main_videohdmi10to1serializer1_cdc_graycounter2_ce;
-assign main_videohdmi10to1serializer1_cdc_rdport_adr = main_videohdmi10to1serializer1_cdc_graycounter3_q_next_binary[1:0];
-assign main_videohdmi10to1serializer1_cdc_asyncfifo1_dout = main_videohdmi10to1serializer1_cdc_rdport_dat_r;
+assign videohdmi10to1serializer0_source_payload_data = {videohdmi10to1serializer0_o_data[0], videohdmi10to1serializer0_o_data[1]};
+assign tmdsencoder1_q_m8_n = ((tmdsencoder1_n1d > 3'd4) | ((tmdsencoder1_n1d == 3'd4) & (~tmdsencoder1_d1[0])));
+assign videohdmi10to1serializer1_sink_sink_valid = 1'd1;
+assign videohdmi10to1serializer1_sink_sink_payload_data = tmdsencoder1_out;
+assign videohdmi10to1serializer1_sink_valid = videohdmi10to1serializer1_source_source_valid;
+assign videohdmi10to1serializer1_source_source_ready = videohdmi10to1serializer1_sink_ready;
+assign videohdmi10to1serializer1_sink_first = videohdmi10to1serializer1_source_source_first;
+assign videohdmi10to1serializer1_sink_last = videohdmi10to1serializer1_source_source_last;
+assign videohdmi10to1serializer1_sink_payload_data = videohdmi10to1serializer1_source_source_payload_data;
+assign videohdmi10to1serializer1_source_ready = 1'd1;
+assign videohdmi10to1serializer1_cdc_sink_valid = videohdmi10to1serializer1_sink_sink_valid;
+assign videohdmi10to1serializer1_sink_sink_ready = videohdmi10to1serializer1_cdc_sink_ready;
+assign videohdmi10to1serializer1_cdc_sink_first = videohdmi10to1serializer1_sink_sink_first;
+assign videohdmi10to1serializer1_cdc_sink_last = videohdmi10to1serializer1_sink_sink_last;
+assign videohdmi10to1serializer1_cdc_sink_payload_data = videohdmi10to1serializer1_sink_sink_payload_data;
+assign videohdmi10to1serializer1_source_source_valid = videohdmi10to1serializer1_cdc_source_valid;
+assign videohdmi10to1serializer1_cdc_source_ready = videohdmi10to1serializer1_source_source_ready;
+assign videohdmi10to1serializer1_source_source_first = videohdmi10to1serializer1_cdc_source_first;
+assign videohdmi10to1serializer1_source_source_last = videohdmi10to1serializer1_cdc_source_last;
+assign videohdmi10to1serializer1_source_source_payload_data = videohdmi10to1serializer1_cdc_source_payload_data;
+assign videohdmi10to1serializer1_cdc_asyncfifo1_din = {videohdmi10to1serializer1_cdc_fifo_in_last, videohdmi10to1serializer1_cdc_fifo_in_first, videohdmi10to1serializer1_cdc_fifo_in_payload_data};
+assign {videohdmi10to1serializer1_cdc_fifo_out_last, videohdmi10to1serializer1_cdc_fifo_out_first, videohdmi10to1serializer1_cdc_fifo_out_payload_data} = videohdmi10to1serializer1_cdc_asyncfifo1_dout;
+assign videohdmi10to1serializer1_cdc_sink_ready = videohdmi10to1serializer1_cdc_asyncfifo1_writable;
+assign videohdmi10to1serializer1_cdc_asyncfifo1_we = videohdmi10to1serializer1_cdc_sink_valid;
+assign videohdmi10to1serializer1_cdc_fifo_in_first = videohdmi10to1serializer1_cdc_sink_first;
+assign videohdmi10to1serializer1_cdc_fifo_in_last = videohdmi10to1serializer1_cdc_sink_last;
+assign videohdmi10to1serializer1_cdc_fifo_in_payload_data = videohdmi10to1serializer1_cdc_sink_payload_data;
+assign videohdmi10to1serializer1_cdc_source_valid = videohdmi10to1serializer1_cdc_asyncfifo1_readable;
+assign videohdmi10to1serializer1_cdc_source_first = videohdmi10to1serializer1_cdc_fifo_out_first;
+assign videohdmi10to1serializer1_cdc_source_last = videohdmi10to1serializer1_cdc_fifo_out_last;
+assign videohdmi10to1serializer1_cdc_source_payload_data = videohdmi10to1serializer1_cdc_fifo_out_payload_data;
+assign videohdmi10to1serializer1_cdc_asyncfifo1_re = videohdmi10to1serializer1_cdc_source_ready;
+assign videohdmi10to1serializer1_cdc_graycounter2_ce = (videohdmi10to1serializer1_cdc_asyncfifo1_writable & videohdmi10to1serializer1_cdc_asyncfifo1_we);
+assign videohdmi10to1serializer1_cdc_graycounter3_ce = (videohdmi10to1serializer1_cdc_asyncfifo1_readable & videohdmi10to1serializer1_cdc_asyncfifo1_re);
+assign videohdmi10to1serializer1_cdc_asyncfifo1_writable = (((videohdmi10to1serializer1_cdc_graycounter2_q[2] == videohdmi10to1serializer1_cdc_consume_wdomain[2]) | (videohdmi10to1serializer1_cdc_graycounter2_q[1] == videohdmi10to1serializer1_cdc_consume_wdomain[1])) | (videohdmi10to1serializer1_cdc_graycounter2_q[0] != videohdmi10to1serializer1_cdc_consume_wdomain[0]));
+assign videohdmi10to1serializer1_cdc_asyncfifo1_readable = (videohdmi10to1serializer1_cdc_graycounter3_q != videohdmi10to1serializer1_cdc_produce_rdomain);
+assign videohdmi10to1serializer1_cdc_wrport_adr = videohdmi10to1serializer1_cdc_graycounter2_q_binary[1:0];
+assign videohdmi10to1serializer1_cdc_wrport_dat_w = videohdmi10to1serializer1_cdc_asyncfifo1_din;
+assign videohdmi10to1serializer1_cdc_wrport_we = videohdmi10to1serializer1_cdc_graycounter2_ce;
+assign videohdmi10to1serializer1_cdc_rdport_adr = videohdmi10to1serializer1_cdc_graycounter3_q_next_binary[1:0];
+assign videohdmi10to1serializer1_cdc_asyncfifo1_dout = videohdmi10to1serializer1_cdc_rdport_dat_r;
 always @(*) begin
-    main_videohdmi10to1serializer1_cdc_graycounter2_q_next_binary <= 3'd0;
-    if (main_videohdmi10to1serializer1_cdc_graycounter2_ce) begin
-        main_videohdmi10to1serializer1_cdc_graycounter2_q_next_binary <= (main_videohdmi10to1serializer1_cdc_graycounter2_q_binary + 1'd1);
+    videohdmi10to1serializer1_cdc_graycounter2_q_next_binary <= 3'd0;
+    if (videohdmi10to1serializer1_cdc_graycounter2_ce) begin
+        videohdmi10to1serializer1_cdc_graycounter2_q_next_binary <= (videohdmi10to1serializer1_cdc_graycounter2_q_binary + 1'd1);
     end else begin
-        main_videohdmi10to1serializer1_cdc_graycounter2_q_next_binary <= main_videohdmi10to1serializer1_cdc_graycounter2_q_binary;
+        videohdmi10to1serializer1_cdc_graycounter2_q_next_binary <= videohdmi10to1serializer1_cdc_graycounter2_q_binary;
     end
 end
-assign main_videohdmi10to1serializer1_cdc_graycounter2_q_next = (main_videohdmi10to1serializer1_cdc_graycounter2_q_next_binary ^ main_videohdmi10to1serializer1_cdc_graycounter2_q_next_binary[2:1]);
+assign videohdmi10to1serializer1_cdc_graycounter2_q_next = (videohdmi10to1serializer1_cdc_graycounter2_q_next_binary ^ videohdmi10to1serializer1_cdc_graycounter2_q_next_binary[2:1]);
 always @(*) begin
-    main_videohdmi10to1serializer1_cdc_graycounter3_q_next_binary <= 3'd0;
-    if (main_videohdmi10to1serializer1_cdc_graycounter3_ce) begin
-        main_videohdmi10to1serializer1_cdc_graycounter3_q_next_binary <= (main_videohdmi10to1serializer1_cdc_graycounter3_q_binary + 1'd1);
+    videohdmi10to1serializer1_cdc_graycounter3_q_next_binary <= 3'd0;
+    if (videohdmi10to1serializer1_cdc_graycounter3_ce) begin
+        videohdmi10to1serializer1_cdc_graycounter3_q_next_binary <= (videohdmi10to1serializer1_cdc_graycounter3_q_binary + 1'd1);
     end else begin
-        main_videohdmi10to1serializer1_cdc_graycounter3_q_next_binary <= main_videohdmi10to1serializer1_cdc_graycounter3_q_binary;
+        videohdmi10to1serializer1_cdc_graycounter3_q_next_binary <= videohdmi10to1serializer1_cdc_graycounter3_q_binary;
     end
 end
-assign main_videohdmi10to1serializer1_cdc_graycounter3_q_next = (main_videohdmi10to1serializer1_cdc_graycounter3_q_next_binary ^ main_videohdmi10to1serializer1_cdc_graycounter3_q_next_binary[2:1]);
-assign main_videohdmi10to1serializer1_sink_ready = (main_videohdmi10to1serializer1_level < 4'd10);
-assign main_videohdmi10to1serializer1_source_valid = (main_videohdmi10to1serializer1_level >= 2'd2);
-assign main_videohdmi10to1serializer1_i_inc = (main_videohdmi10to1serializer1_sink_valid & main_videohdmi10to1serializer1_sink_ready);
-assign main_videohdmi10to1serializer1_o_inc = (main_videohdmi10to1serializer1_source_valid & main_videohdmi10to1serializer1_source_ready);
-assign main_videohdmi10to1serializer1_i_data = {main_videohdmi10to1serializer1_sink_payload_data[0], main_videohdmi10to1serializer1_sink_payload_data[1], main_videohdmi10to1serializer1_sink_payload_data[2], main_videohdmi10to1serializer1_sink_payload_data[3], main_videohdmi10to1serializer1_sink_payload_data[4], main_videohdmi10to1serializer1_sink_payload_data[5], main_videohdmi10to1serializer1_sink_payload_data[6], main_videohdmi10to1serializer1_sink_payload_data[7], main_videohdmi10to1serializer1_sink_payload_data[8], main_videohdmi10to1serializer1_sink_payload_data[9]};
+assign videohdmi10to1serializer1_cdc_graycounter3_q_next = (videohdmi10to1serializer1_cdc_graycounter3_q_next_binary ^ videohdmi10to1serializer1_cdc_graycounter3_q_next_binary[2:1]);
+assign videohdmi10to1serializer1_sink_ready = (videohdmi10to1serializer1_level < 4'd10);
+assign videohdmi10to1serializer1_source_valid = (videohdmi10to1serializer1_level >= 2'd2);
+assign videohdmi10to1serializer1_i_inc = (videohdmi10to1serializer1_sink_valid & videohdmi10to1serializer1_sink_ready);
+assign videohdmi10to1serializer1_o_inc = (videohdmi10to1serializer1_source_valid & videohdmi10to1serializer1_source_ready);
+assign videohdmi10to1serializer1_i_data = {videohdmi10to1serializer1_sink_payload_data[0], videohdmi10to1serializer1_sink_payload_data[1], videohdmi10to1serializer1_sink_payload_data[2], videohdmi10to1serializer1_sink_payload_data[3], videohdmi10to1serializer1_sink_payload_data[4], videohdmi10to1serializer1_sink_payload_data[5], videohdmi10to1serializer1_sink_payload_data[6], videohdmi10to1serializer1_sink_payload_data[7], videohdmi10to1serializer1_sink_payload_data[8], videohdmi10to1serializer1_sink_payload_data[9]};
 always @(*) begin
-    main_videohdmi10to1serializer1_o_data <= 2'd0;
-    case (main_videohdmi10to1serializer1_o_count)
+    videohdmi10to1serializer1_o_data <= 2'd0;
+    case (videohdmi10to1serializer1_o_count)
         1'd0: begin
-            main_videohdmi10to1serializer1_o_data <= main_videohdmi10to1serializer1_shift_register[19:18];
+            videohdmi10to1serializer1_o_data <= videohdmi10to1serializer1_shift_register[19:18];
         end
         1'd1: begin
-            main_videohdmi10to1serializer1_o_data <= main_videohdmi10to1serializer1_shift_register[17:16];
+            videohdmi10to1serializer1_o_data <= videohdmi10to1serializer1_shift_register[17:16];
         end
         2'd2: begin
-            main_videohdmi10to1serializer1_o_data <= main_videohdmi10to1serializer1_shift_register[15:14];
+            videohdmi10to1serializer1_o_data <= videohdmi10to1serializer1_shift_register[15:14];
         end
         2'd3: begin
-            main_videohdmi10to1serializer1_o_data <= main_videohdmi10to1serializer1_shift_register[13:12];
+            videohdmi10to1serializer1_o_data <= videohdmi10to1serializer1_shift_register[13:12];
         end
         3'd4: begin
-            main_videohdmi10to1serializer1_o_data <= main_videohdmi10to1serializer1_shift_register[11:10];
+            videohdmi10to1serializer1_o_data <= videohdmi10to1serializer1_shift_register[11:10];
         end
         3'd5: begin
-            main_videohdmi10to1serializer1_o_data <= main_videohdmi10to1serializer1_shift_register[9:8];
+            videohdmi10to1serializer1_o_data <= videohdmi10to1serializer1_shift_register[9:8];
         end
         3'd6: begin
-            main_videohdmi10to1serializer1_o_data <= main_videohdmi10to1serializer1_shift_register[7:6];
+            videohdmi10to1serializer1_o_data <= videohdmi10to1serializer1_shift_register[7:6];
         end
         3'd7: begin
-            main_videohdmi10to1serializer1_o_data <= main_videohdmi10to1serializer1_shift_register[5:4];
+            videohdmi10to1serializer1_o_data <= videohdmi10to1serializer1_shift_register[5:4];
         end
         4'd8: begin
-            main_videohdmi10to1serializer1_o_data <= main_videohdmi10to1serializer1_shift_register[3:2];
+            videohdmi10to1serializer1_o_data <= videohdmi10to1serializer1_shift_register[3:2];
         end
         4'd9: begin
-            main_videohdmi10to1serializer1_o_data <= main_videohdmi10to1serializer1_shift_register[1:0];
+            videohdmi10to1serializer1_o_data <= videohdmi10to1serializer1_shift_register[1:0];
         end
     endcase
 end
-assign main_videohdmi10to1serializer1_source_payload_data = {main_videohdmi10to1serializer1_o_data[0], main_videohdmi10to1serializer1_o_data[1]};
-assign main_tmdsencoder2_q_m8_n = ((main_tmdsencoder2_n1d > 3'd4) | ((main_tmdsencoder2_n1d == 3'd4) & (~main_tmdsencoder2_d1[0])));
-assign main_videohdmi10to1serializer2_sink_sink_valid = 1'd1;
-assign main_videohdmi10to1serializer2_sink_sink_payload_data = main_tmdsencoder2_out;
-assign main_videohdmi10to1serializer2_sink_valid = main_videohdmi10to1serializer2_source_source_valid;
-assign main_videohdmi10to1serializer2_source_source_ready = main_videohdmi10to1serializer2_sink_ready;
-assign main_videohdmi10to1serializer2_sink_first = main_videohdmi10to1serializer2_source_source_first;
-assign main_videohdmi10to1serializer2_sink_last = main_videohdmi10to1serializer2_source_source_last;
-assign main_videohdmi10to1serializer2_sink_payload_data = main_videohdmi10to1serializer2_source_source_payload_data;
-assign main_videohdmi10to1serializer2_source_ready = 1'd1;
-assign main_videohdmi10to1serializer2_cdc_sink_valid = main_videohdmi10to1serializer2_sink_sink_valid;
-assign main_videohdmi10to1serializer2_sink_sink_ready = main_videohdmi10to1serializer2_cdc_sink_ready;
-assign main_videohdmi10to1serializer2_cdc_sink_first = main_videohdmi10to1serializer2_sink_sink_first;
-assign main_videohdmi10to1serializer2_cdc_sink_last = main_videohdmi10to1serializer2_sink_sink_last;
-assign main_videohdmi10to1serializer2_cdc_sink_payload_data = main_videohdmi10to1serializer2_sink_sink_payload_data;
-assign main_videohdmi10to1serializer2_source_source_valid = main_videohdmi10to1serializer2_cdc_source_valid;
-assign main_videohdmi10to1serializer2_cdc_source_ready = main_videohdmi10to1serializer2_source_source_ready;
-assign main_videohdmi10to1serializer2_source_source_first = main_videohdmi10to1serializer2_cdc_source_first;
-assign main_videohdmi10to1serializer2_source_source_last = main_videohdmi10to1serializer2_cdc_source_last;
-assign main_videohdmi10to1serializer2_source_source_payload_data = main_videohdmi10to1serializer2_cdc_source_payload_data;
-assign main_videohdmi10to1serializer2_cdc_asyncfifo2_din = {main_videohdmi10to1serializer2_cdc_fifo_in_last, main_videohdmi10to1serializer2_cdc_fifo_in_first, main_videohdmi10to1serializer2_cdc_fifo_in_payload_data};
-assign {main_videohdmi10to1serializer2_cdc_fifo_out_last, main_videohdmi10to1serializer2_cdc_fifo_out_first, main_videohdmi10to1serializer2_cdc_fifo_out_payload_data} = main_videohdmi10to1serializer2_cdc_asyncfifo2_dout;
-assign main_videohdmi10to1serializer2_cdc_sink_ready = main_videohdmi10to1serializer2_cdc_asyncfifo2_writable;
-assign main_videohdmi10to1serializer2_cdc_asyncfifo2_we = main_videohdmi10to1serializer2_cdc_sink_valid;
-assign main_videohdmi10to1serializer2_cdc_fifo_in_first = main_videohdmi10to1serializer2_cdc_sink_first;
-assign main_videohdmi10to1serializer2_cdc_fifo_in_last = main_videohdmi10to1serializer2_cdc_sink_last;
-assign main_videohdmi10to1serializer2_cdc_fifo_in_payload_data = main_videohdmi10to1serializer2_cdc_sink_payload_data;
-assign main_videohdmi10to1serializer2_cdc_source_valid = main_videohdmi10to1serializer2_cdc_asyncfifo2_readable;
-assign main_videohdmi10to1serializer2_cdc_source_first = main_videohdmi10to1serializer2_cdc_fifo_out_first;
-assign main_videohdmi10to1serializer2_cdc_source_last = main_videohdmi10to1serializer2_cdc_fifo_out_last;
-assign main_videohdmi10to1serializer2_cdc_source_payload_data = main_videohdmi10to1serializer2_cdc_fifo_out_payload_data;
-assign main_videohdmi10to1serializer2_cdc_asyncfifo2_re = main_videohdmi10to1serializer2_cdc_source_ready;
-assign main_videohdmi10to1serializer2_cdc_graycounter4_ce = (main_videohdmi10to1serializer2_cdc_asyncfifo2_writable & main_videohdmi10to1serializer2_cdc_asyncfifo2_we);
-assign main_videohdmi10to1serializer2_cdc_graycounter5_ce = (main_videohdmi10to1serializer2_cdc_asyncfifo2_readable & main_videohdmi10to1serializer2_cdc_asyncfifo2_re);
-assign main_videohdmi10to1serializer2_cdc_asyncfifo2_writable = (((main_videohdmi10to1serializer2_cdc_graycounter4_q[2] == main_videohdmi10to1serializer2_cdc_consume_wdomain[2]) | (main_videohdmi10to1serializer2_cdc_graycounter4_q[1] == main_videohdmi10to1serializer2_cdc_consume_wdomain[1])) | (main_videohdmi10to1serializer2_cdc_graycounter4_q[0] != main_videohdmi10to1serializer2_cdc_consume_wdomain[0]));
-assign main_videohdmi10to1serializer2_cdc_asyncfifo2_readable = (main_videohdmi10to1serializer2_cdc_graycounter5_q != main_videohdmi10to1serializer2_cdc_produce_rdomain);
-assign main_videohdmi10to1serializer2_cdc_wrport_adr = main_videohdmi10to1serializer2_cdc_graycounter4_q_binary[1:0];
-assign main_videohdmi10to1serializer2_cdc_wrport_dat_w = main_videohdmi10to1serializer2_cdc_asyncfifo2_din;
-assign main_videohdmi10to1serializer2_cdc_wrport_we = main_videohdmi10to1serializer2_cdc_graycounter4_ce;
-assign main_videohdmi10to1serializer2_cdc_rdport_adr = main_videohdmi10to1serializer2_cdc_graycounter5_q_next_binary[1:0];
-assign main_videohdmi10to1serializer2_cdc_asyncfifo2_dout = main_videohdmi10to1serializer2_cdc_rdport_dat_r;
+assign videohdmi10to1serializer1_source_payload_data = {videohdmi10to1serializer1_o_data[0], videohdmi10to1serializer1_o_data[1]};
+assign tmdsencoder2_q_m8_n = ((tmdsencoder2_n1d > 3'd4) | ((tmdsencoder2_n1d == 3'd4) & (~tmdsencoder2_d1[0])));
+assign videohdmi10to1serializer2_sink_sink_valid = 1'd1;
+assign videohdmi10to1serializer2_sink_sink_payload_data = tmdsencoder2_out;
+assign videohdmi10to1serializer2_sink_valid = videohdmi10to1serializer2_source_source_valid;
+assign videohdmi10to1serializer2_source_source_ready = videohdmi10to1serializer2_sink_ready;
+assign videohdmi10to1serializer2_sink_first = videohdmi10to1serializer2_source_source_first;
+assign videohdmi10to1serializer2_sink_last = videohdmi10to1serializer2_source_source_last;
+assign videohdmi10to1serializer2_sink_payload_data = videohdmi10to1serializer2_source_source_payload_data;
+assign videohdmi10to1serializer2_source_ready = 1'd1;
+assign videohdmi10to1serializer2_cdc_sink_valid = videohdmi10to1serializer2_sink_sink_valid;
+assign videohdmi10to1serializer2_sink_sink_ready = videohdmi10to1serializer2_cdc_sink_ready;
+assign videohdmi10to1serializer2_cdc_sink_first = videohdmi10to1serializer2_sink_sink_first;
+assign videohdmi10to1serializer2_cdc_sink_last = videohdmi10to1serializer2_sink_sink_last;
+assign videohdmi10to1serializer2_cdc_sink_payload_data = videohdmi10to1serializer2_sink_sink_payload_data;
+assign videohdmi10to1serializer2_source_source_valid = videohdmi10to1serializer2_cdc_source_valid;
+assign videohdmi10to1serializer2_cdc_source_ready = videohdmi10to1serializer2_source_source_ready;
+assign videohdmi10to1serializer2_source_source_first = videohdmi10to1serializer2_cdc_source_first;
+assign videohdmi10to1serializer2_source_source_last = videohdmi10to1serializer2_cdc_source_last;
+assign videohdmi10to1serializer2_source_source_payload_data = videohdmi10to1serializer2_cdc_source_payload_data;
+assign videohdmi10to1serializer2_cdc_asyncfifo2_din = {videohdmi10to1serializer2_cdc_fifo_in_last, videohdmi10to1serializer2_cdc_fifo_in_first, videohdmi10to1serializer2_cdc_fifo_in_payload_data};
+assign {videohdmi10to1serializer2_cdc_fifo_out_last, videohdmi10to1serializer2_cdc_fifo_out_first, videohdmi10to1serializer2_cdc_fifo_out_payload_data} = videohdmi10to1serializer2_cdc_asyncfifo2_dout;
+assign videohdmi10to1serializer2_cdc_sink_ready = videohdmi10to1serializer2_cdc_asyncfifo2_writable;
+assign videohdmi10to1serializer2_cdc_asyncfifo2_we = videohdmi10to1serializer2_cdc_sink_valid;
+assign videohdmi10to1serializer2_cdc_fifo_in_first = videohdmi10to1serializer2_cdc_sink_first;
+assign videohdmi10to1serializer2_cdc_fifo_in_last = videohdmi10to1serializer2_cdc_sink_last;
+assign videohdmi10to1serializer2_cdc_fifo_in_payload_data = videohdmi10to1serializer2_cdc_sink_payload_data;
+assign videohdmi10to1serializer2_cdc_source_valid = videohdmi10to1serializer2_cdc_asyncfifo2_readable;
+assign videohdmi10to1serializer2_cdc_source_first = videohdmi10to1serializer2_cdc_fifo_out_first;
+assign videohdmi10to1serializer2_cdc_source_last = videohdmi10to1serializer2_cdc_fifo_out_last;
+assign videohdmi10to1serializer2_cdc_source_payload_data = videohdmi10to1serializer2_cdc_fifo_out_payload_data;
+assign videohdmi10to1serializer2_cdc_asyncfifo2_re = videohdmi10to1serializer2_cdc_source_ready;
+assign videohdmi10to1serializer2_cdc_graycounter4_ce = (videohdmi10to1serializer2_cdc_asyncfifo2_writable & videohdmi10to1serializer2_cdc_asyncfifo2_we);
+assign videohdmi10to1serializer2_cdc_graycounter5_ce = (videohdmi10to1serializer2_cdc_asyncfifo2_readable & videohdmi10to1serializer2_cdc_asyncfifo2_re);
+assign videohdmi10to1serializer2_cdc_asyncfifo2_writable = (((videohdmi10to1serializer2_cdc_graycounter4_q[2] == videohdmi10to1serializer2_cdc_consume_wdomain[2]) | (videohdmi10to1serializer2_cdc_graycounter4_q[1] == videohdmi10to1serializer2_cdc_consume_wdomain[1])) | (videohdmi10to1serializer2_cdc_graycounter4_q[0] != videohdmi10to1serializer2_cdc_consume_wdomain[0]));
+assign videohdmi10to1serializer2_cdc_asyncfifo2_readable = (videohdmi10to1serializer2_cdc_graycounter5_q != videohdmi10to1serializer2_cdc_produce_rdomain);
+assign videohdmi10to1serializer2_cdc_wrport_adr = videohdmi10to1serializer2_cdc_graycounter4_q_binary[1:0];
+assign videohdmi10to1serializer2_cdc_wrport_dat_w = videohdmi10to1serializer2_cdc_asyncfifo2_din;
+assign videohdmi10to1serializer2_cdc_wrport_we = videohdmi10to1serializer2_cdc_graycounter4_ce;
+assign videohdmi10to1serializer2_cdc_rdport_adr = videohdmi10to1serializer2_cdc_graycounter5_q_next_binary[1:0];
+assign videohdmi10to1serializer2_cdc_asyncfifo2_dout = videohdmi10to1serializer2_cdc_rdport_dat_r;
 always @(*) begin
-    main_videohdmi10to1serializer2_cdc_graycounter4_q_next_binary <= 3'd0;
-    if (main_videohdmi10to1serializer2_cdc_graycounter4_ce) begin
-        main_videohdmi10to1serializer2_cdc_graycounter4_q_next_binary <= (main_videohdmi10to1serializer2_cdc_graycounter4_q_binary + 1'd1);
+    videohdmi10to1serializer2_cdc_graycounter4_q_next_binary <= 3'd0;
+    if (videohdmi10to1serializer2_cdc_graycounter4_ce) begin
+        videohdmi10to1serializer2_cdc_graycounter4_q_next_binary <= (videohdmi10to1serializer2_cdc_graycounter4_q_binary + 1'd1);
     end else begin
-        main_videohdmi10to1serializer2_cdc_graycounter4_q_next_binary <= main_videohdmi10to1serializer2_cdc_graycounter4_q_binary;
+        videohdmi10to1serializer2_cdc_graycounter4_q_next_binary <= videohdmi10to1serializer2_cdc_graycounter4_q_binary;
     end
 end
-assign main_videohdmi10to1serializer2_cdc_graycounter4_q_next = (main_videohdmi10to1serializer2_cdc_graycounter4_q_next_binary ^ main_videohdmi10to1serializer2_cdc_graycounter4_q_next_binary[2:1]);
+assign videohdmi10to1serializer2_cdc_graycounter4_q_next = (videohdmi10to1serializer2_cdc_graycounter4_q_next_binary ^ videohdmi10to1serializer2_cdc_graycounter4_q_next_binary[2:1]);
 always @(*) begin
-    main_videohdmi10to1serializer2_cdc_graycounter5_q_next_binary <= 3'd0;
-    if (main_videohdmi10to1serializer2_cdc_graycounter5_ce) begin
-        main_videohdmi10to1serializer2_cdc_graycounter5_q_next_binary <= (main_videohdmi10to1serializer2_cdc_graycounter5_q_binary + 1'd1);
+    videohdmi10to1serializer2_cdc_graycounter5_q_next_binary <= 3'd0;
+    if (videohdmi10to1serializer2_cdc_graycounter5_ce) begin
+        videohdmi10to1serializer2_cdc_graycounter5_q_next_binary <= (videohdmi10to1serializer2_cdc_graycounter5_q_binary + 1'd1);
     end else begin
-        main_videohdmi10to1serializer2_cdc_graycounter5_q_next_binary <= main_videohdmi10to1serializer2_cdc_graycounter5_q_binary;
+        videohdmi10to1serializer2_cdc_graycounter5_q_next_binary <= videohdmi10to1serializer2_cdc_graycounter5_q_binary;
     end
 end
-assign main_videohdmi10to1serializer2_cdc_graycounter5_q_next = (main_videohdmi10to1serializer2_cdc_graycounter5_q_next_binary ^ main_videohdmi10to1serializer2_cdc_graycounter5_q_next_binary[2:1]);
-assign main_videohdmi10to1serializer2_sink_ready = (main_videohdmi10to1serializer2_level < 4'd10);
-assign main_videohdmi10to1serializer2_source_valid = (main_videohdmi10to1serializer2_level >= 2'd2);
-assign main_videohdmi10to1serializer2_i_inc = (main_videohdmi10to1serializer2_sink_valid & main_videohdmi10to1serializer2_sink_ready);
-assign main_videohdmi10to1serializer2_o_inc = (main_videohdmi10to1serializer2_source_valid & main_videohdmi10to1serializer2_source_ready);
-assign main_videohdmi10to1serializer2_i_data = {main_videohdmi10to1serializer2_sink_payload_data[0], main_videohdmi10to1serializer2_sink_payload_data[1], main_videohdmi10to1serializer2_sink_payload_data[2], main_videohdmi10to1serializer2_sink_payload_data[3], main_videohdmi10to1serializer2_sink_payload_data[4], main_videohdmi10to1serializer2_sink_payload_data[5], main_videohdmi10to1serializer2_sink_payload_data[6], main_videohdmi10to1serializer2_sink_payload_data[7], main_videohdmi10to1serializer2_sink_payload_data[8], main_videohdmi10to1serializer2_sink_payload_data[9]};
+assign videohdmi10to1serializer2_cdc_graycounter5_q_next = (videohdmi10to1serializer2_cdc_graycounter5_q_next_binary ^ videohdmi10to1serializer2_cdc_graycounter5_q_next_binary[2:1]);
+assign videohdmi10to1serializer2_sink_ready = (videohdmi10to1serializer2_level < 4'd10);
+assign videohdmi10to1serializer2_source_valid = (videohdmi10to1serializer2_level >= 2'd2);
+assign videohdmi10to1serializer2_i_inc = (videohdmi10to1serializer2_sink_valid & videohdmi10to1serializer2_sink_ready);
+assign videohdmi10to1serializer2_o_inc = (videohdmi10to1serializer2_source_valid & videohdmi10to1serializer2_source_ready);
+assign videohdmi10to1serializer2_i_data = {videohdmi10to1serializer2_sink_payload_data[0], videohdmi10to1serializer2_sink_payload_data[1], videohdmi10to1serializer2_sink_payload_data[2], videohdmi10to1serializer2_sink_payload_data[3], videohdmi10to1serializer2_sink_payload_data[4], videohdmi10to1serializer2_sink_payload_data[5], videohdmi10to1serializer2_sink_payload_data[6], videohdmi10to1serializer2_sink_payload_data[7], videohdmi10to1serializer2_sink_payload_data[8], videohdmi10to1serializer2_sink_payload_data[9]};
 always @(*) begin
-    main_videohdmi10to1serializer2_o_data <= 2'd0;
-    case (main_videohdmi10to1serializer2_o_count)
+    videohdmi10to1serializer2_o_data <= 2'd0;
+    case (videohdmi10to1serializer2_o_count)
         1'd0: begin
-            main_videohdmi10to1serializer2_o_data <= main_videohdmi10to1serializer2_shift_register[19:18];
+            videohdmi10to1serializer2_o_data <= videohdmi10to1serializer2_shift_register[19:18];
         end
         1'd1: begin
-            main_videohdmi10to1serializer2_o_data <= main_videohdmi10to1serializer2_shift_register[17:16];
+            videohdmi10to1serializer2_o_data <= videohdmi10to1serializer2_shift_register[17:16];
         end
         2'd2: begin
-            main_videohdmi10to1serializer2_o_data <= main_videohdmi10to1serializer2_shift_register[15:14];
+            videohdmi10to1serializer2_o_data <= videohdmi10to1serializer2_shift_register[15:14];
         end
         2'd3: begin
-            main_videohdmi10to1serializer2_o_data <= main_videohdmi10to1serializer2_shift_register[13:12];
+            videohdmi10to1serializer2_o_data <= videohdmi10to1serializer2_shift_register[13:12];
         end
         3'd4: begin
-            main_videohdmi10to1serializer2_o_data <= main_videohdmi10to1serializer2_shift_register[11:10];
+            videohdmi10to1serializer2_o_data <= videohdmi10to1serializer2_shift_register[11:10];
         end
         3'd5: begin
-            main_videohdmi10to1serializer2_o_data <= main_videohdmi10to1serializer2_shift_register[9:8];
+            videohdmi10to1serializer2_o_data <= videohdmi10to1serializer2_shift_register[9:8];
         end
         3'd6: begin
-            main_videohdmi10to1serializer2_o_data <= main_videohdmi10to1serializer2_shift_register[7:6];
+            videohdmi10to1serializer2_o_data <= videohdmi10to1serializer2_shift_register[7:6];
         end
         3'd7: begin
-            main_videohdmi10to1serializer2_o_data <= main_videohdmi10to1serializer2_shift_register[5:4];
+            videohdmi10to1serializer2_o_data <= videohdmi10to1serializer2_shift_register[5:4];
         end
         4'd8: begin
-            main_videohdmi10to1serializer2_o_data <= main_videohdmi10to1serializer2_shift_register[3:2];
+            videohdmi10to1serializer2_o_data <= videohdmi10to1serializer2_shift_register[3:2];
         end
         4'd9: begin
-            main_videohdmi10to1serializer2_o_data <= main_videohdmi10to1serializer2_shift_register[1:0];
+            videohdmi10to1serializer2_o_data <= videohdmi10to1serializer2_shift_register[1:0];
         end
     endcase
 end
-assign main_videohdmi10to1serializer2_source_payload_data = {main_videohdmi10to1serializer2_o_data[0], main_videohdmi10to1serializer2_o_data[1]};
-assign main_vtg_reset = (~main_vtg_enable);
-assign main_vtg_source_payload_de = (main_vtg_hactive & main_vtg_vactive);
+assign videohdmi10to1serializer2_source_payload_data = {videohdmi10to1serializer2_o_data[0], videohdmi10to1serializer2_o_data[1]};
+assign vtg_reset = (~vtg_enable);
+assign vtg_source_payload_de = (vtg_hactive & vtg_vactive);
 always @(*) begin
-    builder_basesoc_videotiminggenerator_next_state <= 1'd0;
-    main_vtg_hactive_clockdomainsrenamer0_next_value0 <= 1'd0;
-    main_vtg_source_payload_vsync_clockdomainsrenamer0_next_value7 <= 1'd0;
-    main_vtg_hactive_clockdomainsrenamer0_next_value_ce0 <= 1'd0;
-    main_vtg_source_payload_vsync_clockdomainsrenamer0_next_value_ce7 <= 1'd0;
-    main_vtg_vactive_clockdomainsrenamer0_next_value1 <= 1'd0;
-    main_vtg_vactive_clockdomainsrenamer0_next_value_ce1 <= 1'd0;
-    main_vtg_source_payload_hres_clockdomainsrenamer0_next_value2 <= 12'd0;
-    main_vtg_source_payload_hres_clockdomainsrenamer0_next_value_ce2 <= 1'd0;
-    main_vtg_source_payload_vres_clockdomainsrenamer0_next_value3 <= 12'd0;
-    main_vtg_source_payload_vres_clockdomainsrenamer0_next_value_ce3 <= 1'd0;
-    main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value4 <= 12'd0;
-    main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4 <= 1'd0;
-    main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value5 <= 12'd0;
-    main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5 <= 1'd0;
-    main_vtg_source_payload_hsync_clockdomainsrenamer0_next_value6 <= 1'd0;
-    main_vtg_source_payload_hsync_clockdomainsrenamer0_next_value_ce6 <= 1'd0;
-    main_vtg_source_valid <= 1'd0;
-    builder_basesoc_videotiminggenerator_next_state <= builder_basesoc_videotiminggenerator_state;
-    case (builder_basesoc_videotiminggenerator_state)
+    basesoc_videotiminggenerator_next_state <= 1'd0;
+    vtg_hactive_clockdomainsrenamer0_next_value0 <= 1'd0;
+    vtg_source_payload_vsync_clockdomainsrenamer0_next_value7 <= 1'd0;
+    vtg_hactive_clockdomainsrenamer0_next_value_ce0 <= 1'd0;
+    vtg_source_payload_vsync_clockdomainsrenamer0_next_value_ce7 <= 1'd0;
+    vtg_vactive_clockdomainsrenamer0_next_value1 <= 1'd0;
+    vtg_vactive_clockdomainsrenamer0_next_value_ce1 <= 1'd0;
+    vtg_source_payload_hres_clockdomainsrenamer0_next_value2 <= 12'd0;
+    vtg_source_payload_hres_clockdomainsrenamer0_next_value_ce2 <= 1'd0;
+    vtg_source_payload_vres_clockdomainsrenamer0_next_value3 <= 12'd0;
+    vtg_source_payload_vres_clockdomainsrenamer0_next_value_ce3 <= 1'd0;
+    vtg_source_payload_hcount_clockdomainsrenamer0_next_value4 <= 12'd0;
+    vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4 <= 1'd0;
+    vtg_source_payload_vcount_clockdomainsrenamer0_next_value5 <= 12'd0;
+    vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5 <= 1'd0;
+    vtg_source_valid <= 1'd0;
+    vtg_source_payload_hsync_clockdomainsrenamer0_next_value6 <= 1'd0;
+    vtg_source_payload_hsync_clockdomainsrenamer0_next_value_ce6 <= 1'd0;
+    basesoc_videotiminggenerator_next_state <= basesoc_videotiminggenerator_state;
+    case (basesoc_videotiminggenerator_state)
         1'd1: begin
-            main_vtg_source_valid <= 1'd1;
-            if (main_vtg_source_ready) begin
-                main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value4 <= (main_vtg_source_payload_hcount + 1'd1);
-                main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4 <= 1'd1;
-                if ((main_vtg_source_payload_hcount == 1'd0)) begin
-                    main_vtg_hactive_clockdomainsrenamer0_next_value0 <= 1'd1;
-                    main_vtg_hactive_clockdomainsrenamer0_next_value_ce0 <= 1'd1;
+            vtg_source_valid <= 1'd1;
+            if (vtg_source_ready) begin
+                vtg_source_payload_hcount_clockdomainsrenamer0_next_value4 <= (vtg_source_payload_hcount + 1'd1);
+                vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4 <= 1'd1;
+                if ((vtg_source_payload_hcount == 1'd0)) begin
+                    vtg_hactive_clockdomainsrenamer0_next_value0 <= 1'd1;
+                    vtg_hactive_clockdomainsrenamer0_next_value_ce0 <= 1'd1;
                 end
-                if ((main_vtg_source_payload_hcount == main_vtg_hres)) begin
-                    main_vtg_hactive_clockdomainsrenamer0_next_value0 <= 1'd0;
-                    main_vtg_hactive_clockdomainsrenamer0_next_value_ce0 <= 1'd1;
+                if ((vtg_source_payload_hcount == vtg_hres)) begin
+                    vtg_hactive_clockdomainsrenamer0_next_value0 <= 1'd0;
+                    vtg_hactive_clockdomainsrenamer0_next_value_ce0 <= 1'd1;
                 end
-                if ((main_vtg_source_payload_hcount == main_vtg_hsync_start)) begin
-                    main_vtg_source_payload_hsync_clockdomainsrenamer0_next_value6 <= 1'd1;
-                    main_vtg_source_payload_hsync_clockdomainsrenamer0_next_value_ce6 <= 1'd1;
+                if ((vtg_source_payload_hcount == vtg_hsync_start)) begin
+                    vtg_source_payload_hsync_clockdomainsrenamer0_next_value6 <= 1'd1;
+                    vtg_source_payload_hsync_clockdomainsrenamer0_next_value_ce6 <= 1'd1;
                 end
-                if ((main_vtg_source_payload_hcount == main_vtg_hsync_end)) begin
-                    main_vtg_source_payload_hsync_clockdomainsrenamer0_next_value6 <= 1'd0;
-                    main_vtg_source_payload_hsync_clockdomainsrenamer0_next_value_ce6 <= 1'd1;
+                if ((vtg_source_payload_hcount == vtg_hsync_end)) begin
+                    vtg_source_payload_hsync_clockdomainsrenamer0_next_value6 <= 1'd0;
+                    vtg_source_payload_hsync_clockdomainsrenamer0_next_value_ce6 <= 1'd1;
                 end
-                if ((main_vtg_source_payload_hcount == main_vtg_hscan)) begin
-                    main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value4 <= 1'd0;
-                    main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4 <= 1'd1;
+                if ((vtg_source_payload_hcount == vtg_hscan)) begin
+                    vtg_source_payload_hcount_clockdomainsrenamer0_next_value4 <= 1'd0;
+                    vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4 <= 1'd1;
                 end
-                if ((main_vtg_source_payload_hcount == main_vtg_hsync_start)) begin
-                    main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value5 <= (main_vtg_source_payload_vcount + 1'd1);
-                    main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5 <= 1'd1;
-                    if ((main_vtg_source_payload_vcount == 1'd0)) begin
-                        main_vtg_vactive_clockdomainsrenamer0_next_value1 <= 1'd1;
-                        main_vtg_vactive_clockdomainsrenamer0_next_value_ce1 <= 1'd1;
+                if ((vtg_source_payload_hcount == vtg_hsync_start)) begin
+                    vtg_source_payload_vcount_clockdomainsrenamer0_next_value5 <= (vtg_source_payload_vcount + 1'd1);
+                    vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5 <= 1'd1;
+                    if ((vtg_source_payload_vcount == 1'd0)) begin
+                        vtg_vactive_clockdomainsrenamer0_next_value1 <= 1'd1;
+                        vtg_vactive_clockdomainsrenamer0_next_value_ce1 <= 1'd1;
                     end
-                    if ((main_vtg_source_payload_vcount == main_vtg_vres)) begin
-                        main_vtg_vactive_clockdomainsrenamer0_next_value1 <= 1'd0;
-                        main_vtg_vactive_clockdomainsrenamer0_next_value_ce1 <= 1'd1;
+                    if ((vtg_source_payload_vcount == vtg_vres)) begin
+                        vtg_vactive_clockdomainsrenamer0_next_value1 <= 1'd0;
+                        vtg_vactive_clockdomainsrenamer0_next_value_ce1 <= 1'd1;
                     end
-                    if ((main_vtg_source_payload_vcount == main_vtg_vsync_start)) begin
-                        main_vtg_source_payload_vsync_clockdomainsrenamer0_next_value7 <= 1'd1;
-                        main_vtg_source_payload_vsync_clockdomainsrenamer0_next_value_ce7 <= 1'd1;
+                    if ((vtg_source_payload_vcount == vtg_vsync_start)) begin
+                        vtg_source_payload_vsync_clockdomainsrenamer0_next_value7 <= 1'd1;
+                        vtg_source_payload_vsync_clockdomainsrenamer0_next_value_ce7 <= 1'd1;
                     end
-                    if ((main_vtg_source_payload_vcount == main_vtg_vsync_end)) begin
-                        main_vtg_source_payload_vsync_clockdomainsrenamer0_next_value7 <= 1'd0;
-                        main_vtg_source_payload_vsync_clockdomainsrenamer0_next_value_ce7 <= 1'd1;
+                    if ((vtg_source_payload_vcount == vtg_vsync_end)) begin
+                        vtg_source_payload_vsync_clockdomainsrenamer0_next_value7 <= 1'd0;
+                        vtg_source_payload_vsync_clockdomainsrenamer0_next_value_ce7 <= 1'd1;
                     end
-                    if ((main_vtg_source_payload_vcount == main_vtg_vscan)) begin
-                        main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value5 <= 1'd0;
-                        main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5 <= 1'd1;
+                    if ((vtg_source_payload_vcount == vtg_vscan)) begin
+                        vtg_source_payload_vcount_clockdomainsrenamer0_next_value5 <= 1'd0;
+                        vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5 <= 1'd1;
                     end
                 end
             end
         end
         default: begin
-            main_vtg_hactive_clockdomainsrenamer0_next_value0 <= 1'd0;
-            main_vtg_hactive_clockdomainsrenamer0_next_value_ce0 <= 1'd1;
-            main_vtg_vactive_clockdomainsrenamer0_next_value1 <= 1'd0;
-            main_vtg_vactive_clockdomainsrenamer0_next_value_ce1 <= 1'd1;
-            main_vtg_source_payload_hres_clockdomainsrenamer0_next_value2 <= main_vtg_hres;
-            main_vtg_source_payload_hres_clockdomainsrenamer0_next_value_ce2 <= 1'd1;
-            main_vtg_source_payload_vres_clockdomainsrenamer0_next_value3 <= main_vtg_vres;
-            main_vtg_source_payload_vres_clockdomainsrenamer0_next_value_ce3 <= 1'd1;
-            main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value4 <= 1'd0;
-            main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4 <= 1'd1;
-            main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value5 <= 1'd0;
-            main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5 <= 1'd1;
-            builder_basesoc_videotiminggenerator_next_state <= 1'd1;
+            vtg_hactive_clockdomainsrenamer0_next_value0 <= 1'd0;
+            vtg_hactive_clockdomainsrenamer0_next_value_ce0 <= 1'd1;
+            vtg_vactive_clockdomainsrenamer0_next_value1 <= 1'd0;
+            vtg_vactive_clockdomainsrenamer0_next_value_ce1 <= 1'd1;
+            vtg_source_payload_hres_clockdomainsrenamer0_next_value2 <= vtg_hres;
+            vtg_source_payload_hres_clockdomainsrenamer0_next_value_ce2 <= 1'd1;
+            vtg_source_payload_vres_clockdomainsrenamer0_next_value3 <= vtg_vres;
+            vtg_source_payload_vres_clockdomainsrenamer0_next_value_ce3 <= 1'd1;
+            vtg_source_payload_hcount_clockdomainsrenamer0_next_value4 <= 1'd0;
+            vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4 <= 1'd1;
+            vtg_source_payload_vcount_clockdomainsrenamer0_next_value5 <= 1'd0;
+            vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5 <= 1'd1;
+            basesoc_videotiminggenerator_next_state <= 1'd1;
         end
     endcase
 end
-assign main_colorbarspattern_reset = (~main_colorbarspattern_enable0);
+assign colorbarspattern_reset = (~colorbarspattern_enable0);
 always @(*) begin
-    main_colorbarspattern_source_payload_b <= 8'd0;
-    main_colorbarspattern_source_payload_r <= 8'd0;
-    main_colorbarspattern_source_payload_g <= 8'd0;
-    case (main_colorbarspattern_bar)
+    colorbarspattern_source_payload_r <= 8'd0;
+    colorbarspattern_source_payload_g <= 8'd0;
+    colorbarspattern_source_payload_b <= 8'd0;
+    case (colorbarspattern_bar)
         1'd0: begin
-            main_colorbarspattern_source_payload_r <= 8'd255;
-            main_colorbarspattern_source_payload_g <= 8'd255;
-            main_colorbarspattern_source_payload_b <= 8'd255;
+            colorbarspattern_source_payload_r <= 8'd255;
+            colorbarspattern_source_payload_g <= 8'd255;
+            colorbarspattern_source_payload_b <= 8'd255;
         end
         1'd1: begin
-            main_colorbarspattern_source_payload_r <= 8'd255;
-            main_colorbarspattern_source_payload_g <= 8'd255;
-            main_colorbarspattern_source_payload_b <= 1'd0;
+            colorbarspattern_source_payload_r <= 8'd255;
+            colorbarspattern_source_payload_g <= 8'd255;
+            colorbarspattern_source_payload_b <= 1'd0;
         end
         2'd2: begin
-            main_colorbarspattern_source_payload_r <= 1'd0;
-            main_colorbarspattern_source_payload_g <= 8'd255;
-            main_colorbarspattern_source_payload_b <= 8'd255;
+            colorbarspattern_source_payload_r <= 1'd0;
+            colorbarspattern_source_payload_g <= 8'd255;
+            colorbarspattern_source_payload_b <= 8'd255;
         end
         2'd3: begin
-            main_colorbarspattern_source_payload_r <= 1'd0;
-            main_colorbarspattern_source_payload_g <= 8'd255;
-            main_colorbarspattern_source_payload_b <= 1'd0;
+            colorbarspattern_source_payload_r <= 1'd0;
+            colorbarspattern_source_payload_g <= 8'd255;
+            colorbarspattern_source_payload_b <= 1'd0;
         end
         3'd4: begin
-            main_colorbarspattern_source_payload_r <= 8'd255;
-            main_colorbarspattern_source_payload_g <= 1'd0;
-            main_colorbarspattern_source_payload_b <= 8'd255;
+            colorbarspattern_source_payload_r <= 8'd255;
+            colorbarspattern_source_payload_g <= 1'd0;
+            colorbarspattern_source_payload_b <= 8'd255;
         end
         3'd5: begin
-            main_colorbarspattern_source_payload_r <= 8'd255;
-            main_colorbarspattern_source_payload_g <= 1'd0;
-            main_colorbarspattern_source_payload_b <= 1'd0;
+            colorbarspattern_source_payload_r <= 8'd255;
+            colorbarspattern_source_payload_g <= 1'd0;
+            colorbarspattern_source_payload_b <= 1'd0;
         end
         3'd6: begin
-            main_colorbarspattern_source_payload_r <= 1'd0;
-            main_colorbarspattern_source_payload_g <= 1'd0;
-            main_colorbarspattern_source_payload_b <= 8'd255;
+            colorbarspattern_source_payload_r <= 1'd0;
+            colorbarspattern_source_payload_g <= 1'd0;
+            colorbarspattern_source_payload_b <= 8'd255;
         end
         3'd7: begin
-            main_colorbarspattern_source_payload_r <= 1'd0;
-            main_colorbarspattern_source_payload_g <= 1'd0;
-            main_colorbarspattern_source_payload_b <= 1'd0;
+            colorbarspattern_source_payload_r <= 1'd0;
+            colorbarspattern_source_payload_g <= 1'd0;
+            colorbarspattern_source_payload_b <= 1'd0;
         end
     endcase
 end
 always @(*) begin
-    main_colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1 <= 1'd0;
-    main_colorbarspattern_source_valid <= 1'd0;
-    main_colorbarspattern_source_last <= 1'd0;
-    main_colorbarspattern_source_payload_hsync <= 1'd0;
-    main_colorbarspattern_source_payload_vsync <= 1'd0;
-    main_colorbarspattern_vtg_sink_ready <= 1'd0;
-    main_colorbarspattern_source_payload_de <= 1'd0;
-    builder_basesoc_colorbarspattern_next_state <= 1'd0;
-    main_colorbarspattern_pix_clockdomainsrenamer1_next_value0 <= 12'd0;
-    main_colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 <= 1'd0;
-    main_colorbarspattern_bar_clockdomainsrenamer1_next_value1 <= 3'd0;
-    builder_basesoc_colorbarspattern_next_state <= builder_basesoc_colorbarspattern_state;
-    case (builder_basesoc_colorbarspattern_state)
+    colorbarspattern_source_valid <= 1'd0;
+    basesoc_colorbarspattern_next_state <= 1'd0;
+    colorbarspattern_pix_clockdomainsrenamer1_next_value0 <= 12'd0;
+    colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 <= 1'd0;
+    colorbarspattern_source_last <= 1'd0;
+    colorbarspattern_source_payload_hsync <= 1'd0;
+    colorbarspattern_bar_clockdomainsrenamer1_next_value1 <= 3'd0;
+    colorbarspattern_source_payload_vsync <= 1'd0;
+    colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1 <= 1'd0;
+    colorbarspattern_vtg_sink_ready <= 1'd0;
+    colorbarspattern_source_payload_de <= 1'd0;
+    basesoc_colorbarspattern_next_state <= basesoc_colorbarspattern_state;
+    case (basesoc_colorbarspattern_state)
         1'd1: begin
-            main_colorbarspattern_source_valid <= main_colorbarspattern_vtg_sink_valid;
-            main_colorbarspattern_vtg_sink_ready <= main_colorbarspattern_source_ready;
-            main_colorbarspattern_source_last <= main_colorbarspattern_vtg_sink_last;
-            main_colorbarspattern_source_payload_hsync <= main_colorbarspattern_vtg_sink_payload_hsync;
-            main_colorbarspattern_source_payload_vsync <= main_colorbarspattern_vtg_sink_payload_vsync;
-            main_colorbarspattern_source_payload_de <= main_colorbarspattern_vtg_sink_payload_de;
-            if (((main_colorbarspattern_source_valid & main_colorbarspattern_source_ready) & main_colorbarspattern_source_payload_de)) begin
-                main_colorbarspattern_pix_clockdomainsrenamer1_next_value0 <= (main_colorbarspattern_pix + 1'd1);
-                main_colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 <= 1'd1;
-                if ((main_colorbarspattern_pix == (main_colorbarspattern_vtg_sink_payload_hres[11:3] - 1'd1))) begin
-                    main_colorbarspattern_pix_clockdomainsrenamer1_next_value0 <= 1'd0;
-                    main_colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 <= 1'd1;
-                    main_colorbarspattern_bar_clockdomainsrenamer1_next_value1 <= (main_colorbarspattern_bar + 1'd1);
-                    main_colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1 <= 1'd1;
+            colorbarspattern_source_valid <= colorbarspattern_vtg_sink_valid;
+            colorbarspattern_vtg_sink_ready <= colorbarspattern_source_ready;
+            colorbarspattern_source_last <= colorbarspattern_vtg_sink_last;
+            colorbarspattern_source_payload_hsync <= colorbarspattern_vtg_sink_payload_hsync;
+            colorbarspattern_source_payload_vsync <= colorbarspattern_vtg_sink_payload_vsync;
+            colorbarspattern_source_payload_de <= colorbarspattern_vtg_sink_payload_de;
+            if (((colorbarspattern_source_valid & colorbarspattern_source_ready) & colorbarspattern_source_payload_de)) begin
+                colorbarspattern_pix_clockdomainsrenamer1_next_value0 <= (colorbarspattern_pix + 1'd1);
+                colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 <= 1'd1;
+                if ((colorbarspattern_pix == (colorbarspattern_vtg_sink_payload_hres[11:3] - 1'd1))) begin
+                    colorbarspattern_pix_clockdomainsrenamer1_next_value0 <= 1'd0;
+                    colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 <= 1'd1;
+                    colorbarspattern_bar_clockdomainsrenamer1_next_value1 <= (colorbarspattern_bar + 1'd1);
+                    colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1 <= 1'd1;
                 end
             end else begin
-                main_colorbarspattern_pix_clockdomainsrenamer1_next_value0 <= 1'd0;
-                main_colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 <= 1'd1;
-                main_colorbarspattern_bar_clockdomainsrenamer1_next_value1 <= 1'd0;
-                main_colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1 <= 1'd1;
+                colorbarspattern_pix_clockdomainsrenamer1_next_value0 <= 1'd0;
+                colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 <= 1'd1;
+                colorbarspattern_bar_clockdomainsrenamer1_next_value1 <= 1'd0;
+                colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1 <= 1'd1;
             end
         end
         default: begin
-            main_colorbarspattern_pix_clockdomainsrenamer1_next_value0 <= 1'd0;
-            main_colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 <= 1'd1;
-            main_colorbarspattern_bar_clockdomainsrenamer1_next_value1 <= 1'd0;
-            main_colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1 <= 1'd1;
-            main_colorbarspattern_vtg_sink_ready <= 1'd1;
-            if ((((main_colorbarspattern_vtg_sink_valid & main_colorbarspattern_vtg_sink_first) & (main_colorbarspattern_vtg_sink_payload_hcount == 1'd0)) & (main_colorbarspattern_vtg_sink_payload_vcount == 1'd0))) begin
-                main_colorbarspattern_vtg_sink_ready <= 1'd0;
-                builder_basesoc_colorbarspattern_next_state <= 1'd1;
+            colorbarspattern_pix_clockdomainsrenamer1_next_value0 <= 1'd0;
+            colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0 <= 1'd1;
+            colorbarspattern_bar_clockdomainsrenamer1_next_value1 <= 1'd0;
+            colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1 <= 1'd1;
+            colorbarspattern_vtg_sink_ready <= 1'd1;
+            if ((((colorbarspattern_vtg_sink_valid & colorbarspattern_vtg_sink_first) & (colorbarspattern_vtg_sink_payload_hcount == 1'd0)) & (colorbarspattern_vtg_sink_payload_vcount == 1'd0))) begin
+                colorbarspattern_vtg_sink_ready <= 1'd0;
+                basesoc_colorbarspattern_next_state <= 1'd1;
             end
         end
     endcase
 end
-assign main_wait = (~main_done);
+assign wait_1 = (~done);
 always @(*) begin
-    main_leds <= 8'd0;
-    if ((main_mode == 1'd1)) begin
-        main_leds <= main_storage;
+    leds <= 8'd0;
+    if ((mode == 1'd1)) begin
+        leds <= storage;
     end else begin
-        main_leds <= main_chaser;
+        leds <= chaser;
     end
 end
-assign {user_led_n7, user_led_n6, user_led_n5, user_led_n4, user_led_n3, user_led_n2, user_led_n1, user_led_n0} = (main_leds ^ 1'd0);
-assign main_done = (main_count == 1'd0);
+assign {user_led_n7, user_led_n6, user_led_n5, user_led_n4, user_led_n3, user_led_n2, user_led_n1, user_led_n0} = (leds ^ 1'd0);
+assign done = (count == 1'd0);
 always @(*) begin
-    builder_basesoc_wishbone_ack <= 1'd0;
-    builder_basesoc_wishbone_dat_r <= 32'd0;
-    builder_basesoc_adr <= 14'd0;
-    builder_basesoc_we <= 1'd0;
-    builder_basesoc_dat_w <= 32'd0;
-    builder_basesoc_wishbone2csr_next_state <= 1'd0;
-    builder_basesoc_wishbone2csr_next_state <= builder_basesoc_wishbone2csr_state;
-    case (builder_basesoc_wishbone2csr_state)
+    basesoc_wishbone_dat_r <= 32'd0;
+    basesoc_wishbone_ack <= 1'd0;
+    basesoc_adr <= 14'd0;
+    basesoc_we <= 1'd0;
+    basesoc_dat_w <= 32'd0;
+    basesoc_next_state <= 1'd0;
+    basesoc_next_state <= basesoc_state;
+    case (basesoc_state)
         1'd1: begin
-            builder_basesoc_wishbone_ack <= 1'd1;
-            builder_basesoc_wishbone_dat_r <= builder_basesoc_dat_r;
-            builder_basesoc_wishbone2csr_next_state <= 1'd0;
+            basesoc_wishbone_ack <= 1'd1;
+            basesoc_wishbone_dat_r <= basesoc_dat_r;
+            basesoc_next_state <= 1'd0;
         end
         default: begin
-            builder_basesoc_dat_w <= builder_basesoc_wishbone_dat_w;
-            if ((builder_basesoc_wishbone_cyc & builder_basesoc_wishbone_stb)) begin
-                builder_basesoc_adr <= builder_basesoc_wishbone_adr;
-                builder_basesoc_we <= (builder_basesoc_wishbone_we & (builder_basesoc_wishbone_sel != 1'd0));
-                builder_basesoc_wishbone2csr_next_state <= 1'd1;
+            basesoc_dat_w <= basesoc_wishbone_dat_w;
+            if ((basesoc_wishbone_cyc & basesoc_wishbone_stb)) begin
+                basesoc_adr <= basesoc_wishbone_adr;
+                basesoc_we <= (basesoc_wishbone_we & (basesoc_wishbone_sel != 1'd0));
+                basesoc_next_state <= 1'd1;
             end
         end
     endcase
 end
-assign builder_csr_bankarray_csrbank0_sel = (builder_csr_bankarray_interface0_bank_bus_adr[13:9] == 1'd0);
-assign builder_csr_bankarray_csrbank0_reset0_r = builder_csr_bankarray_interface0_bank_bus_dat_w[1:0];
+assign csr_bankarray_csrbank0_sel = (csr_bankarray_interface0_bank_bus_adr[13:9] == 1'd0);
+assign csr_bankarray_csrbank0_reset0_r = csr_bankarray_interface0_bank_bus_dat_w[1:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank0_reset0_re <= 1'd0;
-    builder_csr_bankarray_csrbank0_reset0_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank0_sel & (builder_csr_bankarray_interface0_bank_bus_adr[8:0] == 1'd0))) begin
-        builder_csr_bankarray_csrbank0_reset0_re <= builder_csr_bankarray_interface0_bank_bus_we;
-        builder_csr_bankarray_csrbank0_reset0_we <= (~builder_csr_bankarray_interface0_bank_bus_we);
+    csr_bankarray_csrbank0_reset0_re <= 1'd0;
+    csr_bankarray_csrbank0_reset0_we <= 1'd0;
+    if ((csr_bankarray_csrbank0_sel & (csr_bankarray_interface0_bank_bus_adr[8:0] == 1'd0))) begin
+        csr_bankarray_csrbank0_reset0_re <= csr_bankarray_interface0_bank_bus_we;
+        csr_bankarray_csrbank0_reset0_we <= (~csr_bankarray_interface0_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank0_scratch0_r = builder_csr_bankarray_interface0_bank_bus_dat_w[31:0];
+assign csr_bankarray_csrbank0_scratch0_r = csr_bankarray_interface0_bank_bus_dat_w[31:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank0_scratch0_we <= 1'd0;
-    builder_csr_bankarray_csrbank0_scratch0_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank0_sel & (builder_csr_bankarray_interface0_bank_bus_adr[8:0] == 1'd1))) begin
-        builder_csr_bankarray_csrbank0_scratch0_re <= builder_csr_bankarray_interface0_bank_bus_we;
-        builder_csr_bankarray_csrbank0_scratch0_we <= (~builder_csr_bankarray_interface0_bank_bus_we);
+    csr_bankarray_csrbank0_scratch0_we <= 1'd0;
+    csr_bankarray_csrbank0_scratch0_re <= 1'd0;
+    if ((csr_bankarray_csrbank0_sel & (csr_bankarray_interface0_bank_bus_adr[8:0] == 1'd1))) begin
+        csr_bankarray_csrbank0_scratch0_re <= csr_bankarray_interface0_bank_bus_we;
+        csr_bankarray_csrbank0_scratch0_we <= (~csr_bankarray_interface0_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank0_bus_errors_r = builder_csr_bankarray_interface0_bank_bus_dat_w[31:0];
+assign csr_bankarray_csrbank0_bus_errors_r = csr_bankarray_interface0_bank_bus_dat_w[31:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank0_bus_errors_re <= 1'd0;
-    builder_csr_bankarray_csrbank0_bus_errors_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank0_sel & (builder_csr_bankarray_interface0_bank_bus_adr[8:0] == 2'd2))) begin
-        builder_csr_bankarray_csrbank0_bus_errors_re <= builder_csr_bankarray_interface0_bank_bus_we;
-        builder_csr_bankarray_csrbank0_bus_errors_we <= (~builder_csr_bankarray_interface0_bank_bus_we);
+    csr_bankarray_csrbank0_bus_errors_re <= 1'd0;
+    csr_bankarray_csrbank0_bus_errors_we <= 1'd0;
+    if ((csr_bankarray_csrbank0_sel & (csr_bankarray_interface0_bank_bus_adr[8:0] == 2'd2))) begin
+        csr_bankarray_csrbank0_bus_errors_re <= csr_bankarray_interface0_bank_bus_we;
+        csr_bankarray_csrbank0_bus_errors_we <= (~csr_bankarray_interface0_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_sel = (builder_csr_bankarray_sram_bus_adr[13:9] == 1'd1);
+assign csr_bankarray_sel = (csr_bankarray_sram_bus_adr[13:9] == 1'd1);
 always @(*) begin
-    builder_csr_bankarray_sram_bus_dat_r <= 32'd0;
-    if (builder_csr_bankarray_sel_r) begin
-        builder_csr_bankarray_sram_bus_dat_r <= builder_csr_bankarray_dat_r;
+    csr_bankarray_sram_bus_dat_r <= 32'd0;
+    if (csr_bankarray_sel_r) begin
+        csr_bankarray_sram_bus_dat_r <= csr_bankarray_dat_r;
     end
 end
-assign builder_csr_bankarray_adr = builder_csr_bankarray_sram_bus_adr[5:0];
-assign builder_csr_bankarray_csrbank1_sel = (builder_csr_bankarray_interface1_bank_bus_adr[13:9] == 2'd2);
-assign builder_csr_bankarray_csrbank1_out0_r = builder_csr_bankarray_interface1_bank_bus_dat_w[7:0];
+assign csr_bankarray_adr = csr_bankarray_sram_bus_adr[5:0];
+assign csr_bankarray_csrbank1_sel = (csr_bankarray_interface1_bank_bus_adr[13:9] == 2'd2);
+assign csr_bankarray_csrbank1_out0_r = csr_bankarray_interface1_bank_bus_dat_w[7:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank1_out0_we <= 1'd0;
-    builder_csr_bankarray_csrbank1_out0_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank1_sel & (builder_csr_bankarray_interface1_bank_bus_adr[8:0] == 1'd0))) begin
-        builder_csr_bankarray_csrbank1_out0_re <= builder_csr_bankarray_interface1_bank_bus_we;
-        builder_csr_bankarray_csrbank1_out0_we <= (~builder_csr_bankarray_interface1_bank_bus_we);
+    csr_bankarray_csrbank1_out0_we <= 1'd0;
+    csr_bankarray_csrbank1_out0_re <= 1'd0;
+    if ((csr_bankarray_csrbank1_sel & (csr_bankarray_interface1_bank_bus_adr[8:0] == 1'd0))) begin
+        csr_bankarray_csrbank1_out0_re <= csr_bankarray_interface1_bank_bus_we;
+        csr_bankarray_csrbank1_out0_we <= (~csr_bankarray_interface1_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank1_out0_w = main_storage[7:0];
-assign builder_csr_bankarray_csrbank2_sel = (builder_csr_bankarray_interface2_bank_bus_adr[13:9] == 2'd3);
-assign builder_csr_bankarray_csrbank2_load0_r = builder_csr_bankarray_interface2_bank_bus_dat_w[31:0];
+assign csr_bankarray_csrbank1_out0_w = storage[7:0];
+assign csr_bankarray_csrbank2_sel = (csr_bankarray_interface2_bank_bus_adr[13:9] == 2'd3);
+assign csr_bankarray_csrbank2_load0_r = csr_bankarray_interface2_bank_bus_dat_w[31:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank2_load0_we <= 1'd0;
-    builder_csr_bankarray_csrbank2_load0_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank2_sel & (builder_csr_bankarray_interface2_bank_bus_adr[8:0] == 1'd0))) begin
-        builder_csr_bankarray_csrbank2_load0_re <= builder_csr_bankarray_interface2_bank_bus_we;
-        builder_csr_bankarray_csrbank2_load0_we <= (~builder_csr_bankarray_interface2_bank_bus_we);
+    csr_bankarray_csrbank2_load0_we <= 1'd0;
+    csr_bankarray_csrbank2_load0_re <= 1'd0;
+    if ((csr_bankarray_csrbank2_sel & (csr_bankarray_interface2_bank_bus_adr[8:0] == 1'd0))) begin
+        csr_bankarray_csrbank2_load0_re <= csr_bankarray_interface2_bank_bus_we;
+        csr_bankarray_csrbank2_load0_we <= (~csr_bankarray_interface2_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank2_reload0_r = builder_csr_bankarray_interface2_bank_bus_dat_w[31:0];
+assign csr_bankarray_csrbank2_reload0_r = csr_bankarray_interface2_bank_bus_dat_w[31:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank2_reload0_re <= 1'd0;
-    builder_csr_bankarray_csrbank2_reload0_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank2_sel & (builder_csr_bankarray_interface2_bank_bus_adr[8:0] == 1'd1))) begin
-        builder_csr_bankarray_csrbank2_reload0_re <= builder_csr_bankarray_interface2_bank_bus_we;
-        builder_csr_bankarray_csrbank2_reload0_we <= (~builder_csr_bankarray_interface2_bank_bus_we);
+    csr_bankarray_csrbank2_reload0_re <= 1'd0;
+    csr_bankarray_csrbank2_reload0_we <= 1'd0;
+    if ((csr_bankarray_csrbank2_sel & (csr_bankarray_interface2_bank_bus_adr[8:0] == 1'd1))) begin
+        csr_bankarray_csrbank2_reload0_re <= csr_bankarray_interface2_bank_bus_we;
+        csr_bankarray_csrbank2_reload0_we <= (~csr_bankarray_interface2_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank2_en0_r = builder_csr_bankarray_interface2_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank2_en0_r = csr_bankarray_interface2_bank_bus_dat_w[0];
 always @(*) begin
-    builder_csr_bankarray_csrbank2_en0_we <= 1'd0;
-    builder_csr_bankarray_csrbank2_en0_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank2_sel & (builder_csr_bankarray_interface2_bank_bus_adr[8:0] == 2'd2))) begin
-        builder_csr_bankarray_csrbank2_en0_re <= builder_csr_bankarray_interface2_bank_bus_we;
-        builder_csr_bankarray_csrbank2_en0_we <= (~builder_csr_bankarray_interface2_bank_bus_we);
+    csr_bankarray_csrbank2_en0_re <= 1'd0;
+    csr_bankarray_csrbank2_en0_we <= 1'd0;
+    if ((csr_bankarray_csrbank2_sel & (csr_bankarray_interface2_bank_bus_adr[8:0] == 2'd2))) begin
+        csr_bankarray_csrbank2_en0_re <= csr_bankarray_interface2_bank_bus_we;
+        csr_bankarray_csrbank2_en0_we <= (~csr_bankarray_interface2_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank2_update_value0_r = builder_csr_bankarray_interface2_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank2_update_value0_r = csr_bankarray_interface2_bank_bus_dat_w[0];
 always @(*) begin
-    builder_csr_bankarray_csrbank2_update_value0_we <= 1'd0;
-    builder_csr_bankarray_csrbank2_update_value0_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank2_sel & (builder_csr_bankarray_interface2_bank_bus_adr[8:0] == 2'd3))) begin
-        builder_csr_bankarray_csrbank2_update_value0_re <= builder_csr_bankarray_interface2_bank_bus_we;
-        builder_csr_bankarray_csrbank2_update_value0_we <= (~builder_csr_bankarray_interface2_bank_bus_we);
+    csr_bankarray_csrbank2_update_value0_we <= 1'd0;
+    csr_bankarray_csrbank2_update_value0_re <= 1'd0;
+    if ((csr_bankarray_csrbank2_sel & (csr_bankarray_interface2_bank_bus_adr[8:0] == 2'd3))) begin
+        csr_bankarray_csrbank2_update_value0_re <= csr_bankarray_interface2_bank_bus_we;
+        csr_bankarray_csrbank2_update_value0_we <= (~csr_bankarray_interface2_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank2_value_r = builder_csr_bankarray_interface2_bank_bus_dat_w[31:0];
+assign csr_bankarray_csrbank2_value_r = csr_bankarray_interface2_bank_bus_dat_w[31:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank2_value_re <= 1'd0;
-    builder_csr_bankarray_csrbank2_value_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank2_sel & (builder_csr_bankarray_interface2_bank_bus_adr[8:0] == 3'd4))) begin
-        builder_csr_bankarray_csrbank2_value_re <= builder_csr_bankarray_interface2_bank_bus_we;
-        builder_csr_bankarray_csrbank2_value_we <= (~builder_csr_bankarray_interface2_bank_bus_we);
+    csr_bankarray_csrbank2_value_re <= 1'd0;
+    csr_bankarray_csrbank2_value_we <= 1'd0;
+    if ((csr_bankarray_csrbank2_sel & (csr_bankarray_interface2_bank_bus_adr[8:0] == 3'd4))) begin
+        csr_bankarray_csrbank2_value_re <= csr_bankarray_interface2_bank_bus_we;
+        csr_bankarray_csrbank2_value_we <= (~csr_bankarray_interface2_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank2_ev_status_r = builder_csr_bankarray_interface2_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank2_ev_status_r = csr_bankarray_interface2_bank_bus_dat_w[0];
 always @(*) begin
-    builder_csr_bankarray_csrbank2_ev_status_we <= 1'd0;
-    builder_csr_bankarray_csrbank2_ev_status_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank2_sel & (builder_csr_bankarray_interface2_bank_bus_adr[8:0] == 3'd5))) begin
-        builder_csr_bankarray_csrbank2_ev_status_re <= builder_csr_bankarray_interface2_bank_bus_we;
-        builder_csr_bankarray_csrbank2_ev_status_we <= (~builder_csr_bankarray_interface2_bank_bus_we);
+    csr_bankarray_csrbank2_ev_status_re <= 1'd0;
+    csr_bankarray_csrbank2_ev_status_we <= 1'd0;
+    if ((csr_bankarray_csrbank2_sel & (csr_bankarray_interface2_bank_bus_adr[8:0] == 3'd5))) begin
+        csr_bankarray_csrbank2_ev_status_re <= csr_bankarray_interface2_bank_bus_we;
+        csr_bankarray_csrbank2_ev_status_we <= (~csr_bankarray_interface2_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank2_ev_pending_r = builder_csr_bankarray_interface2_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank2_ev_pending_r = csr_bankarray_interface2_bank_bus_dat_w[0];
 always @(*) begin
-    builder_csr_bankarray_csrbank2_ev_pending_we <= 1'd0;
-    builder_csr_bankarray_csrbank2_ev_pending_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank2_sel & (builder_csr_bankarray_interface2_bank_bus_adr[8:0] == 3'd6))) begin
-        builder_csr_bankarray_csrbank2_ev_pending_re <= builder_csr_bankarray_interface2_bank_bus_we;
-        builder_csr_bankarray_csrbank2_ev_pending_we <= (~builder_csr_bankarray_interface2_bank_bus_we);
+    csr_bankarray_csrbank2_ev_pending_we <= 1'd0;
+    csr_bankarray_csrbank2_ev_pending_re <= 1'd0;
+    if ((csr_bankarray_csrbank2_sel & (csr_bankarray_interface2_bank_bus_adr[8:0] == 3'd6))) begin
+        csr_bankarray_csrbank2_ev_pending_re <= csr_bankarray_interface2_bank_bus_we;
+        csr_bankarray_csrbank2_ev_pending_we <= (~csr_bankarray_interface2_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank2_ev_enable0_r = builder_csr_bankarray_interface2_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank2_ev_enable0_r = csr_bankarray_interface2_bank_bus_dat_w[0];
 always @(*) begin
-    builder_csr_bankarray_csrbank2_ev_enable0_re <= 1'd0;
-    builder_csr_bankarray_csrbank2_ev_enable0_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank2_sel & (builder_csr_bankarray_interface2_bank_bus_adr[8:0] == 3'd7))) begin
-        builder_csr_bankarray_csrbank2_ev_enable0_re <= builder_csr_bankarray_interface2_bank_bus_we;
-        builder_csr_bankarray_csrbank2_ev_enable0_we <= (~builder_csr_bankarray_interface2_bank_bus_we);
+    csr_bankarray_csrbank2_ev_enable0_re <= 1'd0;
+    csr_bankarray_csrbank2_ev_enable0_we <= 1'd0;
+    if ((csr_bankarray_csrbank2_sel & (csr_bankarray_interface2_bank_bus_adr[8:0] == 3'd7))) begin
+        csr_bankarray_csrbank2_ev_enable0_re <= csr_bankarray_interface2_bank_bus_we;
+        csr_bankarray_csrbank2_ev_enable0_we <= (~csr_bankarray_interface2_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank2_load0_w = main_basesoc_load_storage[31:0];
-assign builder_csr_bankarray_csrbank2_reload0_w = main_basesoc_reload_storage[31:0];
-assign builder_csr_bankarray_csrbank2_en0_w = main_basesoc_en_storage;
-assign builder_csr_bankarray_csrbank2_update_value0_w = main_basesoc_update_value_storage;
-assign builder_csr_bankarray_csrbank2_value_w = main_basesoc_value_status[31:0];
-assign main_basesoc_value_we = builder_csr_bankarray_csrbank2_value_we;
-assign main_basesoc_status_status = main_basesoc_zero0;
-assign builder_csr_bankarray_csrbank2_ev_status_w = main_basesoc_status_status;
-assign main_basesoc_status_we = builder_csr_bankarray_csrbank2_ev_status_we;
-assign main_basesoc_pending_status = main_basesoc_zero1;
-assign builder_csr_bankarray_csrbank2_ev_pending_w = main_basesoc_pending_status;
-assign main_basesoc_pending_we = builder_csr_bankarray_csrbank2_ev_pending_we;
-assign main_basesoc_zero2 = main_basesoc_enable_storage;
-assign builder_csr_bankarray_csrbank2_ev_enable0_w = main_basesoc_enable_storage;
-assign builder_csr_bankarray_csrbank3_sel = (builder_csr_bankarray_interface3_bank_bus_adr[13:9] == 3'd4);
-assign main_basesoc_uartcrossover_rxtx_r = builder_csr_bankarray_interface3_bank_bus_dat_w[7:0];
+assign csr_bankarray_csrbank2_load0_w = timer_load_storage[31:0];
+assign csr_bankarray_csrbank2_reload0_w = timer_reload_storage[31:0];
+assign csr_bankarray_csrbank2_en0_w = timer_en_storage;
+assign csr_bankarray_csrbank2_update_value0_w = timer_update_value_storage;
+assign csr_bankarray_csrbank2_value_w = timer_value_status[31:0];
+assign timer_value_we = csr_bankarray_csrbank2_value_we;
+assign timer_status_status = timer_zero0;
+assign csr_bankarray_csrbank2_ev_status_w = timer_status_status;
+assign timer_status_we = csr_bankarray_csrbank2_ev_status_we;
+assign timer_pending_status = timer_zero1;
+assign csr_bankarray_csrbank2_ev_pending_w = timer_pending_status;
+assign timer_pending_we = csr_bankarray_csrbank2_ev_pending_we;
+assign timer_zero2 = timer_enable_storage;
+assign csr_bankarray_csrbank2_ev_enable0_w = timer_enable_storage;
+assign csr_bankarray_csrbank3_sel = (csr_bankarray_interface3_bank_bus_adr[13:9] == 3'd4);
+assign uart_rxtx_r = csr_bankarray_interface3_bank_bus_dat_w[7:0];
 always @(*) begin
-    main_basesoc_uartcrossover_rxtx_re <= 1'd0;
-    main_basesoc_uartcrossover_rxtx_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 1'd0))) begin
-        main_basesoc_uartcrossover_rxtx_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        main_basesoc_uartcrossover_rxtx_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    uart_rxtx_re <= 1'd0;
+    uart_rxtx_we <= 1'd0;
+    if ((csr_bankarray_csrbank3_sel & (csr_bankarray_interface3_bank_bus_adr[8:0] == 1'd0))) begin
+        uart_rxtx_re <= csr_bankarray_interface3_bank_bus_we;
+        uart_rxtx_we <= (~csr_bankarray_interface3_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_txfull_r = builder_csr_bankarray_interface3_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank3_txfull_r = csr_bankarray_interface3_bank_bus_dat_w[0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_txfull_re <= 1'd0;
-    builder_csr_bankarray_csrbank3_txfull_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 1'd1))) begin
-        builder_csr_bankarray_csrbank3_txfull_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_txfull_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank3_txfull_re <= 1'd0;
+    csr_bankarray_csrbank3_txfull_we <= 1'd0;
+    if ((csr_bankarray_csrbank3_sel & (csr_bankarray_interface3_bank_bus_adr[8:0] == 1'd1))) begin
+        csr_bankarray_csrbank3_txfull_re <= csr_bankarray_interface3_bank_bus_we;
+        csr_bankarray_csrbank3_txfull_we <= (~csr_bankarray_interface3_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_rxempty_r = builder_csr_bankarray_interface3_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank3_rxempty_r = csr_bankarray_interface3_bank_bus_dat_w[0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_rxempty_we <= 1'd0;
-    builder_csr_bankarray_csrbank3_rxempty_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 2'd2))) begin
-        builder_csr_bankarray_csrbank3_rxempty_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_rxempty_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank3_rxempty_we <= 1'd0;
+    csr_bankarray_csrbank3_rxempty_re <= 1'd0;
+    if ((csr_bankarray_csrbank3_sel & (csr_bankarray_interface3_bank_bus_adr[8:0] == 2'd2))) begin
+        csr_bankarray_csrbank3_rxempty_re <= csr_bankarray_interface3_bank_bus_we;
+        csr_bankarray_csrbank3_rxempty_we <= (~csr_bankarray_interface3_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_ev_status_r = builder_csr_bankarray_interface3_bank_bus_dat_w[1:0];
+assign csr_bankarray_csrbank3_ev_status_r = csr_bankarray_interface3_bank_bus_dat_w[1:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_ev_status_we <= 1'd0;
-    builder_csr_bankarray_csrbank3_ev_status_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 2'd3))) begin
-        builder_csr_bankarray_csrbank3_ev_status_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_ev_status_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank3_ev_status_we <= 1'd0;
+    csr_bankarray_csrbank3_ev_status_re <= 1'd0;
+    if ((csr_bankarray_csrbank3_sel & (csr_bankarray_interface3_bank_bus_adr[8:0] == 2'd3))) begin
+        csr_bankarray_csrbank3_ev_status_re <= csr_bankarray_interface3_bank_bus_we;
+        csr_bankarray_csrbank3_ev_status_we <= (~csr_bankarray_interface3_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_ev_pending_r = builder_csr_bankarray_interface3_bank_bus_dat_w[1:0];
+assign csr_bankarray_csrbank3_ev_pending_r = csr_bankarray_interface3_bank_bus_dat_w[1:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_ev_pending_re <= 1'd0;
-    builder_csr_bankarray_csrbank3_ev_pending_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 3'd4))) begin
-        builder_csr_bankarray_csrbank3_ev_pending_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_ev_pending_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank3_ev_pending_re <= 1'd0;
+    csr_bankarray_csrbank3_ev_pending_we <= 1'd0;
+    if ((csr_bankarray_csrbank3_sel & (csr_bankarray_interface3_bank_bus_adr[8:0] == 3'd4))) begin
+        csr_bankarray_csrbank3_ev_pending_re <= csr_bankarray_interface3_bank_bus_we;
+        csr_bankarray_csrbank3_ev_pending_we <= (~csr_bankarray_interface3_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_ev_enable0_r = builder_csr_bankarray_interface3_bank_bus_dat_w[1:0];
+assign csr_bankarray_csrbank3_ev_enable0_r = csr_bankarray_interface3_bank_bus_dat_w[1:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_ev_enable0_we <= 1'd0;
-    builder_csr_bankarray_csrbank3_ev_enable0_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 3'd5))) begin
-        builder_csr_bankarray_csrbank3_ev_enable0_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_ev_enable0_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank3_ev_enable0_re <= 1'd0;
+    csr_bankarray_csrbank3_ev_enable0_we <= 1'd0;
+    if ((csr_bankarray_csrbank3_sel & (csr_bankarray_interface3_bank_bus_adr[8:0] == 3'd5))) begin
+        csr_bankarray_csrbank3_ev_enable0_re <= csr_bankarray_interface3_bank_bus_we;
+        csr_bankarray_csrbank3_ev_enable0_we <= (~csr_bankarray_interface3_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_txempty_r = builder_csr_bankarray_interface3_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank3_txempty_r = csr_bankarray_interface3_bank_bus_dat_w[0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_txempty_we <= 1'd0;
-    builder_csr_bankarray_csrbank3_txempty_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 3'd6))) begin
-        builder_csr_bankarray_csrbank3_txempty_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_txempty_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank3_txempty_we <= 1'd0;
+    csr_bankarray_csrbank3_txempty_re <= 1'd0;
+    if ((csr_bankarray_csrbank3_sel & (csr_bankarray_interface3_bank_bus_adr[8:0] == 3'd6))) begin
+        csr_bankarray_csrbank3_txempty_re <= csr_bankarray_interface3_bank_bus_we;
+        csr_bankarray_csrbank3_txempty_we <= (~csr_bankarray_interface3_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_rxfull_r = builder_csr_bankarray_interface3_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank3_rxfull_r = csr_bankarray_interface3_bank_bus_dat_w[0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_rxfull_re <= 1'd0;
-    builder_csr_bankarray_csrbank3_rxfull_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 3'd7))) begin
-        builder_csr_bankarray_csrbank3_rxfull_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_rxfull_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank3_rxfull_re <= 1'd0;
+    csr_bankarray_csrbank3_rxfull_we <= 1'd0;
+    if ((csr_bankarray_csrbank3_sel & (csr_bankarray_interface3_bank_bus_adr[8:0] == 3'd7))) begin
+        csr_bankarray_csrbank3_rxfull_re <= csr_bankarray_interface3_bank_bus_we;
+        csr_bankarray_csrbank3_rxfull_we <= (~csr_bankarray_interface3_bank_bus_we);
     end
 end
-assign main_basesoc_xover_rxtx_r = builder_csr_bankarray_interface3_bank_bus_dat_w[7:0];
+assign csr_bankarray_csrbank3_txfull_w = uart_txfull_status;
+assign uart_txfull_we = csr_bankarray_csrbank3_txfull_we;
+assign csr_bankarray_csrbank3_rxempty_w = uart_rxempty_status;
+assign uart_rxempty_we = csr_bankarray_csrbank3_rxempty_we;
 always @(*) begin
-    main_basesoc_xover_rxtx_re <= 1'd0;
-    main_basesoc_xover_rxtx_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 4'd8))) begin
-        main_basesoc_xover_rxtx_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        main_basesoc_xover_rxtx_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    uart_status_status <= 2'd0;
+    uart_status_status[0] <= uart_tx0;
+    uart_status_status[1] <= uart_rx0;
+end
+assign csr_bankarray_csrbank3_ev_status_w = uart_status_status[1:0];
+assign uart_status_we = csr_bankarray_csrbank3_ev_status_we;
+always @(*) begin
+    uart_pending_status <= 2'd0;
+    uart_pending_status[0] <= uart_tx1;
+    uart_pending_status[1] <= uart_rx1;
+end
+assign csr_bankarray_csrbank3_ev_pending_w = uart_pending_status[1:0];
+assign uart_pending_we = csr_bankarray_csrbank3_ev_pending_we;
+assign uart_tx2 = uart_enable_storage[0];
+assign uart_rx2 = uart_enable_storage[1];
+assign csr_bankarray_csrbank3_ev_enable0_w = uart_enable_storage[1:0];
+assign csr_bankarray_csrbank3_txempty_w = uart_txempty_status;
+assign uart_txempty_we = csr_bankarray_csrbank3_txempty_we;
+assign csr_bankarray_csrbank3_rxfull_w = uart_rxfull_status;
+assign uart_rxfull_we = csr_bankarray_csrbank3_rxfull_we;
+assign csr_bankarray_csrbank4_sel = (csr_bankarray_interface4_bank_bus_adr[13:9] == 3'd5);
+assign csr_bankarray_csrbank4_enable0_r = csr_bankarray_interface4_bank_bus_dat_w[0];
+always @(*) begin
+    csr_bankarray_csrbank4_enable0_re <= 1'd0;
+    csr_bankarray_csrbank4_enable0_we <= 1'd0;
+    if ((csr_bankarray_csrbank4_sel & (csr_bankarray_interface4_bank_bus_adr[8:0] == 1'd0))) begin
+        csr_bankarray_csrbank4_enable0_re <= csr_bankarray_interface4_bank_bus_we;
+        csr_bankarray_csrbank4_enable0_we <= (~csr_bankarray_interface4_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_xover_txfull_r = builder_csr_bankarray_interface3_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank4_hres0_r = csr_bankarray_interface4_bank_bus_dat_w[11:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_xover_txfull_re <= 1'd0;
-    builder_csr_bankarray_csrbank3_xover_txfull_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 4'd9))) begin
-        builder_csr_bankarray_csrbank3_xover_txfull_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_xover_txfull_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank4_hres0_we <= 1'd0;
+    csr_bankarray_csrbank4_hres0_re <= 1'd0;
+    if ((csr_bankarray_csrbank4_sel & (csr_bankarray_interface4_bank_bus_adr[8:0] == 1'd1))) begin
+        csr_bankarray_csrbank4_hres0_re <= csr_bankarray_interface4_bank_bus_we;
+        csr_bankarray_csrbank4_hres0_we <= (~csr_bankarray_interface4_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_xover_rxempty_r = builder_csr_bankarray_interface3_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank4_hsync_start0_r = csr_bankarray_interface4_bank_bus_dat_w[11:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_xover_rxempty_we <= 1'd0;
-    builder_csr_bankarray_csrbank3_xover_rxempty_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 4'd10))) begin
-        builder_csr_bankarray_csrbank3_xover_rxempty_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_xover_rxempty_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank4_hsync_start0_we <= 1'd0;
+    csr_bankarray_csrbank4_hsync_start0_re <= 1'd0;
+    if ((csr_bankarray_csrbank4_sel & (csr_bankarray_interface4_bank_bus_adr[8:0] == 2'd2))) begin
+        csr_bankarray_csrbank4_hsync_start0_re <= csr_bankarray_interface4_bank_bus_we;
+        csr_bankarray_csrbank4_hsync_start0_we <= (~csr_bankarray_interface4_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_xover_ev_status_r = builder_csr_bankarray_interface3_bank_bus_dat_w[1:0];
+assign csr_bankarray_csrbank4_hsync_end0_r = csr_bankarray_interface4_bank_bus_dat_w[11:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_xover_ev_status_we <= 1'd0;
-    builder_csr_bankarray_csrbank3_xover_ev_status_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 4'd11))) begin
-        builder_csr_bankarray_csrbank3_xover_ev_status_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_xover_ev_status_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank4_hsync_end0_re <= 1'd0;
+    csr_bankarray_csrbank4_hsync_end0_we <= 1'd0;
+    if ((csr_bankarray_csrbank4_sel & (csr_bankarray_interface4_bank_bus_adr[8:0] == 2'd3))) begin
+        csr_bankarray_csrbank4_hsync_end0_re <= csr_bankarray_interface4_bank_bus_we;
+        csr_bankarray_csrbank4_hsync_end0_we <= (~csr_bankarray_interface4_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_xover_ev_pending_r = builder_csr_bankarray_interface3_bank_bus_dat_w[1:0];
+assign csr_bankarray_csrbank4_hscan0_r = csr_bankarray_interface4_bank_bus_dat_w[11:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_xover_ev_pending_re <= 1'd0;
-    builder_csr_bankarray_csrbank3_xover_ev_pending_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 4'd12))) begin
-        builder_csr_bankarray_csrbank3_xover_ev_pending_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_xover_ev_pending_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank4_hscan0_we <= 1'd0;
+    csr_bankarray_csrbank4_hscan0_re <= 1'd0;
+    if ((csr_bankarray_csrbank4_sel & (csr_bankarray_interface4_bank_bus_adr[8:0] == 3'd4))) begin
+        csr_bankarray_csrbank4_hscan0_re <= csr_bankarray_interface4_bank_bus_we;
+        csr_bankarray_csrbank4_hscan0_we <= (~csr_bankarray_interface4_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_xover_ev_enable0_r = builder_csr_bankarray_interface3_bank_bus_dat_w[1:0];
+assign csr_bankarray_csrbank4_vres0_r = csr_bankarray_interface4_bank_bus_dat_w[11:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_xover_ev_enable0_we <= 1'd0;
-    builder_csr_bankarray_csrbank3_xover_ev_enable0_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 4'd13))) begin
-        builder_csr_bankarray_csrbank3_xover_ev_enable0_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_xover_ev_enable0_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank4_vres0_re <= 1'd0;
+    csr_bankarray_csrbank4_vres0_we <= 1'd0;
+    if ((csr_bankarray_csrbank4_sel & (csr_bankarray_interface4_bank_bus_adr[8:0] == 3'd5))) begin
+        csr_bankarray_csrbank4_vres0_re <= csr_bankarray_interface4_bank_bus_we;
+        csr_bankarray_csrbank4_vres0_we <= (~csr_bankarray_interface4_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_xover_txempty_r = builder_csr_bankarray_interface3_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank4_vsync_start0_r = csr_bankarray_interface4_bank_bus_dat_w[11:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_xover_txempty_we <= 1'd0;
-    builder_csr_bankarray_csrbank3_xover_txempty_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 4'd14))) begin
-        builder_csr_bankarray_csrbank3_xover_txempty_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_xover_txempty_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank4_vsync_start0_re <= 1'd0;
+    csr_bankarray_csrbank4_vsync_start0_we <= 1'd0;
+    if ((csr_bankarray_csrbank4_sel & (csr_bankarray_interface4_bank_bus_adr[8:0] == 3'd6))) begin
+        csr_bankarray_csrbank4_vsync_start0_re <= csr_bankarray_interface4_bank_bus_we;
+        csr_bankarray_csrbank4_vsync_start0_we <= (~csr_bankarray_interface4_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_xover_rxfull_r = builder_csr_bankarray_interface3_bank_bus_dat_w[0];
+assign csr_bankarray_csrbank4_vsync_end0_r = csr_bankarray_interface4_bank_bus_dat_w[11:0];
 always @(*) begin
-    builder_csr_bankarray_csrbank3_xover_rxfull_re <= 1'd0;
-    builder_csr_bankarray_csrbank3_xover_rxfull_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank3_sel & (builder_csr_bankarray_interface3_bank_bus_adr[8:0] == 4'd15))) begin
-        builder_csr_bankarray_csrbank3_xover_rxfull_re <= builder_csr_bankarray_interface3_bank_bus_we;
-        builder_csr_bankarray_csrbank3_xover_rxfull_we <= (~builder_csr_bankarray_interface3_bank_bus_we);
+    csr_bankarray_csrbank4_vsync_end0_we <= 1'd0;
+    csr_bankarray_csrbank4_vsync_end0_re <= 1'd0;
+    if ((csr_bankarray_csrbank4_sel & (csr_bankarray_interface4_bank_bus_adr[8:0] == 3'd7))) begin
+        csr_bankarray_csrbank4_vsync_end0_re <= csr_bankarray_interface4_bank_bus_we;
+        csr_bankarray_csrbank4_vsync_end0_we <= (~csr_bankarray_interface4_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank3_txfull_w = main_basesoc_uartcrossover_txfull_status;
-assign main_basesoc_uartcrossover_txfull_we = builder_csr_bankarray_csrbank3_txfull_we;
-assign builder_csr_bankarray_csrbank3_rxempty_w = main_basesoc_uartcrossover_rxempty_status;
-assign main_basesoc_uartcrossover_rxempty_we = builder_csr_bankarray_csrbank3_rxempty_we;
+assign csr_bankarray_csrbank4_vscan0_r = csr_bankarray_interface4_bank_bus_dat_w[11:0];
 always @(*) begin
-    main_basesoc_uartcrossover_status_status <= 2'd0;
-    main_basesoc_uartcrossover_status_status[0] <= main_basesoc_uartcrossover_tx0;
-    main_basesoc_uartcrossover_status_status[1] <= main_basesoc_uartcrossover_rx0;
-end
-assign builder_csr_bankarray_csrbank3_ev_status_w = main_basesoc_uartcrossover_status_status[1:0];
-assign main_basesoc_uartcrossover_status_we = builder_csr_bankarray_csrbank3_ev_status_we;
-always @(*) begin
-    main_basesoc_uartcrossover_pending_status <= 2'd0;
-    main_basesoc_uartcrossover_pending_status[0] <= main_basesoc_uartcrossover_tx1;
-    main_basesoc_uartcrossover_pending_status[1] <= main_basesoc_uartcrossover_rx1;
-end
-assign builder_csr_bankarray_csrbank3_ev_pending_w = main_basesoc_uartcrossover_pending_status[1:0];
-assign main_basesoc_uartcrossover_pending_we = builder_csr_bankarray_csrbank3_ev_pending_we;
-assign main_basesoc_uartcrossover_tx2 = main_basesoc_uartcrossover_enable_storage[0];
-assign main_basesoc_uartcrossover_rx2 = main_basesoc_uartcrossover_enable_storage[1];
-assign builder_csr_bankarray_csrbank3_ev_enable0_w = main_basesoc_uartcrossover_enable_storage[1:0];
-assign builder_csr_bankarray_csrbank3_txempty_w = main_basesoc_uartcrossover_txempty_status;
-assign main_basesoc_uartcrossover_txempty_we = builder_csr_bankarray_csrbank3_txempty_we;
-assign builder_csr_bankarray_csrbank3_rxfull_w = main_basesoc_uartcrossover_rxfull_status;
-assign main_basesoc_uartcrossover_rxfull_we = builder_csr_bankarray_csrbank3_rxfull_we;
-assign builder_csr_bankarray_csrbank3_xover_txfull_w = main_basesoc_xover_txfull_status;
-assign main_basesoc_xover_txfull_we = builder_csr_bankarray_csrbank3_xover_txfull_we;
-assign builder_csr_bankarray_csrbank3_xover_rxempty_w = main_basesoc_xover_rxempty_status;
-assign main_basesoc_xover_rxempty_we = builder_csr_bankarray_csrbank3_xover_rxempty_we;
-always @(*) begin
-    main_basesoc_xover_status_status <= 2'd0;
-    main_basesoc_xover_status_status[0] <= main_basesoc_xover_tx0;
-    main_basesoc_xover_status_status[1] <= main_basesoc_xover_rx0;
-end
-assign builder_csr_bankarray_csrbank3_xover_ev_status_w = main_basesoc_xover_status_status[1:0];
-assign main_basesoc_xover_status_we = builder_csr_bankarray_csrbank3_xover_ev_status_we;
-always @(*) begin
-    main_basesoc_xover_pending_status <= 2'd0;
-    main_basesoc_xover_pending_status[0] <= main_basesoc_xover_tx1;
-    main_basesoc_xover_pending_status[1] <= main_basesoc_xover_rx1;
-end
-assign builder_csr_bankarray_csrbank3_xover_ev_pending_w = main_basesoc_xover_pending_status[1:0];
-assign main_basesoc_xover_pending_we = builder_csr_bankarray_csrbank3_xover_ev_pending_we;
-assign main_basesoc_xover_tx2 = main_basesoc_xover_enable_storage[0];
-assign main_basesoc_xover_rx2 = main_basesoc_xover_enable_storage[1];
-assign builder_csr_bankarray_csrbank3_xover_ev_enable0_w = main_basesoc_xover_enable_storage[1:0];
-assign builder_csr_bankarray_csrbank3_xover_txempty_w = main_basesoc_xover_txempty_status;
-assign main_basesoc_xover_txempty_we = builder_csr_bankarray_csrbank3_xover_txempty_we;
-assign builder_csr_bankarray_csrbank3_xover_rxfull_w = main_basesoc_xover_rxfull_status;
-assign main_basesoc_xover_rxfull_we = builder_csr_bankarray_csrbank3_xover_rxfull_we;
-assign builder_csr_bankarray_csrbank4_sel = (builder_csr_bankarray_interface4_bank_bus_adr[13:9] == 3'd5);
-assign builder_csr_bankarray_csrbank4_enable0_r = builder_csr_bankarray_interface4_bank_bus_dat_w[0];
-always @(*) begin
-    builder_csr_bankarray_csrbank4_enable0_re <= 1'd0;
-    builder_csr_bankarray_csrbank4_enable0_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank4_sel & (builder_csr_bankarray_interface4_bank_bus_adr[8:0] == 1'd0))) begin
-        builder_csr_bankarray_csrbank4_enable0_re <= builder_csr_bankarray_interface4_bank_bus_we;
-        builder_csr_bankarray_csrbank4_enable0_we <= (~builder_csr_bankarray_interface4_bank_bus_we);
+    csr_bankarray_csrbank4_vscan0_re <= 1'd0;
+    csr_bankarray_csrbank4_vscan0_we <= 1'd0;
+    if ((csr_bankarray_csrbank4_sel & (csr_bankarray_interface4_bank_bus_adr[8:0] == 4'd8))) begin
+        csr_bankarray_csrbank4_vscan0_re <= csr_bankarray_interface4_bank_bus_we;
+        csr_bankarray_csrbank4_vscan0_we <= (~csr_bankarray_interface4_bank_bus_we);
     end
 end
-assign builder_csr_bankarray_csrbank4_hres0_r = builder_csr_bankarray_interface4_bank_bus_dat_w[11:0];
+assign csr_bankarray_csrbank4_enable0_w = vtg_enable_storage;
+assign csr_bankarray_csrbank4_hres0_w = vtg_hres_storage[11:0];
+assign csr_bankarray_csrbank4_hsync_start0_w = vtg_hsync_start_storage[11:0];
+assign csr_bankarray_csrbank4_hsync_end0_w = vtg_hsync_end_storage[11:0];
+assign csr_bankarray_csrbank4_hscan0_w = vtg_hscan_storage[11:0];
+assign csr_bankarray_csrbank4_vres0_w = vtg_vres_storage[11:0];
+assign csr_bankarray_csrbank4_vsync_start0_w = vtg_vsync_start_storage[11:0];
+assign csr_bankarray_csrbank4_vsync_end0_w = vtg_vsync_end_storage[11:0];
+assign csr_bankarray_csrbank4_vscan0_w = vtg_vscan_storage[11:0];
+assign csr_interconnect_adr = basesoc_adr;
+assign csr_interconnect_we = basesoc_we;
+assign csr_interconnect_dat_w = basesoc_dat_w;
+assign basesoc_dat_r = csr_interconnect_dat_r;
+assign csr_bankarray_interface0_bank_bus_adr = csr_interconnect_adr;
+assign csr_bankarray_interface1_bank_bus_adr = csr_interconnect_adr;
+assign csr_bankarray_interface2_bank_bus_adr = csr_interconnect_adr;
+assign csr_bankarray_interface3_bank_bus_adr = csr_interconnect_adr;
+assign csr_bankarray_interface4_bank_bus_adr = csr_interconnect_adr;
+assign csr_bankarray_sram_bus_adr = csr_interconnect_adr;
+assign csr_bankarray_interface0_bank_bus_we = csr_interconnect_we;
+assign csr_bankarray_interface1_bank_bus_we = csr_interconnect_we;
+assign csr_bankarray_interface2_bank_bus_we = csr_interconnect_we;
+assign csr_bankarray_interface3_bank_bus_we = csr_interconnect_we;
+assign csr_bankarray_interface4_bank_bus_we = csr_interconnect_we;
+assign csr_bankarray_sram_bus_we = csr_interconnect_we;
+assign csr_bankarray_interface0_bank_bus_dat_w = csr_interconnect_dat_w;
+assign csr_bankarray_interface1_bank_bus_dat_w = csr_interconnect_dat_w;
+assign csr_bankarray_interface2_bank_bus_dat_w = csr_interconnect_dat_w;
+assign csr_bankarray_interface3_bank_bus_dat_w = csr_interconnect_dat_w;
+assign csr_bankarray_interface4_bank_bus_dat_w = csr_interconnect_dat_w;
+assign csr_bankarray_sram_bus_dat_w = csr_interconnect_dat_w;
+assign csr_interconnect_dat_r = (((((csr_bankarray_interface0_bank_bus_dat_r | csr_bankarray_interface1_bank_bus_dat_r) | csr_bankarray_interface2_bank_bus_dat_r) | csr_bankarray_interface3_bank_bus_dat_r) | csr_bankarray_interface4_bank_bus_dat_r) | csr_bankarray_sram_bus_dat_r);
 always @(*) begin
-    builder_csr_bankarray_csrbank4_hres0_we <= 1'd0;
-    builder_csr_bankarray_csrbank4_hres0_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank4_sel & (builder_csr_bankarray_interface4_bank_bus_adr[8:0] == 1'd1))) begin
-        builder_csr_bankarray_csrbank4_hres0_re <= builder_csr_bankarray_interface4_bank_bus_we;
-        builder_csr_bankarray_csrbank4_hres0_we <= (~builder_csr_bankarray_interface4_bank_bus_we);
-    end
-end
-assign builder_csr_bankarray_csrbank4_hsync_start0_r = builder_csr_bankarray_interface4_bank_bus_dat_w[11:0];
-always @(*) begin
-    builder_csr_bankarray_csrbank4_hsync_start0_re <= 1'd0;
-    builder_csr_bankarray_csrbank4_hsync_start0_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank4_sel & (builder_csr_bankarray_interface4_bank_bus_adr[8:0] == 2'd2))) begin
-        builder_csr_bankarray_csrbank4_hsync_start0_re <= builder_csr_bankarray_interface4_bank_bus_we;
-        builder_csr_bankarray_csrbank4_hsync_start0_we <= (~builder_csr_bankarray_interface4_bank_bus_we);
-    end
-end
-assign builder_csr_bankarray_csrbank4_hsync_end0_r = builder_csr_bankarray_interface4_bank_bus_dat_w[11:0];
-always @(*) begin
-    builder_csr_bankarray_csrbank4_hsync_end0_re <= 1'd0;
-    builder_csr_bankarray_csrbank4_hsync_end0_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank4_sel & (builder_csr_bankarray_interface4_bank_bus_adr[8:0] == 2'd3))) begin
-        builder_csr_bankarray_csrbank4_hsync_end0_re <= builder_csr_bankarray_interface4_bank_bus_we;
-        builder_csr_bankarray_csrbank4_hsync_end0_we <= (~builder_csr_bankarray_interface4_bank_bus_we);
-    end
-end
-assign builder_csr_bankarray_csrbank4_hscan0_r = builder_csr_bankarray_interface4_bank_bus_dat_w[11:0];
-always @(*) begin
-    builder_csr_bankarray_csrbank4_hscan0_we <= 1'd0;
-    builder_csr_bankarray_csrbank4_hscan0_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank4_sel & (builder_csr_bankarray_interface4_bank_bus_adr[8:0] == 3'd4))) begin
-        builder_csr_bankarray_csrbank4_hscan0_re <= builder_csr_bankarray_interface4_bank_bus_we;
-        builder_csr_bankarray_csrbank4_hscan0_we <= (~builder_csr_bankarray_interface4_bank_bus_we);
-    end
-end
-assign builder_csr_bankarray_csrbank4_vres0_r = builder_csr_bankarray_interface4_bank_bus_dat_w[11:0];
-always @(*) begin
-    builder_csr_bankarray_csrbank4_vres0_re <= 1'd0;
-    builder_csr_bankarray_csrbank4_vres0_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank4_sel & (builder_csr_bankarray_interface4_bank_bus_adr[8:0] == 3'd5))) begin
-        builder_csr_bankarray_csrbank4_vres0_re <= builder_csr_bankarray_interface4_bank_bus_we;
-        builder_csr_bankarray_csrbank4_vres0_we <= (~builder_csr_bankarray_interface4_bank_bus_we);
-    end
-end
-assign builder_csr_bankarray_csrbank4_vsync_start0_r = builder_csr_bankarray_interface4_bank_bus_dat_w[11:0];
-always @(*) begin
-    builder_csr_bankarray_csrbank4_vsync_start0_we <= 1'd0;
-    builder_csr_bankarray_csrbank4_vsync_start0_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank4_sel & (builder_csr_bankarray_interface4_bank_bus_adr[8:0] == 3'd6))) begin
-        builder_csr_bankarray_csrbank4_vsync_start0_re <= builder_csr_bankarray_interface4_bank_bus_we;
-        builder_csr_bankarray_csrbank4_vsync_start0_we <= (~builder_csr_bankarray_interface4_bank_bus_we);
-    end
-end
-assign builder_csr_bankarray_csrbank4_vsync_end0_r = builder_csr_bankarray_interface4_bank_bus_dat_w[11:0];
-always @(*) begin
-    builder_csr_bankarray_csrbank4_vsync_end0_we <= 1'd0;
-    builder_csr_bankarray_csrbank4_vsync_end0_re <= 1'd0;
-    if ((builder_csr_bankarray_csrbank4_sel & (builder_csr_bankarray_interface4_bank_bus_adr[8:0] == 3'd7))) begin
-        builder_csr_bankarray_csrbank4_vsync_end0_re <= builder_csr_bankarray_interface4_bank_bus_we;
-        builder_csr_bankarray_csrbank4_vsync_end0_we <= (~builder_csr_bankarray_interface4_bank_bus_we);
-    end
-end
-assign builder_csr_bankarray_csrbank4_vscan0_r = builder_csr_bankarray_interface4_bank_bus_dat_w[11:0];
-always @(*) begin
-    builder_csr_bankarray_csrbank4_vscan0_re <= 1'd0;
-    builder_csr_bankarray_csrbank4_vscan0_we <= 1'd0;
-    if ((builder_csr_bankarray_csrbank4_sel & (builder_csr_bankarray_interface4_bank_bus_adr[8:0] == 4'd8))) begin
-        builder_csr_bankarray_csrbank4_vscan0_re <= builder_csr_bankarray_interface4_bank_bus_we;
-        builder_csr_bankarray_csrbank4_vscan0_we <= (~builder_csr_bankarray_interface4_bank_bus_we);
-    end
-end
-assign builder_csr_bankarray_csrbank4_enable0_w = main_vtg_enable_storage;
-assign builder_csr_bankarray_csrbank4_hres0_w = main_vtg_hres_storage[11:0];
-assign builder_csr_bankarray_csrbank4_hsync_start0_w = main_vtg_hsync_start_storage[11:0];
-assign builder_csr_bankarray_csrbank4_hsync_end0_w = main_vtg_hsync_end_storage[11:0];
-assign builder_csr_bankarray_csrbank4_hscan0_w = main_vtg_hscan_storage[11:0];
-assign builder_csr_bankarray_csrbank4_vres0_w = main_vtg_vres_storage[11:0];
-assign builder_csr_bankarray_csrbank4_vsync_start0_w = main_vtg_vsync_start_storage[11:0];
-assign builder_csr_bankarray_csrbank4_vsync_end0_w = main_vtg_vsync_end_storage[11:0];
-assign builder_csr_bankarray_csrbank4_vscan0_w = main_vtg_vscan_storage[11:0];
-assign builder_csr_interconnect_adr = builder_basesoc_adr;
-assign builder_csr_interconnect_we = builder_basesoc_we;
-assign builder_csr_interconnect_dat_w = builder_basesoc_dat_w;
-assign builder_basesoc_dat_r = builder_csr_interconnect_dat_r;
-assign builder_csr_bankarray_interface0_bank_bus_adr = builder_csr_interconnect_adr;
-assign builder_csr_bankarray_interface1_bank_bus_adr = builder_csr_interconnect_adr;
-assign builder_csr_bankarray_interface2_bank_bus_adr = builder_csr_interconnect_adr;
-assign builder_csr_bankarray_interface3_bank_bus_adr = builder_csr_interconnect_adr;
-assign builder_csr_bankarray_interface4_bank_bus_adr = builder_csr_interconnect_adr;
-assign builder_csr_bankarray_sram_bus_adr = builder_csr_interconnect_adr;
-assign builder_csr_bankarray_interface0_bank_bus_we = builder_csr_interconnect_we;
-assign builder_csr_bankarray_interface1_bank_bus_we = builder_csr_interconnect_we;
-assign builder_csr_bankarray_interface2_bank_bus_we = builder_csr_interconnect_we;
-assign builder_csr_bankarray_interface3_bank_bus_we = builder_csr_interconnect_we;
-assign builder_csr_bankarray_interface4_bank_bus_we = builder_csr_interconnect_we;
-assign builder_csr_bankarray_sram_bus_we = builder_csr_interconnect_we;
-assign builder_csr_bankarray_interface0_bank_bus_dat_w = builder_csr_interconnect_dat_w;
-assign builder_csr_bankarray_interface1_bank_bus_dat_w = builder_csr_interconnect_dat_w;
-assign builder_csr_bankarray_interface2_bank_bus_dat_w = builder_csr_interconnect_dat_w;
-assign builder_csr_bankarray_interface3_bank_bus_dat_w = builder_csr_interconnect_dat_w;
-assign builder_csr_bankarray_interface4_bank_bus_dat_w = builder_csr_interconnect_dat_w;
-assign builder_csr_bankarray_sram_bus_dat_w = builder_csr_interconnect_dat_w;
-assign builder_csr_interconnect_dat_r = (((((builder_csr_bankarray_interface0_bank_bus_dat_r | builder_csr_bankarray_interface1_bank_bus_dat_r) | builder_csr_bankarray_interface2_bank_bus_dat_r) | builder_csr_bankarray_interface3_bank_bus_dat_r) | builder_csr_bankarray_interface4_bank_bus_dat_r) | builder_csr_bankarray_sram_bus_dat_r);
-always @(*) begin
-    builder_comb_array_muxed0 <= 32'd0;
-    case (builder_grant)
-        default: begin
-            builder_comb_array_muxed0 <= main_uartbone_wishbone_adr;
-        end
-    endcase
-end
-always @(*) begin
-    builder_comb_array_muxed1 <= 32'd0;
-    case (builder_grant)
-        default: begin
-            builder_comb_array_muxed1 <= main_uartbone_wishbone_dat_w;
-        end
-    endcase
-end
-always @(*) begin
-    builder_comb_array_muxed2 <= 4'd0;
-    case (builder_grant)
-        default: begin
-            builder_comb_array_muxed2 <= main_uartbone_wishbone_sel;
-        end
-    endcase
-end
-always @(*) begin
-    builder_comb_array_muxed3 <= 1'd0;
-    case (builder_grant)
-        default: begin
-            builder_comb_array_muxed3 <= main_uartbone_wishbone_cyc;
-        end
-    endcase
-end
-always @(*) begin
-    builder_comb_array_muxed4 <= 1'd0;
-    case (builder_grant)
-        default: begin
-            builder_comb_array_muxed4 <= main_uartbone_wishbone_stb;
-        end
-    endcase
-end
-always @(*) begin
-    builder_comb_array_muxed5 <= 1'd0;
-    case (builder_grant)
-        default: begin
-            builder_comb_array_muxed5 <= main_uartbone_wishbone_we;
-        end
-    endcase
-end
-always @(*) begin
-    builder_comb_array_muxed6 <= 3'd0;
-    case (builder_grant)
-        default: begin
-            builder_comb_array_muxed6 <= main_uartbone_wishbone_cti;
-        end
-    endcase
-end
-always @(*) begin
-    builder_comb_array_muxed7 <= 2'd0;
-    case (builder_grant)
-        default: begin
-            builder_comb_array_muxed7 <= main_uartbone_wishbone_bte;
-        end
-    endcase
-end
-always @(*) begin
-    builder_sync_array_muxed0 <= 10'd0;
-    case (main_tmdsencoder0_new_c2)
+    array_muxed0 <= 10'd0;
+    case (tmdsencoder0_new_c2)
         1'd0: begin
-            builder_sync_array_muxed0 <= 10'd852;
+            array_muxed0 <= 10'd852;
         end
         1'd1: begin
-            builder_sync_array_muxed0 <= 8'd171;
+            array_muxed0 <= 8'd171;
         end
         2'd2: begin
-            builder_sync_array_muxed0 <= 9'd340;
+            array_muxed0 <= 9'd340;
         end
         default: begin
-            builder_sync_array_muxed0 <= 10'd683;
+            array_muxed0 <= 10'd683;
         end
     endcase
 end
 always @(*) begin
-    builder_sync_array_muxed1 <= 10'd0;
-    case (main_tmdsencoder1_new_c2)
+    array_muxed1 <= 10'd0;
+    case (tmdsencoder1_new_c2)
         1'd0: begin
-            builder_sync_array_muxed1 <= 10'd852;
+            array_muxed1 <= 10'd852;
         end
         1'd1: begin
-            builder_sync_array_muxed1 <= 8'd171;
+            array_muxed1 <= 8'd171;
         end
         2'd2: begin
-            builder_sync_array_muxed1 <= 9'd340;
+            array_muxed1 <= 9'd340;
         end
         default: begin
-            builder_sync_array_muxed1 <= 10'd683;
+            array_muxed1 <= 10'd683;
         end
     endcase
 end
 always @(*) begin
-    builder_sync_array_muxed2 <= 10'd0;
-    case (main_tmdsencoder2_new_c2)
+    array_muxed2 <= 10'd0;
+    case (tmdsencoder2_new_c2)
         1'd0: begin
-            builder_sync_array_muxed2 <= 10'd852;
+            array_muxed2 <= 10'd852;
         end
         1'd1: begin
-            builder_sync_array_muxed2 <= 8'd171;
+            array_muxed2 <= 8'd171;
         end
         2'd2: begin
-            builder_sync_array_muxed2 <= 9'd340;
+            array_muxed2 <= 9'd340;
         end
         default: begin
-            builder_sync_array_muxed2 <= 10'd683;
+            array_muxed2 <= 10'd683;
         end
     endcase
 end
-assign builder_xilinxasyncresetsynchronizerimpl0 = (~main_pll_locked);
-assign builder_xilinxasyncresetsynchronizerimpl1 = (~main_pll2_locked);
-assign builder_xilinxasyncresetsynchronizerimpl2 = (~main_pll2_locked);
-assign main_rx_rx = builder_xilinxmultiregimpl0_regs1;
-assign main_videohdmi10to1serializer0_cdc_produce_rdomain = builder_xilinxmultiregimpl1_regs1;
-assign main_videohdmi10to1serializer0_cdc_consume_wdomain = builder_xilinxmultiregimpl2_regs1;
-assign main_videohdmi10to1serializer1_cdc_produce_rdomain = builder_xilinxmultiregimpl3_regs1;
-assign main_videohdmi10to1serializer1_cdc_consume_wdomain = builder_xilinxmultiregimpl4_regs1;
-assign main_videohdmi10to1serializer2_cdc_produce_rdomain = builder_xilinxmultiregimpl5_regs1;
-assign main_videohdmi10to1serializer2_cdc_consume_wdomain = builder_xilinxmultiregimpl6_regs1;
-assign main_vtg_enable = builder_xilinxmultiregimpl7_regs1;
-assign main_vtg_hres = builder_xilinxmultiregimpl8_regs1;
-assign main_vtg_hsync_start = builder_xilinxmultiregimpl9_regs1;
-assign main_vtg_hsync_end = builder_xilinxmultiregimpl10_regs1;
-assign main_vtg_hscan = builder_xilinxmultiregimpl11_regs1;
-assign main_vtg_vres = builder_xilinxmultiregimpl12_regs1;
-assign main_vtg_vsync_start = builder_xilinxmultiregimpl13_regs1;
-assign main_vtg_vsync_end = builder_xilinxmultiregimpl14_regs1;
-assign main_vtg_vscan = builder_xilinxmultiregimpl15_regs1;
-assign main_colorbarspattern_enable1 = builder_xilinxmultiregimpl16_regs1;
+assign xilinxasyncresetsynchronizerimpl0 = (~pll_locked);
+assign xilinxasyncresetsynchronizerimpl1 = (~pll2_locked);
+assign xilinxasyncresetsynchronizerimpl2 = (~pll2_locked);
+assign videohdmi10to1serializer0_cdc_produce_rdomain = xilinxmultiregimpl0_regs1;
+assign videohdmi10to1serializer0_cdc_consume_wdomain = xilinxmultiregimpl1_regs1;
+assign videohdmi10to1serializer1_cdc_produce_rdomain = xilinxmultiregimpl2_regs1;
+assign videohdmi10to1serializer1_cdc_consume_wdomain = xilinxmultiregimpl3_regs1;
+assign videohdmi10to1serializer2_cdc_produce_rdomain = xilinxmultiregimpl4_regs1;
+assign videohdmi10to1serializer2_cdc_consume_wdomain = xilinxmultiregimpl5_regs1;
+assign vtg_enable = xilinxmultiregimpl6_regs1;
+assign vtg_hres = xilinxmultiregimpl7_regs1;
+assign vtg_hsync_start = xilinxmultiregimpl8_regs1;
+assign vtg_hsync_end = xilinxmultiregimpl9_regs1;
+assign vtg_hscan = xilinxmultiregimpl10_regs1;
+assign vtg_vres = xilinxmultiregimpl11_regs1;
+assign vtg_vsync_start = xilinxmultiregimpl12_regs1;
+assign vtg_vsync_end = xilinxmultiregimpl13_regs1;
+assign vtg_vscan = xilinxmultiregimpl14_regs1;
+assign colorbarspattern_enable1 = xilinxmultiregimpl15_regs1;
 
 
 //------------------------------------------------------------------------------
@@ -2786,977 +1876,739 @@ assign main_colorbarspattern_enable1 = builder_xilinxmultiregimpl16_regs1;
 //------------------------------------------------------------------------------
 
 always @(posedge hdmi_clk) begin
-    main_tmdsencoder0_n1d <= (((((((main_tmdsencoder0_d0[0] + main_tmdsencoder0_d0[1]) + main_tmdsencoder0_d0[2]) + main_tmdsencoder0_d0[3]) + main_tmdsencoder0_d0[4]) + main_tmdsencoder0_d0[5]) + main_tmdsencoder0_d0[6]) + main_tmdsencoder0_d0[7]);
-    main_tmdsencoder0_d1 <= main_tmdsencoder0_d0;
-    main_tmdsencoder0_q_m[0] <= main_tmdsencoder0_d1[0];
-    main_tmdsencoder0_q_m[1] <= ((main_tmdsencoder0_d1[0] ^ main_tmdsencoder0_d1[1]) ^ main_tmdsencoder0_q_m8_n);
-    main_tmdsencoder0_q_m[2] <= ((((main_tmdsencoder0_d1[0] ^ main_tmdsencoder0_d1[1]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[2]) ^ main_tmdsencoder0_q_m8_n);
-    main_tmdsencoder0_q_m[3] <= ((((((main_tmdsencoder0_d1[0] ^ main_tmdsencoder0_d1[1]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[2]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[3]) ^ main_tmdsencoder0_q_m8_n);
-    main_tmdsencoder0_q_m[4] <= ((((((((main_tmdsencoder0_d1[0] ^ main_tmdsencoder0_d1[1]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[2]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[3]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[4]) ^ main_tmdsencoder0_q_m8_n);
-    main_tmdsencoder0_q_m[5] <= ((((((((((main_tmdsencoder0_d1[0] ^ main_tmdsencoder0_d1[1]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[2]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[3]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[4]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[5]) ^ main_tmdsencoder0_q_m8_n);
-    main_tmdsencoder0_q_m[6] <= ((((((((((((main_tmdsencoder0_d1[0] ^ main_tmdsencoder0_d1[1]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[2]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[3]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[4]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[5]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[6]) ^ main_tmdsencoder0_q_m8_n);
-    main_tmdsencoder0_q_m[7] <= ((((((((((((((main_tmdsencoder0_d1[0] ^ main_tmdsencoder0_d1[1]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[2]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[3]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[4]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[5]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[6]) ^ main_tmdsencoder0_q_m8_n) ^ main_tmdsencoder0_d1[7]) ^ main_tmdsencoder0_q_m8_n);
-    main_tmdsencoder0_q_m[8] <= (~main_tmdsencoder0_q_m8_n);
-    main_tmdsencoder0_n0q_m <= ((((((((~main_tmdsencoder0_q_m[0]) + (~main_tmdsencoder0_q_m[1])) + (~main_tmdsencoder0_q_m[2])) + (~main_tmdsencoder0_q_m[3])) + (~main_tmdsencoder0_q_m[4])) + (~main_tmdsencoder0_q_m[5])) + (~main_tmdsencoder0_q_m[6])) + (~main_tmdsencoder0_q_m[7]));
-    main_tmdsencoder0_n1q_m <= (((((((main_tmdsencoder0_q_m[0] + main_tmdsencoder0_q_m[1]) + main_tmdsencoder0_q_m[2]) + main_tmdsencoder0_q_m[3]) + main_tmdsencoder0_q_m[4]) + main_tmdsencoder0_q_m[5]) + main_tmdsencoder0_q_m[6]) + main_tmdsencoder0_q_m[7]);
-    main_tmdsencoder0_q_m_r <= main_tmdsencoder0_q_m;
-    main_tmdsencoder0_new_c0 <= main_tmdsencoder0_c;
-    main_tmdsencoder0_new_de0 <= main_tmdsencoder0_de;
-    main_tmdsencoder0_new_c1 <= main_tmdsencoder0_new_c0;
-    main_tmdsencoder0_new_de1 <= main_tmdsencoder0_new_de0;
-    main_tmdsencoder0_new_c2 <= main_tmdsencoder0_new_c1;
-    main_tmdsencoder0_new_de2 <= main_tmdsencoder0_new_de1;
-    if (main_tmdsencoder0_new_de2) begin
-        if (((main_tmdsencoder0_cnt == $signed({1'd0, 1'd0})) | $signed({1'd0, (main_tmdsencoder0_n1q_m == main_tmdsencoder0_n0q_m)}))) begin
-            main_tmdsencoder0_out[9] <= (~main_tmdsencoder0_q_m_r[8]);
-            main_tmdsencoder0_out[8] <= main_tmdsencoder0_q_m_r[8];
-            if (main_tmdsencoder0_q_m_r[8]) begin
-                main_tmdsencoder0_out[7:0] <= main_tmdsencoder0_q_m_r[7:0];
-                main_tmdsencoder0_cnt <= ((main_tmdsencoder0_cnt + $signed({1'd0, main_tmdsencoder0_n1q_m})) - $signed({1'd0, main_tmdsencoder0_n0q_m}));
+    tmdsencoder0_n1d <= (((((((tmdsencoder0_d0[0] + tmdsencoder0_d0[1]) + tmdsencoder0_d0[2]) + tmdsencoder0_d0[3]) + tmdsencoder0_d0[4]) + tmdsencoder0_d0[5]) + tmdsencoder0_d0[6]) + tmdsencoder0_d0[7]);
+    tmdsencoder0_d1 <= tmdsencoder0_d0;
+    tmdsencoder0_q_m[0] <= tmdsencoder0_d1[0];
+    tmdsencoder0_q_m[1] <= ((tmdsencoder0_d1[0] ^ tmdsencoder0_d1[1]) ^ tmdsencoder0_q_m8_n);
+    tmdsencoder0_q_m[2] <= ((((tmdsencoder0_d1[0] ^ tmdsencoder0_d1[1]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[2]) ^ tmdsencoder0_q_m8_n);
+    tmdsencoder0_q_m[3] <= ((((((tmdsencoder0_d1[0] ^ tmdsencoder0_d1[1]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[2]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[3]) ^ tmdsencoder0_q_m8_n);
+    tmdsencoder0_q_m[4] <= ((((((((tmdsencoder0_d1[0] ^ tmdsencoder0_d1[1]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[2]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[3]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[4]) ^ tmdsencoder0_q_m8_n);
+    tmdsencoder0_q_m[5] <= ((((((((((tmdsencoder0_d1[0] ^ tmdsencoder0_d1[1]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[2]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[3]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[4]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[5]) ^ tmdsencoder0_q_m8_n);
+    tmdsencoder0_q_m[6] <= ((((((((((((tmdsencoder0_d1[0] ^ tmdsencoder0_d1[1]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[2]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[3]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[4]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[5]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[6]) ^ tmdsencoder0_q_m8_n);
+    tmdsencoder0_q_m[7] <= ((((((((((((((tmdsencoder0_d1[0] ^ tmdsencoder0_d1[1]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[2]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[3]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[4]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[5]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[6]) ^ tmdsencoder0_q_m8_n) ^ tmdsencoder0_d1[7]) ^ tmdsencoder0_q_m8_n);
+    tmdsencoder0_q_m[8] <= (~tmdsencoder0_q_m8_n);
+    tmdsencoder0_n0q_m <= ((((((((~tmdsencoder0_q_m[0]) + (~tmdsencoder0_q_m[1])) + (~tmdsencoder0_q_m[2])) + (~tmdsencoder0_q_m[3])) + (~tmdsencoder0_q_m[4])) + (~tmdsencoder0_q_m[5])) + (~tmdsencoder0_q_m[6])) + (~tmdsencoder0_q_m[7]));
+    tmdsencoder0_n1q_m <= (((((((tmdsencoder0_q_m[0] + tmdsencoder0_q_m[1]) + tmdsencoder0_q_m[2]) + tmdsencoder0_q_m[3]) + tmdsencoder0_q_m[4]) + tmdsencoder0_q_m[5]) + tmdsencoder0_q_m[6]) + tmdsencoder0_q_m[7]);
+    tmdsencoder0_q_m_r <= tmdsencoder0_q_m;
+    tmdsencoder0_new_c0 <= tmdsencoder0_c;
+    tmdsencoder0_new_de0 <= tmdsencoder0_de;
+    tmdsencoder0_new_c1 <= tmdsencoder0_new_c0;
+    tmdsencoder0_new_de1 <= tmdsencoder0_new_de0;
+    tmdsencoder0_new_c2 <= tmdsencoder0_new_c1;
+    tmdsencoder0_new_de2 <= tmdsencoder0_new_de1;
+    if (tmdsencoder0_new_de2) begin
+        if (((tmdsencoder0_cnt == $signed({1'd0, 1'd0})) | $signed({1'd0, (tmdsencoder0_n1q_m == tmdsencoder0_n0q_m)}))) begin
+            tmdsencoder0_out[9] <= (~tmdsencoder0_q_m_r[8]);
+            tmdsencoder0_out[8] <= tmdsencoder0_q_m_r[8];
+            if (tmdsencoder0_q_m_r[8]) begin
+                tmdsencoder0_out[7:0] <= tmdsencoder0_q_m_r[7:0];
+                tmdsencoder0_cnt <= ((tmdsencoder0_cnt + $signed({1'd0, tmdsencoder0_n1q_m})) - $signed({1'd0, tmdsencoder0_n0q_m}));
             end else begin
-                main_tmdsencoder0_out[7:0] <= (~main_tmdsencoder0_q_m_r[7:0]);
-                main_tmdsencoder0_cnt <= ((main_tmdsencoder0_cnt + $signed({1'd0, main_tmdsencoder0_n0q_m})) - $signed({1'd0, main_tmdsencoder0_n1q_m}));
+                tmdsencoder0_out[7:0] <= (~tmdsencoder0_q_m_r[7:0]);
+                tmdsencoder0_cnt <= ((tmdsencoder0_cnt + $signed({1'd0, tmdsencoder0_n0q_m})) - $signed({1'd0, tmdsencoder0_n1q_m}));
             end
         end else begin
-            if ((((~main_tmdsencoder0_cnt[5]) & $signed({1'd0, (main_tmdsencoder0_n1q_m > main_tmdsencoder0_n0q_m)})) | (main_tmdsencoder0_cnt[5] & $signed({1'd0, (main_tmdsencoder0_n0q_m > main_tmdsencoder0_n1q_m)})))) begin
-                main_tmdsencoder0_out[9] <= 1'd1;
-                main_tmdsencoder0_out[8] <= main_tmdsencoder0_q_m_r[8];
-                main_tmdsencoder0_out[7:0] <= (~main_tmdsencoder0_q_m_r[7:0]);
-                main_tmdsencoder0_cnt <= (((main_tmdsencoder0_cnt + $signed({1'd0, {main_tmdsencoder0_q_m_r[8], 1'd0}})) + $signed({1'd0, main_tmdsencoder0_n0q_m})) - $signed({1'd0, main_tmdsencoder0_n1q_m}));
+            if ((((~tmdsencoder0_cnt[5]) & $signed({1'd0, (tmdsencoder0_n1q_m > tmdsencoder0_n0q_m)})) | (tmdsencoder0_cnt[5] & $signed({1'd0, (tmdsencoder0_n0q_m > tmdsencoder0_n1q_m)})))) begin
+                tmdsencoder0_out[9] <= 1'd1;
+                tmdsencoder0_out[8] <= tmdsencoder0_q_m_r[8];
+                tmdsencoder0_out[7:0] <= (~tmdsencoder0_q_m_r[7:0]);
+                tmdsencoder0_cnt <= (((tmdsencoder0_cnt + $signed({1'd0, {tmdsencoder0_q_m_r[8], 1'd0}})) + $signed({1'd0, tmdsencoder0_n0q_m})) - $signed({1'd0, tmdsencoder0_n1q_m}));
             end else begin
-                main_tmdsencoder0_out[9] <= 1'd0;
-                main_tmdsencoder0_out[8] <= main_tmdsencoder0_q_m_r[8];
-                main_tmdsencoder0_out[7:0] <= main_tmdsencoder0_q_m_r[7:0];
-                main_tmdsencoder0_cnt <= (((main_tmdsencoder0_cnt - $signed({1'd0, {(~main_tmdsencoder0_q_m_r[8]), 1'd0}})) + $signed({1'd0, main_tmdsencoder0_n1q_m})) - $signed({1'd0, main_tmdsencoder0_n0q_m}));
+                tmdsencoder0_out[9] <= 1'd0;
+                tmdsencoder0_out[8] <= tmdsencoder0_q_m_r[8];
+                tmdsencoder0_out[7:0] <= tmdsencoder0_q_m_r[7:0];
+                tmdsencoder0_cnt <= (((tmdsencoder0_cnt - $signed({1'd0, {(~tmdsencoder0_q_m_r[8]), 1'd0}})) + $signed({1'd0, tmdsencoder0_n1q_m})) - $signed({1'd0, tmdsencoder0_n0q_m}));
             end
         end
     end else begin
-        main_tmdsencoder0_out <= builder_sync_array_muxed0;
-        main_tmdsencoder0_cnt <= 1'd0;
+        tmdsencoder0_out <= array_muxed0;
+        tmdsencoder0_cnt <= 1'd0;
     end
-    main_videohdmi10to1serializer0_cdc_graycounter0_q_binary <= main_videohdmi10to1serializer0_cdc_graycounter0_q_next_binary;
-    main_videohdmi10to1serializer0_cdc_graycounter0_q <= main_videohdmi10to1serializer0_cdc_graycounter0_q_next;
-    main_tmdsencoder1_n1d <= (((((((main_tmdsencoder1_d0[0] + main_tmdsencoder1_d0[1]) + main_tmdsencoder1_d0[2]) + main_tmdsencoder1_d0[3]) + main_tmdsencoder1_d0[4]) + main_tmdsencoder1_d0[5]) + main_tmdsencoder1_d0[6]) + main_tmdsencoder1_d0[7]);
-    main_tmdsencoder1_d1 <= main_tmdsencoder1_d0;
-    main_tmdsencoder1_q_m[0] <= main_tmdsencoder1_d1[0];
-    main_tmdsencoder1_q_m[1] <= ((main_tmdsencoder1_d1[0] ^ main_tmdsencoder1_d1[1]) ^ main_tmdsencoder1_q_m8_n);
-    main_tmdsencoder1_q_m[2] <= ((((main_tmdsencoder1_d1[0] ^ main_tmdsencoder1_d1[1]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[2]) ^ main_tmdsencoder1_q_m8_n);
-    main_tmdsencoder1_q_m[3] <= ((((((main_tmdsencoder1_d1[0] ^ main_tmdsencoder1_d1[1]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[2]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[3]) ^ main_tmdsencoder1_q_m8_n);
-    main_tmdsencoder1_q_m[4] <= ((((((((main_tmdsencoder1_d1[0] ^ main_tmdsencoder1_d1[1]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[2]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[3]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[4]) ^ main_tmdsencoder1_q_m8_n);
-    main_tmdsencoder1_q_m[5] <= ((((((((((main_tmdsencoder1_d1[0] ^ main_tmdsencoder1_d1[1]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[2]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[3]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[4]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[5]) ^ main_tmdsencoder1_q_m8_n);
-    main_tmdsencoder1_q_m[6] <= ((((((((((((main_tmdsencoder1_d1[0] ^ main_tmdsencoder1_d1[1]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[2]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[3]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[4]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[5]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[6]) ^ main_tmdsencoder1_q_m8_n);
-    main_tmdsencoder1_q_m[7] <= ((((((((((((((main_tmdsencoder1_d1[0] ^ main_tmdsencoder1_d1[1]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[2]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[3]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[4]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[5]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[6]) ^ main_tmdsencoder1_q_m8_n) ^ main_tmdsencoder1_d1[7]) ^ main_tmdsencoder1_q_m8_n);
-    main_tmdsencoder1_q_m[8] <= (~main_tmdsencoder1_q_m8_n);
-    main_tmdsencoder1_n0q_m <= ((((((((~main_tmdsencoder1_q_m[0]) + (~main_tmdsencoder1_q_m[1])) + (~main_tmdsencoder1_q_m[2])) + (~main_tmdsencoder1_q_m[3])) + (~main_tmdsencoder1_q_m[4])) + (~main_tmdsencoder1_q_m[5])) + (~main_tmdsencoder1_q_m[6])) + (~main_tmdsencoder1_q_m[7]));
-    main_tmdsencoder1_n1q_m <= (((((((main_tmdsencoder1_q_m[0] + main_tmdsencoder1_q_m[1]) + main_tmdsencoder1_q_m[2]) + main_tmdsencoder1_q_m[3]) + main_tmdsencoder1_q_m[4]) + main_tmdsencoder1_q_m[5]) + main_tmdsencoder1_q_m[6]) + main_tmdsencoder1_q_m[7]);
-    main_tmdsencoder1_q_m_r <= main_tmdsencoder1_q_m;
-    main_tmdsencoder1_new_c0 <= main_tmdsencoder1_c;
-    main_tmdsencoder1_new_de0 <= main_tmdsencoder1_de;
-    main_tmdsencoder1_new_c1 <= main_tmdsencoder1_new_c0;
-    main_tmdsencoder1_new_de1 <= main_tmdsencoder1_new_de0;
-    main_tmdsencoder1_new_c2 <= main_tmdsencoder1_new_c1;
-    main_tmdsencoder1_new_de2 <= main_tmdsencoder1_new_de1;
-    if (main_tmdsencoder1_new_de2) begin
-        if (((main_tmdsencoder1_cnt == $signed({1'd0, 1'd0})) | $signed({1'd0, (main_tmdsencoder1_n1q_m == main_tmdsencoder1_n0q_m)}))) begin
-            main_tmdsencoder1_out[9] <= (~main_tmdsencoder1_q_m_r[8]);
-            main_tmdsencoder1_out[8] <= main_tmdsencoder1_q_m_r[8];
-            if (main_tmdsencoder1_q_m_r[8]) begin
-                main_tmdsencoder1_out[7:0] <= main_tmdsencoder1_q_m_r[7:0];
-                main_tmdsencoder1_cnt <= ((main_tmdsencoder1_cnt + $signed({1'd0, main_tmdsencoder1_n1q_m})) - $signed({1'd0, main_tmdsencoder1_n0q_m}));
+    videohdmi10to1serializer0_cdc_graycounter0_q_binary <= videohdmi10to1serializer0_cdc_graycounter0_q_next_binary;
+    videohdmi10to1serializer0_cdc_graycounter0_q <= videohdmi10to1serializer0_cdc_graycounter0_q_next;
+    tmdsencoder1_n1d <= (((((((tmdsencoder1_d0[0] + tmdsencoder1_d0[1]) + tmdsencoder1_d0[2]) + tmdsencoder1_d0[3]) + tmdsencoder1_d0[4]) + tmdsencoder1_d0[5]) + tmdsencoder1_d0[6]) + tmdsencoder1_d0[7]);
+    tmdsencoder1_d1 <= tmdsencoder1_d0;
+    tmdsencoder1_q_m[0] <= tmdsencoder1_d1[0];
+    tmdsencoder1_q_m[1] <= ((tmdsencoder1_d1[0] ^ tmdsencoder1_d1[1]) ^ tmdsencoder1_q_m8_n);
+    tmdsencoder1_q_m[2] <= ((((tmdsencoder1_d1[0] ^ tmdsencoder1_d1[1]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[2]) ^ tmdsencoder1_q_m8_n);
+    tmdsencoder1_q_m[3] <= ((((((tmdsencoder1_d1[0] ^ tmdsencoder1_d1[1]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[2]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[3]) ^ tmdsencoder1_q_m8_n);
+    tmdsencoder1_q_m[4] <= ((((((((tmdsencoder1_d1[0] ^ tmdsencoder1_d1[1]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[2]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[3]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[4]) ^ tmdsencoder1_q_m8_n);
+    tmdsencoder1_q_m[5] <= ((((((((((tmdsencoder1_d1[0] ^ tmdsencoder1_d1[1]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[2]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[3]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[4]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[5]) ^ tmdsencoder1_q_m8_n);
+    tmdsencoder1_q_m[6] <= ((((((((((((tmdsencoder1_d1[0] ^ tmdsencoder1_d1[1]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[2]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[3]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[4]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[5]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[6]) ^ tmdsencoder1_q_m8_n);
+    tmdsencoder1_q_m[7] <= ((((((((((((((tmdsencoder1_d1[0] ^ tmdsencoder1_d1[1]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[2]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[3]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[4]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[5]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[6]) ^ tmdsencoder1_q_m8_n) ^ tmdsencoder1_d1[7]) ^ tmdsencoder1_q_m8_n);
+    tmdsencoder1_q_m[8] <= (~tmdsencoder1_q_m8_n);
+    tmdsencoder1_n0q_m <= ((((((((~tmdsencoder1_q_m[0]) + (~tmdsencoder1_q_m[1])) + (~tmdsencoder1_q_m[2])) + (~tmdsencoder1_q_m[3])) + (~tmdsencoder1_q_m[4])) + (~tmdsencoder1_q_m[5])) + (~tmdsencoder1_q_m[6])) + (~tmdsencoder1_q_m[7]));
+    tmdsencoder1_n1q_m <= (((((((tmdsencoder1_q_m[0] + tmdsencoder1_q_m[1]) + tmdsencoder1_q_m[2]) + tmdsencoder1_q_m[3]) + tmdsencoder1_q_m[4]) + tmdsencoder1_q_m[5]) + tmdsencoder1_q_m[6]) + tmdsencoder1_q_m[7]);
+    tmdsencoder1_q_m_r <= tmdsencoder1_q_m;
+    tmdsencoder1_new_c0 <= tmdsencoder1_c;
+    tmdsencoder1_new_de0 <= tmdsencoder1_de;
+    tmdsencoder1_new_c1 <= tmdsencoder1_new_c0;
+    tmdsencoder1_new_de1 <= tmdsencoder1_new_de0;
+    tmdsencoder1_new_c2 <= tmdsencoder1_new_c1;
+    tmdsencoder1_new_de2 <= tmdsencoder1_new_de1;
+    if (tmdsencoder1_new_de2) begin
+        if (((tmdsencoder1_cnt == $signed({1'd0, 1'd0})) | $signed({1'd0, (tmdsencoder1_n1q_m == tmdsencoder1_n0q_m)}))) begin
+            tmdsencoder1_out[9] <= (~tmdsencoder1_q_m_r[8]);
+            tmdsencoder1_out[8] <= tmdsencoder1_q_m_r[8];
+            if (tmdsencoder1_q_m_r[8]) begin
+                tmdsencoder1_out[7:0] <= tmdsencoder1_q_m_r[7:0];
+                tmdsencoder1_cnt <= ((tmdsencoder1_cnt + $signed({1'd0, tmdsencoder1_n1q_m})) - $signed({1'd0, tmdsencoder1_n0q_m}));
             end else begin
-                main_tmdsencoder1_out[7:0] <= (~main_tmdsencoder1_q_m_r[7:0]);
-                main_tmdsencoder1_cnt <= ((main_tmdsencoder1_cnt + $signed({1'd0, main_tmdsencoder1_n0q_m})) - $signed({1'd0, main_tmdsencoder1_n1q_m}));
+                tmdsencoder1_out[7:0] <= (~tmdsencoder1_q_m_r[7:0]);
+                tmdsencoder1_cnt <= ((tmdsencoder1_cnt + $signed({1'd0, tmdsencoder1_n0q_m})) - $signed({1'd0, tmdsencoder1_n1q_m}));
             end
         end else begin
-            if ((((~main_tmdsencoder1_cnt[5]) & $signed({1'd0, (main_tmdsencoder1_n1q_m > main_tmdsencoder1_n0q_m)})) | (main_tmdsencoder1_cnt[5] & $signed({1'd0, (main_tmdsencoder1_n0q_m > main_tmdsencoder1_n1q_m)})))) begin
-                main_tmdsencoder1_out[9] <= 1'd1;
-                main_tmdsencoder1_out[8] <= main_tmdsencoder1_q_m_r[8];
-                main_tmdsencoder1_out[7:0] <= (~main_tmdsencoder1_q_m_r[7:0]);
-                main_tmdsencoder1_cnt <= (((main_tmdsencoder1_cnt + $signed({1'd0, {main_tmdsencoder1_q_m_r[8], 1'd0}})) + $signed({1'd0, main_tmdsencoder1_n0q_m})) - $signed({1'd0, main_tmdsencoder1_n1q_m}));
+            if ((((~tmdsencoder1_cnt[5]) & $signed({1'd0, (tmdsencoder1_n1q_m > tmdsencoder1_n0q_m)})) | (tmdsencoder1_cnt[5] & $signed({1'd0, (tmdsencoder1_n0q_m > tmdsencoder1_n1q_m)})))) begin
+                tmdsencoder1_out[9] <= 1'd1;
+                tmdsencoder1_out[8] <= tmdsencoder1_q_m_r[8];
+                tmdsencoder1_out[7:0] <= (~tmdsencoder1_q_m_r[7:0]);
+                tmdsencoder1_cnt <= (((tmdsencoder1_cnt + $signed({1'd0, {tmdsencoder1_q_m_r[8], 1'd0}})) + $signed({1'd0, tmdsencoder1_n0q_m})) - $signed({1'd0, tmdsencoder1_n1q_m}));
             end else begin
-                main_tmdsencoder1_out[9] <= 1'd0;
-                main_tmdsencoder1_out[8] <= main_tmdsencoder1_q_m_r[8];
-                main_tmdsencoder1_out[7:0] <= main_tmdsencoder1_q_m_r[7:0];
-                main_tmdsencoder1_cnt <= (((main_tmdsencoder1_cnt - $signed({1'd0, {(~main_tmdsencoder1_q_m_r[8]), 1'd0}})) + $signed({1'd0, main_tmdsencoder1_n1q_m})) - $signed({1'd0, main_tmdsencoder1_n0q_m}));
+                tmdsencoder1_out[9] <= 1'd0;
+                tmdsencoder1_out[8] <= tmdsencoder1_q_m_r[8];
+                tmdsencoder1_out[7:0] <= tmdsencoder1_q_m_r[7:0];
+                tmdsencoder1_cnt <= (((tmdsencoder1_cnt - $signed({1'd0, {(~tmdsencoder1_q_m_r[8]), 1'd0}})) + $signed({1'd0, tmdsencoder1_n1q_m})) - $signed({1'd0, tmdsencoder1_n0q_m}));
             end
         end
     end else begin
-        main_tmdsencoder1_out <= builder_sync_array_muxed1;
-        main_tmdsencoder1_cnt <= 1'd0;
+        tmdsencoder1_out <= array_muxed1;
+        tmdsencoder1_cnt <= 1'd0;
     end
-    main_videohdmi10to1serializer1_cdc_graycounter2_q_binary <= main_videohdmi10to1serializer1_cdc_graycounter2_q_next_binary;
-    main_videohdmi10to1serializer1_cdc_graycounter2_q <= main_videohdmi10to1serializer1_cdc_graycounter2_q_next;
-    main_tmdsencoder2_n1d <= (((((((main_tmdsencoder2_d0[0] + main_tmdsencoder2_d0[1]) + main_tmdsencoder2_d0[2]) + main_tmdsencoder2_d0[3]) + main_tmdsencoder2_d0[4]) + main_tmdsencoder2_d0[5]) + main_tmdsencoder2_d0[6]) + main_tmdsencoder2_d0[7]);
-    main_tmdsencoder2_d1 <= main_tmdsencoder2_d0;
-    main_tmdsencoder2_q_m[0] <= main_tmdsencoder2_d1[0];
-    main_tmdsencoder2_q_m[1] <= ((main_tmdsencoder2_d1[0] ^ main_tmdsencoder2_d1[1]) ^ main_tmdsencoder2_q_m8_n);
-    main_tmdsencoder2_q_m[2] <= ((((main_tmdsencoder2_d1[0] ^ main_tmdsencoder2_d1[1]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[2]) ^ main_tmdsencoder2_q_m8_n);
-    main_tmdsencoder2_q_m[3] <= ((((((main_tmdsencoder2_d1[0] ^ main_tmdsencoder2_d1[1]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[2]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[3]) ^ main_tmdsencoder2_q_m8_n);
-    main_tmdsencoder2_q_m[4] <= ((((((((main_tmdsencoder2_d1[0] ^ main_tmdsencoder2_d1[1]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[2]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[3]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[4]) ^ main_tmdsencoder2_q_m8_n);
-    main_tmdsencoder2_q_m[5] <= ((((((((((main_tmdsencoder2_d1[0] ^ main_tmdsencoder2_d1[1]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[2]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[3]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[4]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[5]) ^ main_tmdsencoder2_q_m8_n);
-    main_tmdsencoder2_q_m[6] <= ((((((((((((main_tmdsencoder2_d1[0] ^ main_tmdsencoder2_d1[1]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[2]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[3]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[4]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[5]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[6]) ^ main_tmdsencoder2_q_m8_n);
-    main_tmdsencoder2_q_m[7] <= ((((((((((((((main_tmdsencoder2_d1[0] ^ main_tmdsencoder2_d1[1]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[2]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[3]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[4]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[5]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[6]) ^ main_tmdsencoder2_q_m8_n) ^ main_tmdsencoder2_d1[7]) ^ main_tmdsencoder2_q_m8_n);
-    main_tmdsencoder2_q_m[8] <= (~main_tmdsencoder2_q_m8_n);
-    main_tmdsencoder2_n0q_m <= ((((((((~main_tmdsencoder2_q_m[0]) + (~main_tmdsencoder2_q_m[1])) + (~main_tmdsencoder2_q_m[2])) + (~main_tmdsencoder2_q_m[3])) + (~main_tmdsencoder2_q_m[4])) + (~main_tmdsencoder2_q_m[5])) + (~main_tmdsencoder2_q_m[6])) + (~main_tmdsencoder2_q_m[7]));
-    main_tmdsencoder2_n1q_m <= (((((((main_tmdsencoder2_q_m[0] + main_tmdsencoder2_q_m[1]) + main_tmdsencoder2_q_m[2]) + main_tmdsencoder2_q_m[3]) + main_tmdsencoder2_q_m[4]) + main_tmdsencoder2_q_m[5]) + main_tmdsencoder2_q_m[6]) + main_tmdsencoder2_q_m[7]);
-    main_tmdsencoder2_q_m_r <= main_tmdsencoder2_q_m;
-    main_tmdsencoder2_new_c0 <= main_tmdsencoder2_c;
-    main_tmdsencoder2_new_de0 <= main_tmdsencoder2_de;
-    main_tmdsencoder2_new_c1 <= main_tmdsencoder2_new_c0;
-    main_tmdsencoder2_new_de1 <= main_tmdsencoder2_new_de0;
-    main_tmdsencoder2_new_c2 <= main_tmdsencoder2_new_c1;
-    main_tmdsencoder2_new_de2 <= main_tmdsencoder2_new_de1;
-    if (main_tmdsencoder2_new_de2) begin
-        if (((main_tmdsencoder2_cnt == $signed({1'd0, 1'd0})) | $signed({1'd0, (main_tmdsencoder2_n1q_m == main_tmdsencoder2_n0q_m)}))) begin
-            main_tmdsencoder2_out[9] <= (~main_tmdsencoder2_q_m_r[8]);
-            main_tmdsencoder2_out[8] <= main_tmdsencoder2_q_m_r[8];
-            if (main_tmdsencoder2_q_m_r[8]) begin
-                main_tmdsencoder2_out[7:0] <= main_tmdsencoder2_q_m_r[7:0];
-                main_tmdsencoder2_cnt <= ((main_tmdsencoder2_cnt + $signed({1'd0, main_tmdsencoder2_n1q_m})) - $signed({1'd0, main_tmdsencoder2_n0q_m}));
+    videohdmi10to1serializer1_cdc_graycounter2_q_binary <= videohdmi10to1serializer1_cdc_graycounter2_q_next_binary;
+    videohdmi10to1serializer1_cdc_graycounter2_q <= videohdmi10to1serializer1_cdc_graycounter2_q_next;
+    tmdsencoder2_n1d <= (((((((tmdsencoder2_d0[0] + tmdsencoder2_d0[1]) + tmdsencoder2_d0[2]) + tmdsencoder2_d0[3]) + tmdsencoder2_d0[4]) + tmdsencoder2_d0[5]) + tmdsencoder2_d0[6]) + tmdsencoder2_d0[7]);
+    tmdsencoder2_d1 <= tmdsencoder2_d0;
+    tmdsencoder2_q_m[0] <= tmdsencoder2_d1[0];
+    tmdsencoder2_q_m[1] <= ((tmdsencoder2_d1[0] ^ tmdsencoder2_d1[1]) ^ tmdsencoder2_q_m8_n);
+    tmdsencoder2_q_m[2] <= ((((tmdsencoder2_d1[0] ^ tmdsencoder2_d1[1]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[2]) ^ tmdsencoder2_q_m8_n);
+    tmdsencoder2_q_m[3] <= ((((((tmdsencoder2_d1[0] ^ tmdsencoder2_d1[1]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[2]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[3]) ^ tmdsencoder2_q_m8_n);
+    tmdsencoder2_q_m[4] <= ((((((((tmdsencoder2_d1[0] ^ tmdsencoder2_d1[1]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[2]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[3]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[4]) ^ tmdsencoder2_q_m8_n);
+    tmdsencoder2_q_m[5] <= ((((((((((tmdsencoder2_d1[0] ^ tmdsencoder2_d1[1]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[2]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[3]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[4]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[5]) ^ tmdsencoder2_q_m8_n);
+    tmdsencoder2_q_m[6] <= ((((((((((((tmdsencoder2_d1[0] ^ tmdsencoder2_d1[1]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[2]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[3]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[4]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[5]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[6]) ^ tmdsencoder2_q_m8_n);
+    tmdsencoder2_q_m[7] <= ((((((((((((((tmdsencoder2_d1[0] ^ tmdsencoder2_d1[1]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[2]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[3]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[4]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[5]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[6]) ^ tmdsencoder2_q_m8_n) ^ tmdsencoder2_d1[7]) ^ tmdsencoder2_q_m8_n);
+    tmdsencoder2_q_m[8] <= (~tmdsencoder2_q_m8_n);
+    tmdsencoder2_n0q_m <= ((((((((~tmdsencoder2_q_m[0]) + (~tmdsencoder2_q_m[1])) + (~tmdsencoder2_q_m[2])) + (~tmdsencoder2_q_m[3])) + (~tmdsencoder2_q_m[4])) + (~tmdsencoder2_q_m[5])) + (~tmdsencoder2_q_m[6])) + (~tmdsencoder2_q_m[7]));
+    tmdsencoder2_n1q_m <= (((((((tmdsencoder2_q_m[0] + tmdsencoder2_q_m[1]) + tmdsencoder2_q_m[2]) + tmdsencoder2_q_m[3]) + tmdsencoder2_q_m[4]) + tmdsencoder2_q_m[5]) + tmdsencoder2_q_m[6]) + tmdsencoder2_q_m[7]);
+    tmdsencoder2_q_m_r <= tmdsencoder2_q_m;
+    tmdsencoder2_new_c0 <= tmdsencoder2_c;
+    tmdsencoder2_new_de0 <= tmdsencoder2_de;
+    tmdsencoder2_new_c1 <= tmdsencoder2_new_c0;
+    tmdsencoder2_new_de1 <= tmdsencoder2_new_de0;
+    tmdsencoder2_new_c2 <= tmdsencoder2_new_c1;
+    tmdsencoder2_new_de2 <= tmdsencoder2_new_de1;
+    if (tmdsencoder2_new_de2) begin
+        if (((tmdsencoder2_cnt == $signed({1'd0, 1'd0})) | $signed({1'd0, (tmdsencoder2_n1q_m == tmdsencoder2_n0q_m)}))) begin
+            tmdsencoder2_out[9] <= (~tmdsencoder2_q_m_r[8]);
+            tmdsencoder2_out[8] <= tmdsencoder2_q_m_r[8];
+            if (tmdsencoder2_q_m_r[8]) begin
+                tmdsencoder2_out[7:0] <= tmdsencoder2_q_m_r[7:0];
+                tmdsencoder2_cnt <= ((tmdsencoder2_cnt + $signed({1'd0, tmdsencoder2_n1q_m})) - $signed({1'd0, tmdsencoder2_n0q_m}));
             end else begin
-                main_tmdsencoder2_out[7:0] <= (~main_tmdsencoder2_q_m_r[7:0]);
-                main_tmdsencoder2_cnt <= ((main_tmdsencoder2_cnt + $signed({1'd0, main_tmdsencoder2_n0q_m})) - $signed({1'd0, main_tmdsencoder2_n1q_m}));
+                tmdsencoder2_out[7:0] <= (~tmdsencoder2_q_m_r[7:0]);
+                tmdsencoder2_cnt <= ((tmdsencoder2_cnt + $signed({1'd0, tmdsencoder2_n0q_m})) - $signed({1'd0, tmdsencoder2_n1q_m}));
             end
         end else begin
-            if ((((~main_tmdsencoder2_cnt[5]) & $signed({1'd0, (main_tmdsencoder2_n1q_m > main_tmdsencoder2_n0q_m)})) | (main_tmdsencoder2_cnt[5] & $signed({1'd0, (main_tmdsencoder2_n0q_m > main_tmdsencoder2_n1q_m)})))) begin
-                main_tmdsencoder2_out[9] <= 1'd1;
-                main_tmdsencoder2_out[8] <= main_tmdsencoder2_q_m_r[8];
-                main_tmdsencoder2_out[7:0] <= (~main_tmdsencoder2_q_m_r[7:0]);
-                main_tmdsencoder2_cnt <= (((main_tmdsencoder2_cnt + $signed({1'd0, {main_tmdsencoder2_q_m_r[8], 1'd0}})) + $signed({1'd0, main_tmdsencoder2_n0q_m})) - $signed({1'd0, main_tmdsencoder2_n1q_m}));
+            if ((((~tmdsencoder2_cnt[5]) & $signed({1'd0, (tmdsencoder2_n1q_m > tmdsencoder2_n0q_m)})) | (tmdsencoder2_cnt[5] & $signed({1'd0, (tmdsencoder2_n0q_m > tmdsencoder2_n1q_m)})))) begin
+                tmdsencoder2_out[9] <= 1'd1;
+                tmdsencoder2_out[8] <= tmdsencoder2_q_m_r[8];
+                tmdsencoder2_out[7:0] <= (~tmdsencoder2_q_m_r[7:0]);
+                tmdsencoder2_cnt <= (((tmdsencoder2_cnt + $signed({1'd0, {tmdsencoder2_q_m_r[8], 1'd0}})) + $signed({1'd0, tmdsencoder2_n0q_m})) - $signed({1'd0, tmdsencoder2_n1q_m}));
             end else begin
-                main_tmdsencoder2_out[9] <= 1'd0;
-                main_tmdsencoder2_out[8] <= main_tmdsencoder2_q_m_r[8];
-                main_tmdsencoder2_out[7:0] <= main_tmdsencoder2_q_m_r[7:0];
-                main_tmdsencoder2_cnt <= (((main_tmdsencoder2_cnt - $signed({1'd0, {(~main_tmdsencoder2_q_m_r[8]), 1'd0}})) + $signed({1'd0, main_tmdsencoder2_n1q_m})) - $signed({1'd0, main_tmdsencoder2_n0q_m}));
+                tmdsencoder2_out[9] <= 1'd0;
+                tmdsencoder2_out[8] <= tmdsencoder2_q_m_r[8];
+                tmdsencoder2_out[7:0] <= tmdsencoder2_q_m_r[7:0];
+                tmdsencoder2_cnt <= (((tmdsencoder2_cnt - $signed({1'd0, {(~tmdsencoder2_q_m_r[8]), 1'd0}})) + $signed({1'd0, tmdsencoder2_n1q_m})) - $signed({1'd0, tmdsencoder2_n0q_m}));
             end
         end
     end else begin
-        main_tmdsencoder2_out <= builder_sync_array_muxed2;
-        main_tmdsencoder2_cnt <= 1'd0;
+        tmdsencoder2_out <= array_muxed2;
+        tmdsencoder2_cnt <= 1'd0;
     end
-    main_videohdmi10to1serializer2_cdc_graycounter4_q_binary <= main_videohdmi10to1serializer2_cdc_graycounter4_q_next_binary;
-    main_videohdmi10to1serializer2_cdc_graycounter4_q <= main_videohdmi10to1serializer2_cdc_graycounter4_q_next;
-    main_vtg_source_first <= ((main_vtg_source_payload_hcount == 1'd0) & (main_vtg_source_payload_vcount == 1'd0));
-    main_vtg_source_last <= ((main_vtg_source_payload_hcount == main_vtg_hscan) & (main_vtg_source_payload_vcount == main_vtg_vscan));
-    builder_basesoc_videotiminggenerator_state <= builder_basesoc_videotiminggenerator_next_state;
-    if (main_vtg_hactive_clockdomainsrenamer0_next_value_ce0) begin
-        main_vtg_hactive <= main_vtg_hactive_clockdomainsrenamer0_next_value0;
+    videohdmi10to1serializer2_cdc_graycounter4_q_binary <= videohdmi10to1serializer2_cdc_graycounter4_q_next_binary;
+    videohdmi10to1serializer2_cdc_graycounter4_q <= videohdmi10to1serializer2_cdc_graycounter4_q_next;
+    vtg_source_first <= ((vtg_source_payload_hcount == 1'd0) & (vtg_source_payload_vcount == 1'd0));
+    vtg_source_last <= ((vtg_source_payload_hcount == vtg_hscan) & (vtg_source_payload_vcount == vtg_vscan));
+    basesoc_videotiminggenerator_state <= basesoc_videotiminggenerator_next_state;
+    if (vtg_hactive_clockdomainsrenamer0_next_value_ce0) begin
+        vtg_hactive <= vtg_hactive_clockdomainsrenamer0_next_value0;
     end
-    if (main_vtg_vactive_clockdomainsrenamer0_next_value_ce1) begin
-        main_vtg_vactive <= main_vtg_vactive_clockdomainsrenamer0_next_value1;
+    if (vtg_vactive_clockdomainsrenamer0_next_value_ce1) begin
+        vtg_vactive <= vtg_vactive_clockdomainsrenamer0_next_value1;
     end
-    if (main_vtg_source_payload_hres_clockdomainsrenamer0_next_value_ce2) begin
-        main_vtg_source_payload_hres <= main_vtg_source_payload_hres_clockdomainsrenamer0_next_value2;
+    if (vtg_source_payload_hres_clockdomainsrenamer0_next_value_ce2) begin
+        vtg_source_payload_hres <= vtg_source_payload_hres_clockdomainsrenamer0_next_value2;
     end
-    if (main_vtg_source_payload_vres_clockdomainsrenamer0_next_value_ce3) begin
-        main_vtg_source_payload_vres <= main_vtg_source_payload_vres_clockdomainsrenamer0_next_value3;
+    if (vtg_source_payload_vres_clockdomainsrenamer0_next_value_ce3) begin
+        vtg_source_payload_vres <= vtg_source_payload_vres_clockdomainsrenamer0_next_value3;
     end
-    if (main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4) begin
-        main_vtg_source_payload_hcount <= main_vtg_source_payload_hcount_clockdomainsrenamer0_next_value4;
+    if (vtg_source_payload_hcount_clockdomainsrenamer0_next_value_ce4) begin
+        vtg_source_payload_hcount <= vtg_source_payload_hcount_clockdomainsrenamer0_next_value4;
     end
-    if (main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5) begin
-        main_vtg_source_payload_vcount <= main_vtg_source_payload_vcount_clockdomainsrenamer0_next_value5;
+    if (vtg_source_payload_vcount_clockdomainsrenamer0_next_value_ce5) begin
+        vtg_source_payload_vcount <= vtg_source_payload_vcount_clockdomainsrenamer0_next_value5;
     end
-    if (main_vtg_source_payload_hsync_clockdomainsrenamer0_next_value_ce6) begin
-        main_vtg_source_payload_hsync <= main_vtg_source_payload_hsync_clockdomainsrenamer0_next_value6;
+    if (vtg_source_payload_hsync_clockdomainsrenamer0_next_value_ce6) begin
+        vtg_source_payload_hsync <= vtg_source_payload_hsync_clockdomainsrenamer0_next_value6;
     end
-    if (main_vtg_source_payload_vsync_clockdomainsrenamer0_next_value_ce7) begin
-        main_vtg_source_payload_vsync <= main_vtg_source_payload_vsync_clockdomainsrenamer0_next_value7;
+    if (vtg_source_payload_vsync_clockdomainsrenamer0_next_value_ce7) begin
+        vtg_source_payload_vsync <= vtg_source_payload_vsync_clockdomainsrenamer0_next_value7;
     end
-    if (main_vtg_reset) begin
-        main_vtg_source_payload_hsync <= 1'd0;
-        main_vtg_source_payload_vsync <= 1'd0;
-        main_vtg_source_payload_hres <= 12'd0;
-        main_vtg_source_payload_vres <= 12'd0;
-        main_vtg_source_payload_hcount <= 12'd0;
-        main_vtg_source_payload_vcount <= 12'd0;
-        main_vtg_hactive <= 1'd0;
-        main_vtg_vactive <= 1'd0;
-        builder_basesoc_videotiminggenerator_state <= 1'd0;
+    if (vtg_reset) begin
+        vtg_source_payload_hsync <= 1'd0;
+        vtg_source_payload_vsync <= 1'd0;
+        vtg_source_payload_hres <= 12'd0;
+        vtg_source_payload_vres <= 12'd0;
+        vtg_source_payload_hcount <= 12'd0;
+        vtg_source_payload_vcount <= 12'd0;
+        vtg_hactive <= 1'd0;
+        vtg_vactive <= 1'd0;
+        basesoc_videotiminggenerator_state <= 1'd0;
     end
-    builder_basesoc_colorbarspattern_state <= builder_basesoc_colorbarspattern_next_state;
-    if (main_colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0) begin
-        main_colorbarspattern_pix <= main_colorbarspattern_pix_clockdomainsrenamer1_next_value0;
+    basesoc_colorbarspattern_state <= basesoc_colorbarspattern_next_state;
+    if (colorbarspattern_pix_clockdomainsrenamer1_next_value_ce0) begin
+        colorbarspattern_pix <= colorbarspattern_pix_clockdomainsrenamer1_next_value0;
     end
-    if (main_colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1) begin
-        main_colorbarspattern_bar <= main_colorbarspattern_bar_clockdomainsrenamer1_next_value1;
+    if (colorbarspattern_bar_clockdomainsrenamer1_next_value_ce1) begin
+        colorbarspattern_bar <= colorbarspattern_bar_clockdomainsrenamer1_next_value1;
     end
-    if (main_colorbarspattern_reset) begin
-        main_colorbarspattern_pix <= 12'd0;
-        main_colorbarspattern_bar <= 3'd0;
-        builder_basesoc_colorbarspattern_state <= 1'd0;
+    if (colorbarspattern_reset) begin
+        colorbarspattern_pix <= 12'd0;
+        colorbarspattern_bar <= 3'd0;
+        basesoc_colorbarspattern_state <= 1'd0;
     end
     if (hdmi_rst) begin
-        main_tmdsencoder0_out <= 10'd0;
-        main_tmdsencoder0_d1 <= 8'd0;
-        main_tmdsencoder0_n1d <= 4'd0;
-        main_tmdsencoder0_q_m <= 9'd0;
-        main_tmdsencoder0_q_m_r <= 9'd0;
-        main_tmdsencoder0_n0q_m <= 4'd0;
-        main_tmdsencoder0_n1q_m <= 4'd0;
-        main_tmdsencoder0_cnt <= 6'd0;
-        main_tmdsencoder0_new_c0 <= 2'd0;
-        main_tmdsencoder0_new_de0 <= 1'd0;
-        main_tmdsencoder0_new_c1 <= 2'd0;
-        main_tmdsencoder0_new_de1 <= 1'd0;
-        main_tmdsencoder0_new_c2 <= 2'd0;
-        main_tmdsencoder0_new_de2 <= 1'd0;
-        main_videohdmi10to1serializer0_cdc_graycounter0_q <= 3'd0;
-        main_videohdmi10to1serializer0_cdc_graycounter0_q_binary <= 3'd0;
-        main_tmdsencoder1_out <= 10'd0;
-        main_tmdsencoder1_d1 <= 8'd0;
-        main_tmdsencoder1_n1d <= 4'd0;
-        main_tmdsencoder1_q_m <= 9'd0;
-        main_tmdsencoder1_q_m_r <= 9'd0;
-        main_tmdsencoder1_n0q_m <= 4'd0;
-        main_tmdsencoder1_n1q_m <= 4'd0;
-        main_tmdsencoder1_cnt <= 6'd0;
-        main_tmdsencoder1_new_c0 <= 2'd0;
-        main_tmdsencoder1_new_de0 <= 1'd0;
-        main_tmdsencoder1_new_c1 <= 2'd0;
-        main_tmdsencoder1_new_de1 <= 1'd0;
-        main_tmdsencoder1_new_c2 <= 2'd0;
-        main_tmdsencoder1_new_de2 <= 1'd0;
-        main_videohdmi10to1serializer1_cdc_graycounter2_q <= 3'd0;
-        main_videohdmi10to1serializer1_cdc_graycounter2_q_binary <= 3'd0;
-        main_tmdsencoder2_out <= 10'd0;
-        main_tmdsencoder2_d1 <= 8'd0;
-        main_tmdsencoder2_n1d <= 4'd0;
-        main_tmdsencoder2_q_m <= 9'd0;
-        main_tmdsencoder2_q_m_r <= 9'd0;
-        main_tmdsencoder2_n0q_m <= 4'd0;
-        main_tmdsencoder2_n1q_m <= 4'd0;
-        main_tmdsencoder2_cnt <= 6'd0;
-        main_tmdsencoder2_new_c0 <= 2'd0;
-        main_tmdsencoder2_new_de0 <= 1'd0;
-        main_tmdsencoder2_new_c1 <= 2'd0;
-        main_tmdsencoder2_new_de1 <= 1'd0;
-        main_tmdsencoder2_new_c2 <= 2'd0;
-        main_tmdsencoder2_new_de2 <= 1'd0;
-        main_videohdmi10to1serializer2_cdc_graycounter4_q <= 3'd0;
-        main_videohdmi10to1serializer2_cdc_graycounter4_q_binary <= 3'd0;
-        main_vtg_source_payload_hsync <= 1'd0;
-        main_vtg_source_payload_vsync <= 1'd0;
-        main_vtg_source_payload_hres <= 12'd0;
-        main_vtg_source_payload_vres <= 12'd0;
-        main_vtg_source_payload_hcount <= 12'd0;
-        main_vtg_source_payload_vcount <= 12'd0;
-        main_vtg_hactive <= 1'd0;
-        main_vtg_vactive <= 1'd0;
-        main_colorbarspattern_pix <= 12'd0;
-        main_colorbarspattern_bar <= 3'd0;
-        builder_basesoc_videotiminggenerator_state <= 1'd0;
-        builder_basesoc_colorbarspattern_state <= 1'd0;
+        tmdsencoder0_out <= 10'd0;
+        tmdsencoder0_d1 <= 8'd0;
+        tmdsencoder0_n1d <= 4'd0;
+        tmdsencoder0_q_m <= 9'd0;
+        tmdsencoder0_q_m_r <= 9'd0;
+        tmdsencoder0_n0q_m <= 4'd0;
+        tmdsencoder0_n1q_m <= 4'd0;
+        tmdsencoder0_cnt <= 6'd0;
+        tmdsencoder0_new_c0 <= 2'd0;
+        tmdsencoder0_new_de0 <= 1'd0;
+        tmdsencoder0_new_c1 <= 2'd0;
+        tmdsencoder0_new_de1 <= 1'd0;
+        tmdsencoder0_new_c2 <= 2'd0;
+        tmdsencoder0_new_de2 <= 1'd0;
+        videohdmi10to1serializer0_cdc_graycounter0_q <= 3'd0;
+        videohdmi10to1serializer0_cdc_graycounter0_q_binary <= 3'd0;
+        tmdsencoder1_out <= 10'd0;
+        tmdsencoder1_d1 <= 8'd0;
+        tmdsencoder1_n1d <= 4'd0;
+        tmdsencoder1_q_m <= 9'd0;
+        tmdsencoder1_q_m_r <= 9'd0;
+        tmdsencoder1_n0q_m <= 4'd0;
+        tmdsencoder1_n1q_m <= 4'd0;
+        tmdsencoder1_cnt <= 6'd0;
+        tmdsencoder1_new_c0 <= 2'd0;
+        tmdsencoder1_new_de0 <= 1'd0;
+        tmdsencoder1_new_c1 <= 2'd0;
+        tmdsencoder1_new_de1 <= 1'd0;
+        tmdsencoder1_new_c2 <= 2'd0;
+        tmdsencoder1_new_de2 <= 1'd0;
+        videohdmi10to1serializer1_cdc_graycounter2_q <= 3'd0;
+        videohdmi10to1serializer1_cdc_graycounter2_q_binary <= 3'd0;
+        tmdsencoder2_out <= 10'd0;
+        tmdsencoder2_d1 <= 8'd0;
+        tmdsencoder2_n1d <= 4'd0;
+        tmdsencoder2_q_m <= 9'd0;
+        tmdsencoder2_q_m_r <= 9'd0;
+        tmdsencoder2_n0q_m <= 4'd0;
+        tmdsencoder2_n1q_m <= 4'd0;
+        tmdsencoder2_cnt <= 6'd0;
+        tmdsencoder2_new_c0 <= 2'd0;
+        tmdsencoder2_new_de0 <= 1'd0;
+        tmdsencoder2_new_c1 <= 2'd0;
+        tmdsencoder2_new_de1 <= 1'd0;
+        tmdsencoder2_new_c2 <= 2'd0;
+        tmdsencoder2_new_de2 <= 1'd0;
+        videohdmi10to1serializer2_cdc_graycounter4_q <= 3'd0;
+        videohdmi10to1serializer2_cdc_graycounter4_q_binary <= 3'd0;
+        vtg_source_payload_hsync <= 1'd0;
+        vtg_source_payload_vsync <= 1'd0;
+        vtg_source_payload_hres <= 12'd0;
+        vtg_source_payload_vres <= 12'd0;
+        vtg_source_payload_hcount <= 12'd0;
+        vtg_source_payload_vcount <= 12'd0;
+        vtg_hactive <= 1'd0;
+        vtg_vactive <= 1'd0;
+        colorbarspattern_pix <= 12'd0;
+        colorbarspattern_bar <= 3'd0;
+        basesoc_videotiminggenerator_state <= 1'd0;
+        basesoc_colorbarspattern_state <= 1'd0;
     end
-    builder_xilinxmultiregimpl2_regs0 <= main_videohdmi10to1serializer0_cdc_graycounter1_q;
-    builder_xilinxmultiregimpl2_regs1 <= builder_xilinxmultiregimpl2_regs0;
-    builder_xilinxmultiregimpl4_regs0 <= main_videohdmi10to1serializer1_cdc_graycounter3_q;
-    builder_xilinxmultiregimpl4_regs1 <= builder_xilinxmultiregimpl4_regs0;
-    builder_xilinxmultiregimpl6_regs0 <= main_videohdmi10to1serializer2_cdc_graycounter5_q;
-    builder_xilinxmultiregimpl6_regs1 <= builder_xilinxmultiregimpl6_regs0;
-    builder_xilinxmultiregimpl7_regs0 <= main_vtg_enable_storage;
-    builder_xilinxmultiregimpl7_regs1 <= builder_xilinxmultiregimpl7_regs0;
-    builder_xilinxmultiregimpl8_regs0 <= main_vtg_hres_storage;
-    builder_xilinxmultiregimpl8_regs1 <= builder_xilinxmultiregimpl8_regs0;
-    builder_xilinxmultiregimpl9_regs0 <= main_vtg_hsync_start_storage;
-    builder_xilinxmultiregimpl9_regs1 <= builder_xilinxmultiregimpl9_regs0;
-    builder_xilinxmultiregimpl10_regs0 <= main_vtg_hsync_end_storage;
-    builder_xilinxmultiregimpl10_regs1 <= builder_xilinxmultiregimpl10_regs0;
-    builder_xilinxmultiregimpl11_regs0 <= main_vtg_hscan_storage;
-    builder_xilinxmultiregimpl11_regs1 <= builder_xilinxmultiregimpl11_regs0;
-    builder_xilinxmultiregimpl12_regs0 <= main_vtg_vres_storage;
-    builder_xilinxmultiregimpl12_regs1 <= builder_xilinxmultiregimpl12_regs0;
-    builder_xilinxmultiregimpl13_regs0 <= main_vtg_vsync_start_storage;
-    builder_xilinxmultiregimpl13_regs1 <= builder_xilinxmultiregimpl13_regs0;
-    builder_xilinxmultiregimpl14_regs0 <= main_vtg_vsync_end_storage;
-    builder_xilinxmultiregimpl14_regs1 <= builder_xilinxmultiregimpl14_regs0;
-    builder_xilinxmultiregimpl15_regs0 <= main_vtg_vscan_storage;
-    builder_xilinxmultiregimpl15_regs1 <= builder_xilinxmultiregimpl15_regs0;
-    builder_xilinxmultiregimpl16_regs0 <= main_colorbarspattern_enable0;
-    builder_xilinxmultiregimpl16_regs1 <= builder_xilinxmultiregimpl16_regs0;
+    xilinxmultiregimpl1_regs0 <= videohdmi10to1serializer0_cdc_graycounter1_q;
+    xilinxmultiregimpl1_regs1 <= xilinxmultiregimpl1_regs0;
+    xilinxmultiregimpl3_regs0 <= videohdmi10to1serializer1_cdc_graycounter3_q;
+    xilinxmultiregimpl3_regs1 <= xilinxmultiregimpl3_regs0;
+    xilinxmultiregimpl5_regs0 <= videohdmi10to1serializer2_cdc_graycounter5_q;
+    xilinxmultiregimpl5_regs1 <= xilinxmultiregimpl5_regs0;
+    xilinxmultiregimpl6_regs0 <= vtg_enable_storage;
+    xilinxmultiregimpl6_regs1 <= xilinxmultiregimpl6_regs0;
+    xilinxmultiregimpl7_regs0 <= vtg_hres_storage;
+    xilinxmultiregimpl7_regs1 <= xilinxmultiregimpl7_regs0;
+    xilinxmultiregimpl8_regs0 <= vtg_hsync_start_storage;
+    xilinxmultiregimpl8_regs1 <= xilinxmultiregimpl8_regs0;
+    xilinxmultiregimpl9_regs0 <= vtg_hsync_end_storage;
+    xilinxmultiregimpl9_regs1 <= xilinxmultiregimpl9_regs0;
+    xilinxmultiregimpl10_regs0 <= vtg_hscan_storage;
+    xilinxmultiregimpl10_regs1 <= xilinxmultiregimpl10_regs0;
+    xilinxmultiregimpl11_regs0 <= vtg_vres_storage;
+    xilinxmultiregimpl11_regs1 <= xilinxmultiregimpl11_regs0;
+    xilinxmultiregimpl12_regs0 <= vtg_vsync_start_storage;
+    xilinxmultiregimpl12_regs1 <= xilinxmultiregimpl12_regs0;
+    xilinxmultiregimpl13_regs0 <= vtg_vsync_end_storage;
+    xilinxmultiregimpl13_regs1 <= xilinxmultiregimpl13_regs0;
+    xilinxmultiregimpl14_regs0 <= vtg_vscan_storage;
+    xilinxmultiregimpl14_regs1 <= xilinxmultiregimpl14_regs0;
+    xilinxmultiregimpl15_regs0 <= colorbarspattern_enable0;
+    xilinxmultiregimpl15_regs1 <= xilinxmultiregimpl15_regs0;
 end
 
 always @(posedge hdmi5x_clk) begin
-    main_videohdmi10to1serializer0_cdc_graycounter1_q_binary <= main_videohdmi10to1serializer0_cdc_graycounter1_q_next_binary;
-    main_videohdmi10to1serializer0_cdc_graycounter1_q <= main_videohdmi10to1serializer0_cdc_graycounter1_q_next;
-    if (main_videohdmi10to1serializer0_i_inc) begin
-        main_videohdmi10to1serializer0_i_count <= (main_videohdmi10to1serializer0_i_count + 1'd1);
-        if ((main_videohdmi10to1serializer0_i_count == 1'd1)) begin
-            main_videohdmi10to1serializer0_i_count <= 1'd0;
+    videohdmi10to1serializer0_cdc_graycounter1_q_binary <= videohdmi10to1serializer0_cdc_graycounter1_q_next_binary;
+    videohdmi10to1serializer0_cdc_graycounter1_q <= videohdmi10to1serializer0_cdc_graycounter1_q_next;
+    if (videohdmi10to1serializer0_i_inc) begin
+        videohdmi10to1serializer0_i_count <= (videohdmi10to1serializer0_i_count + 1'd1);
+        if ((videohdmi10to1serializer0_i_count == 1'd1)) begin
+            videohdmi10to1serializer0_i_count <= 1'd0;
         end
     end
-    if (main_videohdmi10to1serializer0_o_inc) begin
-        main_videohdmi10to1serializer0_o_count <= (main_videohdmi10to1serializer0_o_count + 1'd1);
-        if ((main_videohdmi10to1serializer0_o_count == 4'd9)) begin
-            main_videohdmi10to1serializer0_o_count <= 1'd0;
+    if (videohdmi10to1serializer0_o_inc) begin
+        videohdmi10to1serializer0_o_count <= (videohdmi10to1serializer0_o_count + 1'd1);
+        if ((videohdmi10to1serializer0_o_count == 4'd9)) begin
+            videohdmi10to1serializer0_o_count <= 1'd0;
         end
     end
-    if ((main_videohdmi10to1serializer0_i_inc & (~main_videohdmi10to1serializer0_o_inc))) begin
-        main_videohdmi10to1serializer0_level <= (main_videohdmi10to1serializer0_level + 4'd10);
+    if ((videohdmi10to1serializer0_i_inc & (~videohdmi10to1serializer0_o_inc))) begin
+        videohdmi10to1serializer0_level <= (videohdmi10to1serializer0_level + 4'd10);
     end
-    if (((~main_videohdmi10to1serializer0_i_inc) & main_videohdmi10to1serializer0_o_inc)) begin
-        main_videohdmi10to1serializer0_level <= (main_videohdmi10to1serializer0_level - 2'd2);
+    if (((~videohdmi10to1serializer0_i_inc) & videohdmi10to1serializer0_o_inc)) begin
+        videohdmi10to1serializer0_level <= (videohdmi10to1serializer0_level - 2'd2);
     end
-    if ((main_videohdmi10to1serializer0_i_inc & main_videohdmi10to1serializer0_o_inc)) begin
-        main_videohdmi10to1serializer0_level <= ((main_videohdmi10to1serializer0_level + 4'd10) - 2'd2);
+    if ((videohdmi10to1serializer0_i_inc & videohdmi10to1serializer0_o_inc)) begin
+        videohdmi10to1serializer0_level <= ((videohdmi10to1serializer0_level + 4'd10) - 2'd2);
     end
-    if ((main_videohdmi10to1serializer0_sink_valid & main_videohdmi10to1serializer0_sink_ready)) begin
-        case (main_videohdmi10to1serializer0_i_count)
+    if ((videohdmi10to1serializer0_sink_valid & videohdmi10to1serializer0_sink_ready)) begin
+        case (videohdmi10to1serializer0_i_count)
             1'd0: begin
-                main_videohdmi10to1serializer0_shift_register[19:10] <= main_videohdmi10to1serializer0_i_data;
+                videohdmi10to1serializer0_shift_register[19:10] <= videohdmi10to1serializer0_i_data;
             end
             1'd1: begin
-                main_videohdmi10to1serializer0_shift_register[9:0] <= main_videohdmi10to1serializer0_i_data;
+                videohdmi10to1serializer0_shift_register[9:0] <= videohdmi10to1serializer0_i_data;
             end
         endcase
     end
-    main_videohdmi10to1serializer1_cdc_graycounter3_q_binary <= main_videohdmi10to1serializer1_cdc_graycounter3_q_next_binary;
-    main_videohdmi10to1serializer1_cdc_graycounter3_q <= main_videohdmi10to1serializer1_cdc_graycounter3_q_next;
-    if (main_videohdmi10to1serializer1_i_inc) begin
-        main_videohdmi10to1serializer1_i_count <= (main_videohdmi10to1serializer1_i_count + 1'd1);
-        if ((main_videohdmi10to1serializer1_i_count == 1'd1)) begin
-            main_videohdmi10to1serializer1_i_count <= 1'd0;
+    videohdmi10to1serializer1_cdc_graycounter3_q_binary <= videohdmi10to1serializer1_cdc_graycounter3_q_next_binary;
+    videohdmi10to1serializer1_cdc_graycounter3_q <= videohdmi10to1serializer1_cdc_graycounter3_q_next;
+    if (videohdmi10to1serializer1_i_inc) begin
+        videohdmi10to1serializer1_i_count <= (videohdmi10to1serializer1_i_count + 1'd1);
+        if ((videohdmi10to1serializer1_i_count == 1'd1)) begin
+            videohdmi10to1serializer1_i_count <= 1'd0;
         end
     end
-    if (main_videohdmi10to1serializer1_o_inc) begin
-        main_videohdmi10to1serializer1_o_count <= (main_videohdmi10to1serializer1_o_count + 1'd1);
-        if ((main_videohdmi10to1serializer1_o_count == 4'd9)) begin
-            main_videohdmi10to1serializer1_o_count <= 1'd0;
+    if (videohdmi10to1serializer1_o_inc) begin
+        videohdmi10to1serializer1_o_count <= (videohdmi10to1serializer1_o_count + 1'd1);
+        if ((videohdmi10to1serializer1_o_count == 4'd9)) begin
+            videohdmi10to1serializer1_o_count <= 1'd0;
         end
     end
-    if ((main_videohdmi10to1serializer1_i_inc & (~main_videohdmi10to1serializer1_o_inc))) begin
-        main_videohdmi10to1serializer1_level <= (main_videohdmi10to1serializer1_level + 4'd10);
+    if ((videohdmi10to1serializer1_i_inc & (~videohdmi10to1serializer1_o_inc))) begin
+        videohdmi10to1serializer1_level <= (videohdmi10to1serializer1_level + 4'd10);
     end
-    if (((~main_videohdmi10to1serializer1_i_inc) & main_videohdmi10to1serializer1_o_inc)) begin
-        main_videohdmi10to1serializer1_level <= (main_videohdmi10to1serializer1_level - 2'd2);
+    if (((~videohdmi10to1serializer1_i_inc) & videohdmi10to1serializer1_o_inc)) begin
+        videohdmi10to1serializer1_level <= (videohdmi10to1serializer1_level - 2'd2);
     end
-    if ((main_videohdmi10to1serializer1_i_inc & main_videohdmi10to1serializer1_o_inc)) begin
-        main_videohdmi10to1serializer1_level <= ((main_videohdmi10to1serializer1_level + 4'd10) - 2'd2);
+    if ((videohdmi10to1serializer1_i_inc & videohdmi10to1serializer1_o_inc)) begin
+        videohdmi10to1serializer1_level <= ((videohdmi10to1serializer1_level + 4'd10) - 2'd2);
     end
-    if ((main_videohdmi10to1serializer1_sink_valid & main_videohdmi10to1serializer1_sink_ready)) begin
-        case (main_videohdmi10to1serializer1_i_count)
+    if ((videohdmi10to1serializer1_sink_valid & videohdmi10to1serializer1_sink_ready)) begin
+        case (videohdmi10to1serializer1_i_count)
             1'd0: begin
-                main_videohdmi10to1serializer1_shift_register[19:10] <= main_videohdmi10to1serializer1_i_data;
+                videohdmi10to1serializer1_shift_register[19:10] <= videohdmi10to1serializer1_i_data;
             end
             1'd1: begin
-                main_videohdmi10to1serializer1_shift_register[9:0] <= main_videohdmi10to1serializer1_i_data;
+                videohdmi10to1serializer1_shift_register[9:0] <= videohdmi10to1serializer1_i_data;
             end
         endcase
     end
-    main_videohdmi10to1serializer2_cdc_graycounter5_q_binary <= main_videohdmi10to1serializer2_cdc_graycounter5_q_next_binary;
-    main_videohdmi10to1serializer2_cdc_graycounter5_q <= main_videohdmi10to1serializer2_cdc_graycounter5_q_next;
-    if (main_videohdmi10to1serializer2_i_inc) begin
-        main_videohdmi10to1serializer2_i_count <= (main_videohdmi10to1serializer2_i_count + 1'd1);
-        if ((main_videohdmi10to1serializer2_i_count == 1'd1)) begin
-            main_videohdmi10to1serializer2_i_count <= 1'd0;
+    videohdmi10to1serializer2_cdc_graycounter5_q_binary <= videohdmi10to1serializer2_cdc_graycounter5_q_next_binary;
+    videohdmi10to1serializer2_cdc_graycounter5_q <= videohdmi10to1serializer2_cdc_graycounter5_q_next;
+    if (videohdmi10to1serializer2_i_inc) begin
+        videohdmi10to1serializer2_i_count <= (videohdmi10to1serializer2_i_count + 1'd1);
+        if ((videohdmi10to1serializer2_i_count == 1'd1)) begin
+            videohdmi10to1serializer2_i_count <= 1'd0;
         end
     end
-    if (main_videohdmi10to1serializer2_o_inc) begin
-        main_videohdmi10to1serializer2_o_count <= (main_videohdmi10to1serializer2_o_count + 1'd1);
-        if ((main_videohdmi10to1serializer2_o_count == 4'd9)) begin
-            main_videohdmi10to1serializer2_o_count <= 1'd0;
+    if (videohdmi10to1serializer2_o_inc) begin
+        videohdmi10to1serializer2_o_count <= (videohdmi10to1serializer2_o_count + 1'd1);
+        if ((videohdmi10to1serializer2_o_count == 4'd9)) begin
+            videohdmi10to1serializer2_o_count <= 1'd0;
         end
     end
-    if ((main_videohdmi10to1serializer2_i_inc & (~main_videohdmi10to1serializer2_o_inc))) begin
-        main_videohdmi10to1serializer2_level <= (main_videohdmi10to1serializer2_level + 4'd10);
+    if ((videohdmi10to1serializer2_i_inc & (~videohdmi10to1serializer2_o_inc))) begin
+        videohdmi10to1serializer2_level <= (videohdmi10to1serializer2_level + 4'd10);
     end
-    if (((~main_videohdmi10to1serializer2_i_inc) & main_videohdmi10to1serializer2_o_inc)) begin
-        main_videohdmi10to1serializer2_level <= (main_videohdmi10to1serializer2_level - 2'd2);
+    if (((~videohdmi10to1serializer2_i_inc) & videohdmi10to1serializer2_o_inc)) begin
+        videohdmi10to1serializer2_level <= (videohdmi10to1serializer2_level - 2'd2);
     end
-    if ((main_videohdmi10to1serializer2_i_inc & main_videohdmi10to1serializer2_o_inc)) begin
-        main_videohdmi10to1serializer2_level <= ((main_videohdmi10to1serializer2_level + 4'd10) - 2'd2);
+    if ((videohdmi10to1serializer2_i_inc & videohdmi10to1serializer2_o_inc)) begin
+        videohdmi10to1serializer2_level <= ((videohdmi10to1serializer2_level + 4'd10) - 2'd2);
     end
-    if ((main_videohdmi10to1serializer2_sink_valid & main_videohdmi10to1serializer2_sink_ready)) begin
-        case (main_videohdmi10to1serializer2_i_count)
+    if ((videohdmi10to1serializer2_sink_valid & videohdmi10to1serializer2_sink_ready)) begin
+        case (videohdmi10to1serializer2_i_count)
             1'd0: begin
-                main_videohdmi10to1serializer2_shift_register[19:10] <= main_videohdmi10to1serializer2_i_data;
+                videohdmi10to1serializer2_shift_register[19:10] <= videohdmi10to1serializer2_i_data;
             end
             1'd1: begin
-                main_videohdmi10to1serializer2_shift_register[9:0] <= main_videohdmi10to1serializer2_i_data;
+                videohdmi10to1serializer2_shift_register[9:0] <= videohdmi10to1serializer2_i_data;
             end
         endcase
     end
     if (hdmi5x_rst) begin
-        main_videohdmi10to1serializer0_cdc_graycounter1_q <= 3'd0;
-        main_videohdmi10to1serializer0_cdc_graycounter1_q_binary <= 3'd0;
-        main_videohdmi10to1serializer0_level <= 5'd0;
-        main_videohdmi10to1serializer0_i_count <= 1'd0;
-        main_videohdmi10to1serializer0_o_count <= 4'd0;
-        main_videohdmi10to1serializer1_cdc_graycounter3_q <= 3'd0;
-        main_videohdmi10to1serializer1_cdc_graycounter3_q_binary <= 3'd0;
-        main_videohdmi10to1serializer1_level <= 5'd0;
-        main_videohdmi10to1serializer1_i_count <= 1'd0;
-        main_videohdmi10to1serializer1_o_count <= 4'd0;
-        main_videohdmi10to1serializer2_cdc_graycounter5_q <= 3'd0;
-        main_videohdmi10to1serializer2_cdc_graycounter5_q_binary <= 3'd0;
-        main_videohdmi10to1serializer2_level <= 5'd0;
-        main_videohdmi10to1serializer2_i_count <= 1'd0;
-        main_videohdmi10to1serializer2_o_count <= 4'd0;
+        videohdmi10to1serializer0_cdc_graycounter1_q <= 3'd0;
+        videohdmi10to1serializer0_cdc_graycounter1_q_binary <= 3'd0;
+        videohdmi10to1serializer0_level <= 5'd0;
+        videohdmi10to1serializer0_i_count <= 1'd0;
+        videohdmi10to1serializer0_o_count <= 4'd0;
+        videohdmi10to1serializer1_cdc_graycounter3_q <= 3'd0;
+        videohdmi10to1serializer1_cdc_graycounter3_q_binary <= 3'd0;
+        videohdmi10to1serializer1_level <= 5'd0;
+        videohdmi10to1serializer1_i_count <= 1'd0;
+        videohdmi10to1serializer1_o_count <= 4'd0;
+        videohdmi10to1serializer2_cdc_graycounter5_q <= 3'd0;
+        videohdmi10to1serializer2_cdc_graycounter5_q_binary <= 3'd0;
+        videohdmi10to1serializer2_level <= 5'd0;
+        videohdmi10to1serializer2_i_count <= 1'd0;
+        videohdmi10to1serializer2_o_count <= 4'd0;
     end
-    builder_xilinxmultiregimpl1_regs0 <= main_videohdmi10to1serializer0_cdc_graycounter0_q;
-    builder_xilinxmultiregimpl1_regs1 <= builder_xilinxmultiregimpl1_regs0;
-    builder_xilinxmultiregimpl3_regs0 <= main_videohdmi10to1serializer1_cdc_graycounter2_q;
-    builder_xilinxmultiregimpl3_regs1 <= builder_xilinxmultiregimpl3_regs0;
-    builder_xilinxmultiregimpl5_regs0 <= main_videohdmi10to1serializer2_cdc_graycounter4_q;
-    builder_xilinxmultiregimpl5_regs1 <= builder_xilinxmultiregimpl5_regs0;
+    xilinxmultiregimpl0_regs0 <= videohdmi10to1serializer0_cdc_graycounter0_q;
+    xilinxmultiregimpl0_regs1 <= xilinxmultiregimpl0_regs0;
+    xilinxmultiregimpl2_regs0 <= videohdmi10to1serializer1_cdc_graycounter2_q;
+    xilinxmultiregimpl2_regs1 <= xilinxmultiregimpl2_regs0;
+    xilinxmultiregimpl4_regs0 <= videohdmi10to1serializer2_cdc_graycounter4_q;
+    xilinxmultiregimpl4_regs1 <= xilinxmultiregimpl4_regs0;
 end
 
 always @(posedge sys_clk) begin
-    builder_slave_sel_r <= builder_slave_sel;
-    if (builder_wait) begin
-        if ((~builder_done)) begin
-            builder_count <= (builder_count - 1'd1);
-        end
-    end else begin
-        builder_count <= 20'd1000000;
-    end
-    if ((main_basesoc_bus_errors != 32'd4294967295)) begin
-        if (main_basesoc_bus_error) begin
-            main_basesoc_bus_errors <= (main_basesoc_bus_errors + 1'd1);
+    if ((bus_errors != 32'd4294967295)) begin
+        if (bus_error) begin
+            bus_errors <= (bus_errors + 1'd1);
         end
     end
-    if (builder_csr_bankarray_csrbank0_reset0_re) begin
-        main_basesoc_reset_storage[1:0] <= builder_csr_bankarray_csrbank0_reset0_r;
+    if (csr_bankarray_csrbank0_reset0_re) begin
+        reset_storage[1:0] <= csr_bankarray_csrbank0_reset0_r;
     end
-    main_basesoc_reset_re <= builder_csr_bankarray_csrbank0_reset0_re;
-    if (builder_csr_bankarray_csrbank0_scratch0_re) begin
-        main_basesoc_scratch_storage[31:0] <= builder_csr_bankarray_csrbank0_scratch0_r;
+    reset_re <= csr_bankarray_csrbank0_reset0_re;
+    if (csr_bankarray_csrbank0_scratch0_re) begin
+        scratch_storage[31:0] <= csr_bankarray_csrbank0_scratch0_r;
     end
-    main_basesoc_scratch_re <= builder_csr_bankarray_csrbank0_scratch0_re;
-    main_basesoc_bus_errors_re <= builder_csr_bankarray_csrbank0_bus_errors_re;
-    main_basesoc_ram_bus_ack <= 1'd0;
-    if (((main_basesoc_ram_bus_cyc & main_basesoc_ram_bus_stb) & ((~main_basesoc_ram_bus_ack) | main_basesoc_adr_burst))) begin
-        main_basesoc_ram_bus_ack <= 1'd1;
+    scratch_re <= csr_bankarray_csrbank0_scratch0_re;
+    bus_errors_re <= csr_bankarray_csrbank0_bus_errors_re;
+    if (uart_tx_clear) begin
+        uart_tx_pending <= 1'd0;
     end
-    if (main_basesoc_uartcrossover_tx_clear) begin
-        main_basesoc_uartcrossover_tx_pending <= 1'd0;
+    uart_tx_trigger_d <= uart_tx_trigger;
+    if ((uart_tx_trigger & (~uart_tx_trigger_d))) begin
+        uart_tx_pending <= 1'd1;
     end
-    main_basesoc_uartcrossover_tx_trigger_d <= main_basesoc_uartcrossover_tx_trigger;
-    if ((main_basesoc_uartcrossover_tx_trigger & (~main_basesoc_uartcrossover_tx_trigger_d))) begin
-        main_basesoc_uartcrossover_tx_pending <= 1'd1;
+    if (uart_rx_clear) begin
+        uart_rx_pending <= 1'd0;
     end
-    if (main_basesoc_uartcrossover_rx_clear) begin
-        main_basesoc_uartcrossover_rx_pending <= 1'd0;
+    uart_rx_trigger_d <= uart_rx_trigger;
+    if ((uart_rx_trigger & (~uart_rx_trigger_d))) begin
+        uart_rx_pending <= 1'd1;
     end
-    main_basesoc_uartcrossover_rx_trigger_d <= main_basesoc_uartcrossover_rx_trigger;
-    if ((main_basesoc_uartcrossover_rx_trigger & (~main_basesoc_uartcrossover_rx_trigger_d))) begin
-        main_basesoc_uartcrossover_rx_pending <= 1'd1;
-    end
-    if (main_basesoc_uartcrossover_tx_fifo_syncfifo_re) begin
-        main_basesoc_uartcrossover_tx_fifo_readable <= 1'd1;
-    end else begin
-        if (main_basesoc_uartcrossover_tx_fifo_re) begin
-            main_basesoc_uartcrossover_tx_fifo_readable <= 1'd0;
-        end
-    end
-    if (((main_basesoc_uartcrossover_tx_fifo_syncfifo_we & main_basesoc_uartcrossover_tx_fifo_syncfifo_writable) & (~main_basesoc_uartcrossover_tx_fifo_replace))) begin
-        main_basesoc_uartcrossover_tx_fifo_produce <= (main_basesoc_uartcrossover_tx_fifo_produce + 1'd1);
-    end
-    if (main_basesoc_uartcrossover_tx_fifo_do_read) begin
-        main_basesoc_uartcrossover_tx_fifo_consume <= (main_basesoc_uartcrossover_tx_fifo_consume + 1'd1);
-    end
-    if (((main_basesoc_uartcrossover_tx_fifo_syncfifo_we & main_basesoc_uartcrossover_tx_fifo_syncfifo_writable) & (~main_basesoc_uartcrossover_tx_fifo_replace))) begin
-        if ((~main_basesoc_uartcrossover_tx_fifo_do_read)) begin
-            main_basesoc_uartcrossover_tx_fifo_level0 <= (main_basesoc_uartcrossover_tx_fifo_level0 + 1'd1);
-        end
-    end else begin
-        if (main_basesoc_uartcrossover_tx_fifo_do_read) begin
-            main_basesoc_uartcrossover_tx_fifo_level0 <= (main_basesoc_uartcrossover_tx_fifo_level0 - 1'd1);
-        end
-    end
-    if (main_basesoc_uartcrossover_rx_fifo_syncfifo_re) begin
-        main_basesoc_uartcrossover_rx_fifo_readable <= 1'd1;
-    end else begin
-        if (main_basesoc_uartcrossover_rx_fifo_re) begin
-            main_basesoc_uartcrossover_rx_fifo_readable <= 1'd0;
-        end
-    end
-    if (((main_basesoc_uartcrossover_rx_fifo_syncfifo_we & main_basesoc_uartcrossover_rx_fifo_syncfifo_writable) & (~main_basesoc_uartcrossover_rx_fifo_replace))) begin
-        main_basesoc_uartcrossover_rx_fifo_produce <= (main_basesoc_uartcrossover_rx_fifo_produce + 1'd1);
-    end
-    if (main_basesoc_uartcrossover_rx_fifo_do_read) begin
-        main_basesoc_uartcrossover_rx_fifo_consume <= (main_basesoc_uartcrossover_rx_fifo_consume + 1'd1);
-    end
-    if (((main_basesoc_uartcrossover_rx_fifo_syncfifo_we & main_basesoc_uartcrossover_rx_fifo_syncfifo_writable) & (~main_basesoc_uartcrossover_rx_fifo_replace))) begin
-        if ((~main_basesoc_uartcrossover_rx_fifo_do_read)) begin
-            main_basesoc_uartcrossover_rx_fifo_level0 <= (main_basesoc_uartcrossover_rx_fifo_level0 + 1'd1);
-        end
-    end else begin
-        if (main_basesoc_uartcrossover_rx_fifo_do_read) begin
-            main_basesoc_uartcrossover_rx_fifo_level0 <= (main_basesoc_uartcrossover_rx_fifo_level0 - 1'd1);
-        end
-    end
-    if (main_basesoc_xover_tx_clear) begin
-        main_basesoc_xover_tx_pending <= 1'd0;
-    end
-    main_basesoc_xover_tx_trigger_d <= main_basesoc_xover_tx_trigger;
-    if ((main_basesoc_xover_tx_trigger & (~main_basesoc_xover_tx_trigger_d))) begin
-        main_basesoc_xover_tx_pending <= 1'd1;
-    end
-    if (main_basesoc_xover_rx_clear) begin
-        main_basesoc_xover_rx_pending <= 1'd0;
-    end
-    main_basesoc_xover_rx_trigger_d <= main_basesoc_xover_rx_trigger;
-    if ((main_basesoc_xover_rx_trigger & (~main_basesoc_xover_rx_trigger_d))) begin
-        main_basesoc_xover_rx_pending <= 1'd1;
-    end
-    if (((~main_basesoc_xover_pipe_valid_source_valid) | main_basesoc_xover_pipe_valid_source_ready)) begin
-        main_basesoc_xover_pipe_valid_source_valid <= main_basesoc_xover_pipe_valid_sink_valid;
-        main_basesoc_xover_pipe_valid_source_first <= main_basesoc_xover_pipe_valid_sink_first;
-        main_basesoc_xover_pipe_valid_source_last <= main_basesoc_xover_pipe_valid_sink_last;
-        main_basesoc_xover_pipe_valid_source_payload_data <= main_basesoc_xover_pipe_valid_sink_payload_data;
-    end
-    if (main_basesoc_xover_rx_fifo_syncfifo_re) begin
-        main_basesoc_xover_rx_fifo_readable <= 1'd1;
-    end else begin
-        if (main_basesoc_xover_rx_fifo_re) begin
-            main_basesoc_xover_rx_fifo_readable <= 1'd0;
-        end
-    end
-    if (((main_basesoc_xover_rx_fifo_syncfifo_we & main_basesoc_xover_rx_fifo_syncfifo_writable) & (~main_basesoc_xover_rx_fifo_replace))) begin
-        main_basesoc_xover_rx_fifo_produce <= (main_basesoc_xover_rx_fifo_produce + 1'd1);
-    end
-    if (main_basesoc_xover_rx_fifo_do_read) begin
-        main_basesoc_xover_rx_fifo_consume <= (main_basesoc_xover_rx_fifo_consume + 1'd1);
-    end
-    if (((main_basesoc_xover_rx_fifo_syncfifo_we & main_basesoc_xover_rx_fifo_syncfifo_writable) & (~main_basesoc_xover_rx_fifo_replace))) begin
-        if ((~main_basesoc_xover_rx_fifo_do_read)) begin
-            main_basesoc_xover_rx_fifo_level0 <= (main_basesoc_xover_rx_fifo_level0 + 1'd1);
-        end
-    end else begin
-        if (main_basesoc_xover_rx_fifo_do_read) begin
-            main_basesoc_xover_rx_fifo_level0 <= (main_basesoc_xover_rx_fifo_level0 - 1'd1);
-        end
-    end
-    if (main_basesoc_en_storage) begin
-        if ((main_basesoc_value == 1'd0)) begin
-            main_basesoc_value <= main_basesoc_reload_storage;
+    if (timer_en_storage) begin
+        if ((timer_value == 1'd0)) begin
+            timer_value <= timer_reload_storage;
         end else begin
-            main_basesoc_value <= (main_basesoc_value - 1'd1);
+            timer_value <= (timer_value - 1'd1);
         end
     end else begin
-        main_basesoc_value <= main_basesoc_load_storage;
+        timer_value <= timer_load_storage;
     end
-    if (main_basesoc_update_value_re) begin
-        main_basesoc_value_status <= main_basesoc_value;
+    if (timer_update_value_re) begin
+        timer_value_status <= timer_value;
     end
-    if (main_basesoc_zero_clear) begin
-        main_basesoc_zero_pending <= 1'd0;
+    if (timer_zero_clear) begin
+        timer_zero_pending <= 1'd0;
     end
-    main_basesoc_zero_trigger_d <= main_basesoc_zero_trigger;
-    if ((main_basesoc_zero_trigger & (~main_basesoc_zero_trigger_d))) begin
-        main_basesoc_zero_pending <= 1'd1;
+    timer_zero_trigger_d <= timer_zero_trigger;
+    if ((timer_zero_trigger & (~timer_zero_trigger_d))) begin
+        timer_zero_pending <= 1'd1;
     end
-    {main_tx_tick, main_tx_phase} <= 23'd4947802;
-    if (main_tx_enable) begin
-        {main_tx_tick, main_tx_phase} <= (main_tx_phase + 23'd4947802);
+    if (done) begin
+        chaser <= {chaser, (~chaser[7])};
     end
-    builder_basesoc_rs232phytx_state <= builder_basesoc_rs232phytx_next_state;
-    if (main_tx_count_rs232phytx_next_value_ce0) begin
-        main_tx_count <= main_tx_count_rs232phytx_next_value0;
+    if (re) begin
+        mode <= 1'd1;
     end
-    if (main_serial_tx_rs232phytx_next_value_ce1) begin
-        serial_tx <= main_serial_tx_rs232phytx_next_value1;
-    end
-    if (main_tx_data_rs232phytx_next_value_ce2) begin
-        main_tx_data <= main_tx_data_rs232phytx_next_value2;
-    end
-    main_rx_rx_d <= main_rx_rx;
-    {main_rx_tick, main_rx_phase} <= 32'd2147483648;
-    if (main_rx_enable) begin
-        {main_rx_tick, main_rx_phase} <= (main_rx_phase + 23'd4947802);
-    end
-    builder_basesoc_rs232phyrx_state <= builder_basesoc_rs232phyrx_next_state;
-    if (main_rx_count_rs232phyrx_next_value_ce0) begin
-        main_rx_count <= main_rx_count_rs232phyrx_next_value0;
-    end
-    if (main_rx_data_rs232phyrx_next_value_ce1) begin
-        main_rx_data <= main_rx_data_rs232phyrx_next_value1;
-    end
-    builder_basesoc_uartbone_state <= builder_basesoc_uartbone_next_state;
-    if (main_uartbone_data_bytes_count_uartbone_next_value_ce0) begin
-        main_uartbone_data_bytes_count <= main_uartbone_data_bytes_count_uartbone_next_value0;
-    end
-    if (main_uartbone_addr_bytes_count_uartbone_next_value_ce1) begin
-        main_uartbone_addr_bytes_count <= main_uartbone_addr_bytes_count_uartbone_next_value1;
-    end
-    if (main_uartbone_words_count_uartbone_next_value_ce2) begin
-        main_uartbone_words_count <= main_uartbone_words_count_uartbone_next_value2;
-    end
-    if (main_uartbone_cmd_uartbone_next_value_ce3) begin
-        main_uartbone_cmd <= main_uartbone_cmd_uartbone_next_value3;
-    end
-    if (main_uartbone_length_uartbone_next_value_ce4) begin
-        main_uartbone_length <= main_uartbone_length_uartbone_next_value4;
-    end
-    if (main_uartbone_address_uartbone_next_value_ce5) begin
-        main_uartbone_address <= main_uartbone_address_uartbone_next_value5;
-    end
-    if (main_uartbone_incr_uartbone_next_value_ce6) begin
-        main_uartbone_incr <= main_uartbone_incr_uartbone_next_value6;
-    end
-    if (main_uartbone_data_uartbone_next_value_ce7) begin
-        main_uartbone_data <= main_uartbone_data_uartbone_next_value7;
-    end
-    if (main_uartbone_reset) begin
-        main_uartbone_incr <= 1'd0;
-        builder_basesoc_uartbone_state <= 3'd0;
-    end
-    if (main_uartbone_wait) begin
-        if ((~main_uartbone_done)) begin
-            main_uartbone_count <= (main_uartbone_count - 1'd1);
+    if (wait_1) begin
+        if ((~done)) begin
+            count <= (count - 1'd1);
         end
     end else begin
-        main_uartbone_count <= 24'd10000000;
+        count <= 23'd6250000;
     end
-    if (main_done) begin
-        main_chaser <= {main_chaser, (~main_chaser[7])};
-    end
-    if (main_re) begin
-        main_mode <= 1'd1;
-    end
-    if (main_wait) begin
-        if ((~main_done)) begin
-            main_count <= (main_count - 1'd1);
-        end
-    end else begin
-        main_count <= 23'd6250000;
-    end
-    builder_basesoc_wishbone2csr_state <= builder_basesoc_wishbone2csr_next_state;
-    builder_csr_bankarray_interface0_bank_bus_dat_r <= 1'd0;
-    if (builder_csr_bankarray_csrbank0_sel) begin
-        case (builder_csr_bankarray_interface0_bank_bus_adr[8:0])
+    basesoc_state <= basesoc_next_state;
+    csr_bankarray_interface0_bank_bus_dat_r <= 1'd0;
+    if (csr_bankarray_csrbank0_sel) begin
+        case (csr_bankarray_interface0_bank_bus_adr[8:0])
             1'd0: begin
-                builder_csr_bankarray_interface0_bank_bus_dat_r <= builder_csr_bankarray_csrbank0_reset0_w;
+                csr_bankarray_interface0_bank_bus_dat_r <= csr_bankarray_csrbank0_reset0_w;
             end
             1'd1: begin
-                builder_csr_bankarray_interface0_bank_bus_dat_r <= builder_csr_bankarray_csrbank0_scratch0_w;
+                csr_bankarray_interface0_bank_bus_dat_r <= csr_bankarray_csrbank0_scratch0_w;
             end
             2'd2: begin
-                builder_csr_bankarray_interface0_bank_bus_dat_r <= builder_csr_bankarray_csrbank0_bus_errors_w;
+                csr_bankarray_interface0_bank_bus_dat_r <= csr_bankarray_csrbank0_bus_errors_w;
             end
         endcase
     end
-    builder_csr_bankarray_sel_r <= builder_csr_bankarray_sel;
-    builder_csr_bankarray_interface1_bank_bus_dat_r <= 1'd0;
-    if (builder_csr_bankarray_csrbank1_sel) begin
-        case (builder_csr_bankarray_interface1_bank_bus_adr[8:0])
+    csr_bankarray_sel_r <= csr_bankarray_sel;
+    csr_bankarray_interface1_bank_bus_dat_r <= 1'd0;
+    if (csr_bankarray_csrbank1_sel) begin
+        case (csr_bankarray_interface1_bank_bus_adr[8:0])
             1'd0: begin
-                builder_csr_bankarray_interface1_bank_bus_dat_r <= builder_csr_bankarray_csrbank1_out0_w;
+                csr_bankarray_interface1_bank_bus_dat_r <= csr_bankarray_csrbank1_out0_w;
             end
         endcase
     end
-    if (builder_csr_bankarray_csrbank1_out0_re) begin
-        main_storage[7:0] <= builder_csr_bankarray_csrbank1_out0_r;
+    if (csr_bankarray_csrbank1_out0_re) begin
+        storage[7:0] <= csr_bankarray_csrbank1_out0_r;
     end
-    main_re <= builder_csr_bankarray_csrbank1_out0_re;
-    builder_csr_bankarray_interface2_bank_bus_dat_r <= 1'd0;
-    if (builder_csr_bankarray_csrbank2_sel) begin
-        case (builder_csr_bankarray_interface2_bank_bus_adr[8:0])
+    re <= csr_bankarray_csrbank1_out0_re;
+    csr_bankarray_interface2_bank_bus_dat_r <= 1'd0;
+    if (csr_bankarray_csrbank2_sel) begin
+        case (csr_bankarray_interface2_bank_bus_adr[8:0])
             1'd0: begin
-                builder_csr_bankarray_interface2_bank_bus_dat_r <= builder_csr_bankarray_csrbank2_load0_w;
+                csr_bankarray_interface2_bank_bus_dat_r <= csr_bankarray_csrbank2_load0_w;
             end
             1'd1: begin
-                builder_csr_bankarray_interface2_bank_bus_dat_r <= builder_csr_bankarray_csrbank2_reload0_w;
+                csr_bankarray_interface2_bank_bus_dat_r <= csr_bankarray_csrbank2_reload0_w;
             end
             2'd2: begin
-                builder_csr_bankarray_interface2_bank_bus_dat_r <= builder_csr_bankarray_csrbank2_en0_w;
+                csr_bankarray_interface2_bank_bus_dat_r <= csr_bankarray_csrbank2_en0_w;
             end
             2'd3: begin
-                builder_csr_bankarray_interface2_bank_bus_dat_r <= builder_csr_bankarray_csrbank2_update_value0_w;
+                csr_bankarray_interface2_bank_bus_dat_r <= csr_bankarray_csrbank2_update_value0_w;
             end
             3'd4: begin
-                builder_csr_bankarray_interface2_bank_bus_dat_r <= builder_csr_bankarray_csrbank2_value_w;
+                csr_bankarray_interface2_bank_bus_dat_r <= csr_bankarray_csrbank2_value_w;
             end
             3'd5: begin
-                builder_csr_bankarray_interface2_bank_bus_dat_r <= builder_csr_bankarray_csrbank2_ev_status_w;
+                csr_bankarray_interface2_bank_bus_dat_r <= csr_bankarray_csrbank2_ev_status_w;
             end
             3'd6: begin
-                builder_csr_bankarray_interface2_bank_bus_dat_r <= builder_csr_bankarray_csrbank2_ev_pending_w;
+                csr_bankarray_interface2_bank_bus_dat_r <= csr_bankarray_csrbank2_ev_pending_w;
             end
             3'd7: begin
-                builder_csr_bankarray_interface2_bank_bus_dat_r <= builder_csr_bankarray_csrbank2_ev_enable0_w;
+                csr_bankarray_interface2_bank_bus_dat_r <= csr_bankarray_csrbank2_ev_enable0_w;
             end
         endcase
     end
-    if (builder_csr_bankarray_csrbank2_load0_re) begin
-        main_basesoc_load_storage[31:0] <= builder_csr_bankarray_csrbank2_load0_r;
+    if (csr_bankarray_csrbank2_load0_re) begin
+        timer_load_storage[31:0] <= csr_bankarray_csrbank2_load0_r;
     end
-    main_basesoc_load_re <= builder_csr_bankarray_csrbank2_load0_re;
-    if (builder_csr_bankarray_csrbank2_reload0_re) begin
-        main_basesoc_reload_storage[31:0] <= builder_csr_bankarray_csrbank2_reload0_r;
+    timer_load_re <= csr_bankarray_csrbank2_load0_re;
+    if (csr_bankarray_csrbank2_reload0_re) begin
+        timer_reload_storage[31:0] <= csr_bankarray_csrbank2_reload0_r;
     end
-    main_basesoc_reload_re <= builder_csr_bankarray_csrbank2_reload0_re;
-    if (builder_csr_bankarray_csrbank2_en0_re) begin
-        main_basesoc_en_storage <= builder_csr_bankarray_csrbank2_en0_r;
+    timer_reload_re <= csr_bankarray_csrbank2_reload0_re;
+    if (csr_bankarray_csrbank2_en0_re) begin
+        timer_en_storage <= csr_bankarray_csrbank2_en0_r;
     end
-    main_basesoc_en_re <= builder_csr_bankarray_csrbank2_en0_re;
-    if (builder_csr_bankarray_csrbank2_update_value0_re) begin
-        main_basesoc_update_value_storage <= builder_csr_bankarray_csrbank2_update_value0_r;
+    timer_en_re <= csr_bankarray_csrbank2_en0_re;
+    if (csr_bankarray_csrbank2_update_value0_re) begin
+        timer_update_value_storage <= csr_bankarray_csrbank2_update_value0_r;
     end
-    main_basesoc_update_value_re <= builder_csr_bankarray_csrbank2_update_value0_re;
-    main_basesoc_value_re <= builder_csr_bankarray_csrbank2_value_re;
-    main_basesoc_status_re <= builder_csr_bankarray_csrbank2_ev_status_re;
-    if (builder_csr_bankarray_csrbank2_ev_pending_re) begin
-        main_basesoc_pending_r <= builder_csr_bankarray_csrbank2_ev_pending_r;
+    timer_update_value_re <= csr_bankarray_csrbank2_update_value0_re;
+    timer_value_re <= csr_bankarray_csrbank2_value_re;
+    timer_status_re <= csr_bankarray_csrbank2_ev_status_re;
+    if (csr_bankarray_csrbank2_ev_pending_re) begin
+        timer_pending_r <= csr_bankarray_csrbank2_ev_pending_r;
     end
-    main_basesoc_pending_re <= builder_csr_bankarray_csrbank2_ev_pending_re;
-    if (builder_csr_bankarray_csrbank2_ev_enable0_re) begin
-        main_basesoc_enable_storage <= builder_csr_bankarray_csrbank2_ev_enable0_r;
+    timer_pending_re <= csr_bankarray_csrbank2_ev_pending_re;
+    if (csr_bankarray_csrbank2_ev_enable0_re) begin
+        timer_enable_storage <= csr_bankarray_csrbank2_ev_enable0_r;
     end
-    main_basesoc_enable_re <= builder_csr_bankarray_csrbank2_ev_enable0_re;
-    builder_csr_bankarray_interface3_bank_bus_dat_r <= 1'd0;
-    if (builder_csr_bankarray_csrbank3_sel) begin
-        case (builder_csr_bankarray_interface3_bank_bus_adr[8:0])
+    timer_enable_re <= csr_bankarray_csrbank2_ev_enable0_re;
+    csr_bankarray_interface3_bank_bus_dat_r <= 1'd0;
+    if (csr_bankarray_csrbank3_sel) begin
+        case (csr_bankarray_interface3_bank_bus_adr[8:0])
             1'd0: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= main_basesoc_uartcrossover_rxtx_w;
+                csr_bankarray_interface3_bank_bus_dat_r <= uart_rxtx_w;
             end
             1'd1: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_txfull_w;
+                csr_bankarray_interface3_bank_bus_dat_r <= csr_bankarray_csrbank3_txfull_w;
             end
             2'd2: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_rxempty_w;
+                csr_bankarray_interface3_bank_bus_dat_r <= csr_bankarray_csrbank3_rxempty_w;
             end
             2'd3: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_ev_status_w;
+                csr_bankarray_interface3_bank_bus_dat_r <= csr_bankarray_csrbank3_ev_status_w;
             end
             3'd4: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_ev_pending_w;
+                csr_bankarray_interface3_bank_bus_dat_r <= csr_bankarray_csrbank3_ev_pending_w;
             end
             3'd5: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_ev_enable0_w;
+                csr_bankarray_interface3_bank_bus_dat_r <= csr_bankarray_csrbank3_ev_enable0_w;
             end
             3'd6: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_txempty_w;
+                csr_bankarray_interface3_bank_bus_dat_r <= csr_bankarray_csrbank3_txempty_w;
             end
             3'd7: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_rxfull_w;
+                csr_bankarray_interface3_bank_bus_dat_r <= csr_bankarray_csrbank3_rxfull_w;
+            end
+        endcase
+    end
+    uart_txfull_re <= csr_bankarray_csrbank3_txfull_re;
+    uart_rxempty_re <= csr_bankarray_csrbank3_rxempty_re;
+    uart_status_re <= csr_bankarray_csrbank3_ev_status_re;
+    if (csr_bankarray_csrbank3_ev_pending_re) begin
+        uart_pending_r[1:0] <= csr_bankarray_csrbank3_ev_pending_r;
+    end
+    uart_pending_re <= csr_bankarray_csrbank3_ev_pending_re;
+    if (csr_bankarray_csrbank3_ev_enable0_re) begin
+        uart_enable_storage[1:0] <= csr_bankarray_csrbank3_ev_enable0_r;
+    end
+    uart_enable_re <= csr_bankarray_csrbank3_ev_enable0_re;
+    uart_txempty_re <= csr_bankarray_csrbank3_txempty_re;
+    uart_rxfull_re <= csr_bankarray_csrbank3_rxfull_re;
+    csr_bankarray_interface4_bank_bus_dat_r <= 1'd0;
+    if (csr_bankarray_csrbank4_sel) begin
+        case (csr_bankarray_interface4_bank_bus_adr[8:0])
+            1'd0: begin
+                csr_bankarray_interface4_bank_bus_dat_r <= csr_bankarray_csrbank4_enable0_w;
+            end
+            1'd1: begin
+                csr_bankarray_interface4_bank_bus_dat_r <= csr_bankarray_csrbank4_hres0_w;
+            end
+            2'd2: begin
+                csr_bankarray_interface4_bank_bus_dat_r <= csr_bankarray_csrbank4_hsync_start0_w;
+            end
+            2'd3: begin
+                csr_bankarray_interface4_bank_bus_dat_r <= csr_bankarray_csrbank4_hsync_end0_w;
+            end
+            3'd4: begin
+                csr_bankarray_interface4_bank_bus_dat_r <= csr_bankarray_csrbank4_hscan0_w;
+            end
+            3'd5: begin
+                csr_bankarray_interface4_bank_bus_dat_r <= csr_bankarray_csrbank4_vres0_w;
+            end
+            3'd6: begin
+                csr_bankarray_interface4_bank_bus_dat_r <= csr_bankarray_csrbank4_vsync_start0_w;
+            end
+            3'd7: begin
+                csr_bankarray_interface4_bank_bus_dat_r <= csr_bankarray_csrbank4_vsync_end0_w;
             end
             4'd8: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= main_basesoc_xover_rxtx_w;
-            end
-            4'd9: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_xover_txfull_w;
-            end
-            4'd10: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_xover_rxempty_w;
-            end
-            4'd11: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_xover_ev_status_w;
-            end
-            4'd12: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_xover_ev_pending_w;
-            end
-            4'd13: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_xover_ev_enable0_w;
-            end
-            4'd14: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_xover_txempty_w;
-            end
-            4'd15: begin
-                builder_csr_bankarray_interface3_bank_bus_dat_r <= builder_csr_bankarray_csrbank3_xover_rxfull_w;
+                csr_bankarray_interface4_bank_bus_dat_r <= csr_bankarray_csrbank4_vscan0_w;
             end
         endcase
     end
-    main_basesoc_uartcrossover_txfull_re <= builder_csr_bankarray_csrbank3_txfull_re;
-    main_basesoc_uartcrossover_rxempty_re <= builder_csr_bankarray_csrbank3_rxempty_re;
-    main_basesoc_uartcrossover_status_re <= builder_csr_bankarray_csrbank3_ev_status_re;
-    if (builder_csr_bankarray_csrbank3_ev_pending_re) begin
-        main_basesoc_uartcrossover_pending_r[1:0] <= builder_csr_bankarray_csrbank3_ev_pending_r;
+    if (csr_bankarray_csrbank4_enable0_re) begin
+        vtg_enable_storage <= csr_bankarray_csrbank4_enable0_r;
     end
-    main_basesoc_uartcrossover_pending_re <= builder_csr_bankarray_csrbank3_ev_pending_re;
-    if (builder_csr_bankarray_csrbank3_ev_enable0_re) begin
-        main_basesoc_uartcrossover_enable_storage[1:0] <= builder_csr_bankarray_csrbank3_ev_enable0_r;
+    vtg_enable_re <= csr_bankarray_csrbank4_enable0_re;
+    if (csr_bankarray_csrbank4_hres0_re) begin
+        vtg_hres_storage[11:0] <= csr_bankarray_csrbank4_hres0_r;
     end
-    main_basesoc_uartcrossover_enable_re <= builder_csr_bankarray_csrbank3_ev_enable0_re;
-    main_basesoc_uartcrossover_txempty_re <= builder_csr_bankarray_csrbank3_txempty_re;
-    main_basesoc_uartcrossover_rxfull_re <= builder_csr_bankarray_csrbank3_rxfull_re;
-    main_basesoc_xover_txfull_re <= builder_csr_bankarray_csrbank3_xover_txfull_re;
-    main_basesoc_xover_rxempty_re <= builder_csr_bankarray_csrbank3_xover_rxempty_re;
-    main_basesoc_xover_status_re <= builder_csr_bankarray_csrbank3_xover_ev_status_re;
-    if (builder_csr_bankarray_csrbank3_xover_ev_pending_re) begin
-        main_basesoc_xover_pending_r[1:0] <= builder_csr_bankarray_csrbank3_xover_ev_pending_r;
+    vtg_hres_re <= csr_bankarray_csrbank4_hres0_re;
+    if (csr_bankarray_csrbank4_hsync_start0_re) begin
+        vtg_hsync_start_storage[11:0] <= csr_bankarray_csrbank4_hsync_start0_r;
     end
-    main_basesoc_xover_pending_re <= builder_csr_bankarray_csrbank3_xover_ev_pending_re;
-    if (builder_csr_bankarray_csrbank3_xover_ev_enable0_re) begin
-        main_basesoc_xover_enable_storage[1:0] <= builder_csr_bankarray_csrbank3_xover_ev_enable0_r;
+    vtg_hsync_start_re <= csr_bankarray_csrbank4_hsync_start0_re;
+    if (csr_bankarray_csrbank4_hsync_end0_re) begin
+        vtg_hsync_end_storage[11:0] <= csr_bankarray_csrbank4_hsync_end0_r;
     end
-    main_basesoc_xover_enable_re <= builder_csr_bankarray_csrbank3_xover_ev_enable0_re;
-    main_basesoc_xover_txempty_re <= builder_csr_bankarray_csrbank3_xover_txempty_re;
-    main_basesoc_xover_rxfull_re <= builder_csr_bankarray_csrbank3_xover_rxfull_re;
-    builder_csr_bankarray_interface4_bank_bus_dat_r <= 1'd0;
-    if (builder_csr_bankarray_csrbank4_sel) begin
-        case (builder_csr_bankarray_interface4_bank_bus_adr[8:0])
-            1'd0: begin
-                builder_csr_bankarray_interface4_bank_bus_dat_r <= builder_csr_bankarray_csrbank4_enable0_w;
-            end
-            1'd1: begin
-                builder_csr_bankarray_interface4_bank_bus_dat_r <= builder_csr_bankarray_csrbank4_hres0_w;
-            end
-            2'd2: begin
-                builder_csr_bankarray_interface4_bank_bus_dat_r <= builder_csr_bankarray_csrbank4_hsync_start0_w;
-            end
-            2'd3: begin
-                builder_csr_bankarray_interface4_bank_bus_dat_r <= builder_csr_bankarray_csrbank4_hsync_end0_w;
-            end
-            3'd4: begin
-                builder_csr_bankarray_interface4_bank_bus_dat_r <= builder_csr_bankarray_csrbank4_hscan0_w;
-            end
-            3'd5: begin
-                builder_csr_bankarray_interface4_bank_bus_dat_r <= builder_csr_bankarray_csrbank4_vres0_w;
-            end
-            3'd6: begin
-                builder_csr_bankarray_interface4_bank_bus_dat_r <= builder_csr_bankarray_csrbank4_vsync_start0_w;
-            end
-            3'd7: begin
-                builder_csr_bankarray_interface4_bank_bus_dat_r <= builder_csr_bankarray_csrbank4_vsync_end0_w;
-            end
-            4'd8: begin
-                builder_csr_bankarray_interface4_bank_bus_dat_r <= builder_csr_bankarray_csrbank4_vscan0_w;
-            end
-        endcase
+    vtg_hsync_end_re <= csr_bankarray_csrbank4_hsync_end0_re;
+    if (csr_bankarray_csrbank4_hscan0_re) begin
+        vtg_hscan_storage[11:0] <= csr_bankarray_csrbank4_hscan0_r;
     end
-    if (builder_csr_bankarray_csrbank4_enable0_re) begin
-        main_vtg_enable_storage <= builder_csr_bankarray_csrbank4_enable0_r;
+    vtg_hscan_re <= csr_bankarray_csrbank4_hscan0_re;
+    if (csr_bankarray_csrbank4_vres0_re) begin
+        vtg_vres_storage[11:0] <= csr_bankarray_csrbank4_vres0_r;
     end
-    main_vtg_enable_re <= builder_csr_bankarray_csrbank4_enable0_re;
-    if (builder_csr_bankarray_csrbank4_hres0_re) begin
-        main_vtg_hres_storage[11:0] <= builder_csr_bankarray_csrbank4_hres0_r;
+    vtg_vres_re <= csr_bankarray_csrbank4_vres0_re;
+    if (csr_bankarray_csrbank4_vsync_start0_re) begin
+        vtg_vsync_start_storage[11:0] <= csr_bankarray_csrbank4_vsync_start0_r;
     end
-    main_vtg_hres_re <= builder_csr_bankarray_csrbank4_hres0_re;
-    if (builder_csr_bankarray_csrbank4_hsync_start0_re) begin
-        main_vtg_hsync_start_storage[11:0] <= builder_csr_bankarray_csrbank4_hsync_start0_r;
+    vtg_vsync_start_re <= csr_bankarray_csrbank4_vsync_start0_re;
+    if (csr_bankarray_csrbank4_vsync_end0_re) begin
+        vtg_vsync_end_storage[11:0] <= csr_bankarray_csrbank4_vsync_end0_r;
     end
-    main_vtg_hsync_start_re <= builder_csr_bankarray_csrbank4_hsync_start0_re;
-    if (builder_csr_bankarray_csrbank4_hsync_end0_re) begin
-        main_vtg_hsync_end_storage[11:0] <= builder_csr_bankarray_csrbank4_hsync_end0_r;
+    vtg_vsync_end_re <= csr_bankarray_csrbank4_vsync_end0_re;
+    if (csr_bankarray_csrbank4_vscan0_re) begin
+        vtg_vscan_storage[11:0] <= csr_bankarray_csrbank4_vscan0_r;
     end
-    main_vtg_hsync_end_re <= builder_csr_bankarray_csrbank4_hsync_end0_re;
-    if (builder_csr_bankarray_csrbank4_hscan0_re) begin
-        main_vtg_hscan_storage[11:0] <= builder_csr_bankarray_csrbank4_hscan0_r;
-    end
-    main_vtg_hscan_re <= builder_csr_bankarray_csrbank4_hscan0_re;
-    if (builder_csr_bankarray_csrbank4_vres0_re) begin
-        main_vtg_vres_storage[11:0] <= builder_csr_bankarray_csrbank4_vres0_r;
-    end
-    main_vtg_vres_re <= builder_csr_bankarray_csrbank4_vres0_re;
-    if (builder_csr_bankarray_csrbank4_vsync_start0_re) begin
-        main_vtg_vsync_start_storage[11:0] <= builder_csr_bankarray_csrbank4_vsync_start0_r;
-    end
-    main_vtg_vsync_start_re <= builder_csr_bankarray_csrbank4_vsync_start0_re;
-    if (builder_csr_bankarray_csrbank4_vsync_end0_re) begin
-        main_vtg_vsync_end_storage[11:0] <= builder_csr_bankarray_csrbank4_vsync_end0_r;
-    end
-    main_vtg_vsync_end_re <= builder_csr_bankarray_csrbank4_vsync_end0_re;
-    if (builder_csr_bankarray_csrbank4_vscan0_re) begin
-        main_vtg_vscan_storage[11:0] <= builder_csr_bankarray_csrbank4_vscan0_r;
-    end
-    main_vtg_vscan_re <= builder_csr_bankarray_csrbank4_vscan0_re;
+    vtg_vscan_re <= csr_bankarray_csrbank4_vscan0_re;
     if (sys_rst) begin
-        main_basesoc_reset_storage <= 2'd0;
-        main_basesoc_reset_re <= 1'd0;
-        main_basesoc_scratch_storage <= 32'd305419896;
-        main_basesoc_scratch_re <= 1'd0;
-        main_basesoc_bus_errors_re <= 1'd0;
-        main_basesoc_bus_errors <= 32'd0;
-        main_basesoc_ram_bus_ack <= 1'd0;
-        main_basesoc_uartcrossover_txfull_re <= 1'd0;
-        main_basesoc_uartcrossover_rxempty_re <= 1'd0;
-        main_basesoc_uartcrossover_tx_pending <= 1'd0;
-        main_basesoc_uartcrossover_tx_trigger_d <= 1'd0;
-        main_basesoc_uartcrossover_rx_pending <= 1'd0;
-        main_basesoc_uartcrossover_rx_trigger_d <= 1'd0;
-        main_basesoc_uartcrossover_status_re <= 1'd0;
-        main_basesoc_uartcrossover_pending_re <= 1'd0;
-        main_basesoc_uartcrossover_pending_r <= 2'd0;
-        main_basesoc_uartcrossover_enable_storage <= 2'd0;
-        main_basesoc_uartcrossover_enable_re <= 1'd0;
-        main_basesoc_uartcrossover_txempty_re <= 1'd0;
-        main_basesoc_uartcrossover_rxfull_re <= 1'd0;
-        main_basesoc_uartcrossover_tx_fifo_readable <= 1'd0;
-        main_basesoc_uartcrossover_tx_fifo_level0 <= 5'd0;
-        main_basesoc_uartcrossover_tx_fifo_produce <= 4'd0;
-        main_basesoc_uartcrossover_tx_fifo_consume <= 4'd0;
-        main_basesoc_uartcrossover_rx_fifo_readable <= 1'd0;
-        main_basesoc_uartcrossover_rx_fifo_level0 <= 5'd0;
-        main_basesoc_uartcrossover_rx_fifo_produce <= 4'd0;
-        main_basesoc_uartcrossover_rx_fifo_consume <= 4'd0;
-        main_basesoc_xover_txfull_re <= 1'd0;
-        main_basesoc_xover_rxempty_re <= 1'd0;
-        main_basesoc_xover_tx_pending <= 1'd0;
-        main_basesoc_xover_tx_trigger_d <= 1'd0;
-        main_basesoc_xover_rx_pending <= 1'd0;
-        main_basesoc_xover_rx_trigger_d <= 1'd0;
-        main_basesoc_xover_status_re <= 1'd0;
-        main_basesoc_xover_pending_re <= 1'd0;
-        main_basesoc_xover_pending_r <= 2'd0;
-        main_basesoc_xover_enable_storage <= 2'd0;
-        main_basesoc_xover_enable_re <= 1'd0;
-        main_basesoc_xover_txempty_re <= 1'd0;
-        main_basesoc_xover_rxfull_re <= 1'd0;
-        main_basesoc_xover_pipe_valid_source_valid <= 1'd0;
-        main_basesoc_xover_pipe_valid_source_payload_data <= 8'd0;
-        main_basesoc_xover_rx_fifo_readable <= 1'd0;
-        main_basesoc_xover_rx_fifo_level0 <= 5'd0;
-        main_basesoc_xover_rx_fifo_produce <= 4'd0;
-        main_basesoc_xover_rx_fifo_consume <= 4'd0;
-        main_basesoc_load_storage <= 32'd0;
-        main_basesoc_load_re <= 1'd0;
-        main_basesoc_reload_storage <= 32'd0;
-        main_basesoc_reload_re <= 1'd0;
-        main_basesoc_en_storage <= 1'd0;
-        main_basesoc_en_re <= 1'd0;
-        main_basesoc_update_value_storage <= 1'd0;
-        main_basesoc_update_value_re <= 1'd0;
-        main_basesoc_value_status <= 32'd0;
-        main_basesoc_value_re <= 1'd0;
-        main_basesoc_zero_pending <= 1'd0;
-        main_basesoc_zero_trigger_d <= 1'd0;
-        main_basesoc_status_re <= 1'd0;
-        main_basesoc_pending_re <= 1'd0;
-        main_basesoc_pending_r <= 1'd0;
-        main_basesoc_enable_storage <= 1'd0;
-        main_basesoc_enable_re <= 1'd0;
-        main_basesoc_value <= 32'd0;
-        serial_tx <= 1'd1;
-        main_tx_tick <= 1'd0;
-        main_rx_tick <= 1'd0;
-        main_rx_rx_d <= 1'd0;
-        main_uartbone_incr <= 1'd0;
-        main_uartbone_count <= 24'd10000000;
-        main_vtg_enable_storage <= 1'd1;
-        main_vtg_enable_re <= 1'd0;
-        main_vtg_hres_storage <= 12'd640;
-        main_vtg_hres_re <= 1'd0;
-        main_vtg_hsync_start_storage <= 12'd656;
-        main_vtg_hsync_start_re <= 1'd0;
-        main_vtg_hsync_end_storage <= 12'd752;
-        main_vtg_hsync_end_re <= 1'd0;
-        main_vtg_hscan_storage <= 12'd799;
-        main_vtg_hscan_re <= 1'd0;
-        main_vtg_vres_storage <= 12'd480;
-        main_vtg_vres_re <= 1'd0;
-        main_vtg_vsync_start_storage <= 12'd490;
-        main_vtg_vsync_start_re <= 1'd0;
-        main_vtg_vsync_end_storage <= 12'd492;
-        main_vtg_vsync_end_re <= 1'd0;
-        main_vtg_vscan_storage <= 12'd524;
-        main_vtg_vscan_re <= 1'd0;
-        main_storage <= 8'd0;
-        main_re <= 1'd0;
-        main_chaser <= 8'd0;
-        main_mode <= 1'd0;
-        main_count <= 23'd6250000;
-        builder_slave_sel_r <= 2'd0;
-        builder_count <= 20'd1000000;
-        builder_csr_bankarray_sel_r <= 1'd0;
-        builder_basesoc_rs232phytx_state <= 1'd0;
-        builder_basesoc_rs232phyrx_state <= 1'd0;
-        builder_basesoc_uartbone_state <= 3'd0;
-        builder_basesoc_wishbone2csr_state <= 1'd0;
+        reset_storage <= 2'd0;
+        reset_re <= 1'd0;
+        scratch_storage <= 32'd305419896;
+        scratch_re <= 1'd0;
+        bus_errors_re <= 1'd0;
+        bus_errors <= 32'd0;
+        uart_txfull_re <= 1'd0;
+        uart_rxempty_re <= 1'd0;
+        uart_tx_pending <= 1'd0;
+        uart_tx_trigger_d <= 1'd0;
+        uart_rx_pending <= 1'd0;
+        uart_rx_trigger_d <= 1'd0;
+        uart_status_re <= 1'd0;
+        uart_pending_re <= 1'd0;
+        uart_pending_r <= 2'd0;
+        uart_enable_storage <= 2'd0;
+        uart_enable_re <= 1'd0;
+        uart_txempty_re <= 1'd0;
+        uart_rxfull_re <= 1'd0;
+        timer_load_storage <= 32'd0;
+        timer_load_re <= 1'd0;
+        timer_reload_storage <= 32'd0;
+        timer_reload_re <= 1'd0;
+        timer_en_storage <= 1'd0;
+        timer_en_re <= 1'd0;
+        timer_update_value_storage <= 1'd0;
+        timer_update_value_re <= 1'd0;
+        timer_value_status <= 32'd0;
+        timer_value_re <= 1'd0;
+        timer_zero_pending <= 1'd0;
+        timer_zero_trigger_d <= 1'd0;
+        timer_status_re <= 1'd0;
+        timer_pending_re <= 1'd0;
+        timer_pending_r <= 1'd0;
+        timer_enable_storage <= 1'd0;
+        timer_enable_re <= 1'd0;
+        timer_value <= 32'd0;
+        vtg_enable_storage <= 1'd1;
+        vtg_enable_re <= 1'd0;
+        vtg_hres_storage <= 12'd640;
+        vtg_hres_re <= 1'd0;
+        vtg_hsync_start_storage <= 12'd656;
+        vtg_hsync_start_re <= 1'd0;
+        vtg_hsync_end_storage <= 12'd752;
+        vtg_hsync_end_re <= 1'd0;
+        vtg_hscan_storage <= 12'd799;
+        vtg_hscan_re <= 1'd0;
+        vtg_vres_storage <= 12'd480;
+        vtg_vres_re <= 1'd0;
+        vtg_vsync_start_storage <= 12'd490;
+        vtg_vsync_start_re <= 1'd0;
+        vtg_vsync_end_storage <= 12'd492;
+        vtg_vsync_end_re <= 1'd0;
+        vtg_vscan_storage <= 12'd524;
+        vtg_vscan_re <= 1'd0;
+        storage <= 8'd0;
+        re <= 1'd0;
+        chaser <= 8'd0;
+        mode <= 1'd0;
+        count <= 23'd6250000;
+        csr_bankarray_sel_r <= 1'd0;
+        basesoc_state <= 1'd0;
     end
-    builder_xilinxmultiregimpl0_regs0 <= serial_rx;
-    builder_xilinxmultiregimpl0_regs1 <= builder_xilinxmultiregimpl0_regs0;
 end
 
 
@@ -3765,42 +2617,19 @@ end
 //------------------------------------------------------------------------------
 
 BUFG BUFG(
-	.I(main_s7pll0_clkout),
-	.O(main_s7pll0_clkout_buf)
+	.I(s7pll0_clkout),
+	.O(s7pll0_clkout_buf)
 );
 
 BUFG BUFG_1(
-	.I(main_s7pll1_clkout0),
-	.O(main_s7pll1_clkout_buf0)
+	.I(s7pll1_clkout0),
+	.O(s7pll1_clkout_buf0)
 );
 
 BUFG BUFG_2(
-	.I(main_s7pll1_clkout1),
-	.O(main_s7pll1_clkout_buf1)
+	.I(s7pll1_clkout1),
+	.O(s7pll1_clkout_buf1)
 );
-
-//------------------------------------------------------------------------------
-// Memory sram: 2048-words x 32-bit
-//------------------------------------------------------------------------------
-// Port 0 | Read: Sync  | Write: Sync | Mode: Write-First | Write-Granularity: 8 
-reg [31:0] sram[0:2047];
-initial begin
-	$readmemh("hdmi_demo_sram.init", sram);
-end
-reg [10:0] sram_adr0;
-always @(posedge sys_clk) begin
-	if (main_basesoc_we[0])
-		sram[main_basesoc_adr][7:0] <= main_basesoc_dat_w[7:0];
-	if (main_basesoc_we[1])
-		sram[main_basesoc_adr][15:8] <= main_basesoc_dat_w[15:8];
-	if (main_basesoc_we[2])
-		sram[main_basesoc_adr][23:16] <= main_basesoc_dat_w[23:16];
-	if (main_basesoc_we[3])
-		sram[main_basesoc_adr][31:24] <= main_basesoc_dat_w[31:24];
-	sram_adr0 <= main_basesoc_adr;
-end
-assign main_basesoc_dat_r = sram[sram_adr0];
-
 
 //------------------------------------------------------------------------------
 // Memory mem: 53-words x 8-bit
@@ -3812,78 +2641,67 @@ initial begin
 end
 reg [5:0] mem_adr0;
 always @(posedge sys_clk) begin
-	mem_adr0 <= builder_csr_bankarray_adr;
+	mem_adr0 <= csr_bankarray_adr;
 end
-assign builder_csr_bankarray_dat_r = mem[mem_adr0];
-
-
-//------------------------------------------------------------------------------
-// Memory storage: 16-words x 10-bit
-//------------------------------------------------------------------------------
-// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 10 
-// Port 1 | Read: Sync  | Write: ---- | 
-reg [9:0] storage[0:15];
-reg [9:0] storage_dat0;
-reg [9:0] storage_dat1;
-always @(posedge sys_clk) begin
-	if (main_basesoc_uartcrossover_tx_fifo_wrport_we)
-		storage[main_basesoc_uartcrossover_tx_fifo_wrport_adr] <= main_basesoc_uartcrossover_tx_fifo_wrport_dat_w;
-	storage_dat0 <= storage[main_basesoc_uartcrossover_tx_fifo_wrport_adr];
-end
-always @(posedge sys_clk) begin
-	if (main_basesoc_uartcrossover_tx_fifo_rdport_re)
-		storage_dat1 <= storage[main_basesoc_uartcrossover_tx_fifo_rdport_adr];
-end
-assign main_basesoc_uartcrossover_tx_fifo_wrport_dat_r = storage_dat0;
-assign main_basesoc_uartcrossover_tx_fifo_rdport_dat_r = storage_dat1;
-
-
-//------------------------------------------------------------------------------
-// Memory storage_1: 16-words x 10-bit
-//------------------------------------------------------------------------------
-// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 10 
-// Port 1 | Read: Sync  | Write: ---- | 
-reg [9:0] storage_1[0:15];
-reg [9:0] storage_1_dat0;
-reg [9:0] storage_1_dat1;
-always @(posedge sys_clk) begin
-	if (main_basesoc_uartcrossover_rx_fifo_wrport_we)
-		storage_1[main_basesoc_uartcrossover_rx_fifo_wrport_adr] <= main_basesoc_uartcrossover_rx_fifo_wrport_dat_w;
-	storage_1_dat0 <= storage_1[main_basesoc_uartcrossover_rx_fifo_wrport_adr];
-end
-always @(posedge sys_clk) begin
-	if (main_basesoc_uartcrossover_rx_fifo_rdport_re)
-		storage_1_dat1 <= storage_1[main_basesoc_uartcrossover_rx_fifo_rdport_adr];
-end
-assign main_basesoc_uartcrossover_rx_fifo_wrport_dat_r = storage_1_dat0;
-assign main_basesoc_uartcrossover_rx_fifo_rdport_dat_r = storage_1_dat1;
-
-
-//------------------------------------------------------------------------------
-// Memory storage_2: 16-words x 10-bit
-//------------------------------------------------------------------------------
-// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 10 
-// Port 1 | Read: Sync  | Write: ---- | 
-reg [9:0] storage_2[0:15];
-reg [9:0] storage_2_dat0;
-reg [9:0] storage_2_dat1;
-always @(posedge sys_clk) begin
-	if (main_basesoc_xover_rx_fifo_wrport_we)
-		storage_2[main_basesoc_xover_rx_fifo_wrport_adr] <= main_basesoc_xover_rx_fifo_wrport_dat_w;
-	storage_2_dat0 <= storage_2[main_basesoc_xover_rx_fifo_wrport_adr];
-end
-always @(posedge sys_clk) begin
-	if (main_basesoc_xover_rx_fifo_rdport_re)
-		storage_2_dat1 <= storage_2[main_basesoc_xover_rx_fifo_rdport_adr];
-end
-assign main_basesoc_xover_rx_fifo_wrport_dat_r = storage_2_dat0;
-assign main_basesoc_xover_rx_fifo_rdport_dat_r = storage_2_dat1;
+assign csr_bankarray_dat_r = mem[mem_adr0];
 
 
 OBUFDS OBUFDS(
-	.I(main_pads_clk),
+	.I(pads_clk),
 	.O(hdmi_out_clk_p),
 	.OB(hdmi_out_clk_n)
+);
+
+//------------------------------------------------------------------------------
+// Memory storage_1: 4-words x 12-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 12 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [11:0] storage_1[0:3];
+reg [11:0] storage_1_dat0;
+reg [11:0] storage_1_dat1;
+always @(posedge hdmi_clk) begin
+	if (videohdmi10to1serializer0_cdc_wrport_we)
+		storage_1[videohdmi10to1serializer0_cdc_wrport_adr] <= videohdmi10to1serializer0_cdc_wrport_dat_w;
+	storage_1_dat0 <= storage_1[videohdmi10to1serializer0_cdc_wrport_adr];
+end
+always @(posedge hdmi5x_clk) begin
+	storage_1_dat1 <= storage_1[videohdmi10to1serializer0_cdc_rdport_adr];
+end
+assign videohdmi10to1serializer0_cdc_wrport_dat_r = storage_1_dat0;
+assign videohdmi10to1serializer0_cdc_rdport_dat_r = storage_1_dat1;
+
+
+OBUFDS OBUFDS_1(
+	.I(pad_o0),
+	.O(hdmi_out_data0_p),
+	.OB(hdmi_out_data0_n)
+);
+
+//------------------------------------------------------------------------------
+// Memory storage_2: 4-words x 12-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 12 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [11:0] storage_2[0:3];
+reg [11:0] storage_2_dat0;
+reg [11:0] storage_2_dat1;
+always @(posedge hdmi_clk) begin
+	if (videohdmi10to1serializer1_cdc_wrport_we)
+		storage_2[videohdmi10to1serializer1_cdc_wrport_adr] <= videohdmi10to1serializer1_cdc_wrport_dat_w;
+	storage_2_dat0 <= storage_2[videohdmi10to1serializer1_cdc_wrport_adr];
+end
+always @(posedge hdmi5x_clk) begin
+	storage_2_dat1 <= storage_2[videohdmi10to1serializer1_cdc_rdport_adr];
+end
+assign videohdmi10to1serializer1_cdc_wrport_dat_r = storage_2_dat0;
+assign videohdmi10to1serializer1_cdc_rdport_dat_r = storage_2_dat1;
+
+
+OBUFDS OBUFDS_2(
+	.I(pad_o1),
+	.O(hdmi_out_data1_p),
+	.OB(hdmi_out_data1_n)
 );
 
 //------------------------------------------------------------------------------
@@ -3895,137 +2713,85 @@ reg [11:0] storage_3[0:3];
 reg [11:0] storage_3_dat0;
 reg [11:0] storage_3_dat1;
 always @(posedge hdmi_clk) begin
-	if (main_videohdmi10to1serializer0_cdc_wrport_we)
-		storage_3[main_videohdmi10to1serializer0_cdc_wrport_adr] <= main_videohdmi10to1serializer0_cdc_wrport_dat_w;
-	storage_3_dat0 <= storage_3[main_videohdmi10to1serializer0_cdc_wrport_adr];
+	if (videohdmi10to1serializer2_cdc_wrport_we)
+		storage_3[videohdmi10to1serializer2_cdc_wrport_adr] <= videohdmi10to1serializer2_cdc_wrport_dat_w;
+	storage_3_dat0 <= storage_3[videohdmi10to1serializer2_cdc_wrport_adr];
 end
 always @(posedge hdmi5x_clk) begin
-	storage_3_dat1 <= storage_3[main_videohdmi10to1serializer0_cdc_rdport_adr];
+	storage_3_dat1 <= storage_3[videohdmi10to1serializer2_cdc_rdport_adr];
 end
-assign main_videohdmi10to1serializer0_cdc_wrport_dat_r = storage_3_dat0;
-assign main_videohdmi10to1serializer0_cdc_rdport_dat_r = storage_3_dat1;
-
-
-OBUFDS OBUFDS_1(
-	.I(main_pad_o0),
-	.O(hdmi_out_data0_p),
-	.OB(hdmi_out_data0_n)
-);
-
-//------------------------------------------------------------------------------
-// Memory storage_4: 4-words x 12-bit
-//------------------------------------------------------------------------------
-// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 12 
-// Port 1 | Read: Sync  | Write: ---- | 
-reg [11:0] storage_4[0:3];
-reg [11:0] storage_4_dat0;
-reg [11:0] storage_4_dat1;
-always @(posedge hdmi_clk) begin
-	if (main_videohdmi10to1serializer1_cdc_wrport_we)
-		storage_4[main_videohdmi10to1serializer1_cdc_wrport_adr] <= main_videohdmi10to1serializer1_cdc_wrport_dat_w;
-	storage_4_dat0 <= storage_4[main_videohdmi10to1serializer1_cdc_wrport_adr];
-end
-always @(posedge hdmi5x_clk) begin
-	storage_4_dat1 <= storage_4[main_videohdmi10to1serializer1_cdc_rdport_adr];
-end
-assign main_videohdmi10to1serializer1_cdc_wrport_dat_r = storage_4_dat0;
-assign main_videohdmi10to1serializer1_cdc_rdport_dat_r = storage_4_dat1;
-
-
-OBUFDS OBUFDS_2(
-	.I(main_pad_o1),
-	.O(hdmi_out_data1_p),
-	.OB(hdmi_out_data1_n)
-);
-
-//------------------------------------------------------------------------------
-// Memory storage_5: 4-words x 12-bit
-//------------------------------------------------------------------------------
-// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 12 
-// Port 1 | Read: Sync  | Write: ---- | 
-reg [11:0] storage_5[0:3];
-reg [11:0] storage_5_dat0;
-reg [11:0] storage_5_dat1;
-always @(posedge hdmi_clk) begin
-	if (main_videohdmi10to1serializer2_cdc_wrport_we)
-		storage_5[main_videohdmi10to1serializer2_cdc_wrport_adr] <= main_videohdmi10to1serializer2_cdc_wrport_dat_w;
-	storage_5_dat0 <= storage_5[main_videohdmi10to1serializer2_cdc_wrport_adr];
-end
-always @(posedge hdmi5x_clk) begin
-	storage_5_dat1 <= storage_5[main_videohdmi10to1serializer2_cdc_rdport_adr];
-end
-assign main_videohdmi10to1serializer2_cdc_wrport_dat_r = storage_5_dat0;
-assign main_videohdmi10to1serializer2_cdc_rdport_dat_r = storage_5_dat1;
+assign videohdmi10to1serializer2_cdc_wrport_dat_r = storage_3_dat0;
+assign videohdmi10to1serializer2_cdc_rdport_dat_r = storage_3_dat1;
 
 
 OBUFDS OBUFDS_3(
-	.I(main_pad_o2),
+	.I(pad_o2),
 	.O(hdmi_out_data2_p),
 	.OB(hdmi_out_data2_n)
 );
 
 FDCE FDCE(
-	.C(main_s7pll0_clkin),
+	.C(s7pll0_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(main_pll_reset),
-	.Q(builder_basesoc_s7pll0_reset0)
+	.D(pll_reset),
+	.Q(basesoc_s7pll0_reset0)
 );
 
 FDCE FDCE_1(
-	.C(main_s7pll0_clkin),
+	.C(s7pll0_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll0_reset0),
-	.Q(builder_basesoc_s7pll0_reset1)
+	.D(basesoc_s7pll0_reset0),
+	.Q(basesoc_s7pll0_reset1)
 );
 
 FDCE FDCE_2(
-	.C(main_s7pll0_clkin),
+	.C(s7pll0_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll0_reset1),
-	.Q(builder_basesoc_s7pll0_reset2)
+	.D(basesoc_s7pll0_reset1),
+	.Q(basesoc_s7pll0_reset2)
 );
 
 FDCE FDCE_3(
-	.C(main_s7pll0_clkin),
+	.C(s7pll0_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll0_reset2),
-	.Q(builder_basesoc_s7pll0_reset3)
+	.D(basesoc_s7pll0_reset2),
+	.Q(basesoc_s7pll0_reset3)
 );
 
 FDCE FDCE_4(
-	.C(main_s7pll0_clkin),
+	.C(s7pll0_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll0_reset3),
-	.Q(builder_basesoc_s7pll0_reset4)
+	.D(basesoc_s7pll0_reset3),
+	.Q(basesoc_s7pll0_reset4)
 );
 
 FDCE FDCE_5(
-	.C(main_s7pll0_clkin),
+	.C(s7pll0_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll0_reset4),
-	.Q(builder_basesoc_s7pll0_reset5)
+	.D(basesoc_s7pll0_reset4),
+	.Q(basesoc_s7pll0_reset5)
 );
 
 FDCE FDCE_6(
-	.C(main_s7pll0_clkin),
+	.C(s7pll0_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll0_reset5),
-	.Q(builder_basesoc_s7pll0_reset6)
+	.D(basesoc_s7pll0_reset5),
+	.Q(basesoc_s7pll0_reset6)
 );
 
 FDCE FDCE_7(
-	.C(main_s7pll0_clkin),
+	.C(s7pll0_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll0_reset6),
-	.Q(builder_basesoc_s7pll0_reset7)
+	.D(basesoc_s7pll0_reset6),
+	.Q(basesoc_s7pll0_reset7)
 );
 
 PLLE2_ADV #(
@@ -4037,77 +2803,77 @@ PLLE2_ADV #(
 	.REF_JITTER1(0.01),
 	.STARTUP_WAIT("FALSE")
 ) PLLE2_ADV (
-	.CLKFBIN(builder_basesoc_s7pll0_pll_fb),
-	.CLKIN1(main_s7pll0_clkin),
-	.PWRDWN(main_pll_power_down),
-	.RST(builder_basesoc_s7pll0_reset7),
-	.CLKFBOUT(builder_basesoc_s7pll0_pll_fb),
-	.CLKOUT0(main_s7pll0_clkout),
-	.LOCKED(main_pll_locked)
+	.CLKFBIN(basesoc_s7pll0_pll_fb),
+	.CLKIN1(s7pll0_clkin),
+	.PWRDWN(pll_power_down),
+	.RST(basesoc_s7pll0_reset7),
+	.CLKFBOUT(basesoc_s7pll0_pll_fb),
+	.CLKOUT0(s7pll0_clkout),
+	.LOCKED(pll_locked)
 );
 
 FDCE FDCE_8(
-	.C(main_s7pll1_clkin),
+	.C(s7pll1_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(main_pll2_reset),
-	.Q(builder_basesoc_s7pll1_reset0)
+	.D(pll2_reset),
+	.Q(basesoc_s7pll1_reset0)
 );
 
 FDCE FDCE_9(
-	.C(main_s7pll1_clkin),
+	.C(s7pll1_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll1_reset0),
-	.Q(builder_basesoc_s7pll1_reset1)
+	.D(basesoc_s7pll1_reset0),
+	.Q(basesoc_s7pll1_reset1)
 );
 
 FDCE FDCE_10(
-	.C(main_s7pll1_clkin),
+	.C(s7pll1_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll1_reset1),
-	.Q(builder_basesoc_s7pll1_reset2)
+	.D(basesoc_s7pll1_reset1),
+	.Q(basesoc_s7pll1_reset2)
 );
 
 FDCE FDCE_11(
-	.C(main_s7pll1_clkin),
+	.C(s7pll1_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll1_reset2),
-	.Q(builder_basesoc_s7pll1_reset3)
+	.D(basesoc_s7pll1_reset2),
+	.Q(basesoc_s7pll1_reset3)
 );
 
 FDCE FDCE_12(
-	.C(main_s7pll1_clkin),
+	.C(s7pll1_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll1_reset3),
-	.Q(builder_basesoc_s7pll1_reset4)
+	.D(basesoc_s7pll1_reset3),
+	.Q(basesoc_s7pll1_reset4)
 );
 
 FDCE FDCE_13(
-	.C(main_s7pll1_clkin),
+	.C(s7pll1_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll1_reset4),
-	.Q(builder_basesoc_s7pll1_reset5)
+	.D(basesoc_s7pll1_reset4),
+	.Q(basesoc_s7pll1_reset5)
 );
 
 FDCE FDCE_14(
-	.C(main_s7pll1_clkin),
+	.C(s7pll1_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll1_reset5),
-	.Q(builder_basesoc_s7pll1_reset6)
+	.D(basesoc_s7pll1_reset5),
+	.Q(basesoc_s7pll1_reset6)
 );
 
 FDCE FDCE_15(
-	.C(main_s7pll1_clkin),
+	.C(s7pll1_clkin),
 	.CE(1'd1),
 	.CLR(1'd0),
-	.D(builder_basesoc_s7pll1_reset6),
-	.Q(builder_basesoc_s7pll1_reset7)
+	.D(basesoc_s7pll1_reset6),
+	.Q(basesoc_s7pll1_reset7)
 );
 
 PLLE2_ADV #(
@@ -4121,20 +2887,20 @@ PLLE2_ADV #(
 	.REF_JITTER1(0.01),
 	.STARTUP_WAIT("FALSE")
 ) PLLE2_ADV_1 (
-	.CLKFBIN(builder_basesoc_s7pll1_pll_fb),
-	.CLKIN1(main_s7pll1_clkin),
-	.PWRDWN(main_pll2_power_down),
-	.RST(builder_basesoc_s7pll1_reset7),
-	.CLKFBOUT(builder_basesoc_s7pll1_pll_fb),
-	.CLKOUT0(main_s7pll1_clkout0),
-	.CLKOUT1(main_s7pll1_clkout1),
-	.LOCKED(main_pll2_locked)
+	.CLKFBIN(basesoc_s7pll1_pll_fb),
+	.CLKIN1(s7pll1_clkin),
+	.PWRDWN(pll2_power_down),
+	.RST(basesoc_s7pll1_reset7),
+	.CLKFBOUT(basesoc_s7pll1_pll_fb),
+	.CLKOUT0(s7pll1_clkout0),
+	.CLKOUT1(s7pll1_clkout1),
+	.LOCKED(pll2_locked)
 );
 
 IBUFDS IBUFDS(
 	.I(clk200_p),
 	.IB(clk200_n),
-	.O(main_s7pll0_clkin)
+	.O(s7pll0_clkin)
 );
 
 (* ars_ff1 = "true", async_reg = "true" *)
@@ -4144,8 +2910,8 @@ FDPE #(
 	.C(sys_clk),
 	.CE(1'd1),
 	.D(1'd0),
-	.PRE(builder_xilinxasyncresetsynchronizerimpl0),
-	.Q(builder_xilinxasyncresetsynchronizerimpl0_rst_meta)
+	.PRE(xilinxasyncresetsynchronizerimpl0),
+	.Q(xilinxasyncresetsynchronizerimpl0_rst_meta)
 );
 
 (* ars_ff2 = "true", async_reg = "true" *)
@@ -4154,8 +2920,8 @@ FDPE #(
 ) FDPE_1 (
 	.C(sys_clk),
 	.CE(1'd1),
-	.D(builder_xilinxasyncresetsynchronizerimpl0_rst_meta),
-	.PRE(builder_xilinxasyncresetsynchronizerimpl0),
+	.D(xilinxasyncresetsynchronizerimpl0_rst_meta),
+	.PRE(xilinxasyncresetsynchronizerimpl0),
 	.Q(sys_rst)
 );
 
@@ -4166,8 +2932,8 @@ FDPE #(
 	.C(hdmi_clk),
 	.CE(1'd1),
 	.D(1'd0),
-	.PRE(builder_xilinxasyncresetsynchronizerimpl1),
-	.Q(builder_xilinxasyncresetsynchronizerimpl1_rst_meta)
+	.PRE(xilinxasyncresetsynchronizerimpl1),
+	.Q(xilinxasyncresetsynchronizerimpl1_rst_meta)
 );
 
 (* ars_ff2 = "true", async_reg = "true" *)
@@ -4176,8 +2942,8 @@ FDPE #(
 ) FDPE_3 (
 	.C(hdmi_clk),
 	.CE(1'd1),
-	.D(builder_xilinxasyncresetsynchronizerimpl1_rst_meta),
-	.PRE(builder_xilinxasyncresetsynchronizerimpl1),
+	.D(xilinxasyncresetsynchronizerimpl1_rst_meta),
+	.PRE(xilinxasyncresetsynchronizerimpl1),
 	.Q(hdmi_rst)
 );
 
@@ -4188,8 +2954,8 @@ FDPE #(
 	.C(hdmi5x_clk),
 	.CE(1'd1),
 	.D(1'd0),
-	.PRE(builder_xilinxasyncresetsynchronizerimpl2),
-	.Q(builder_xilinxasyncresetsynchronizerimpl2_rst_meta)
+	.PRE(xilinxasyncresetsynchronizerimpl2),
+	.Q(xilinxasyncresetsynchronizerimpl2_rst_meta)
 );
 
 (* ars_ff2 = "true", async_reg = "true" *)
@@ -4198,8 +2964,8 @@ FDPE #(
 ) FDPE_5 (
 	.C(hdmi5x_clk),
 	.CE(1'd1),
-	.D(builder_xilinxasyncresetsynchronizerimpl2_rst_meta),
-	.PRE(builder_xilinxasyncresetsynchronizerimpl2),
+	.D(xilinxasyncresetsynchronizerimpl2_rst_meta),
+	.PRE(xilinxasyncresetsynchronizerimpl2),
 	.Q(hdmi5x_rst)
 );
 
@@ -4212,7 +2978,7 @@ ODDR #(
 	.D2(1'd0),
 	.R(1'd0),
 	.S(1'd0),
-	.Q(main_pads_clk)
+	.Q(pads_clk)
 );
 
 ODDR #(
@@ -4220,11 +2986,11 @@ ODDR #(
 ) ODDR_1 (
 	.C(hdmi5x_clk),
 	.CE(1'd1),
-	.D1(main_videohdmi10to1serializer0_source_payload_data[0]),
-	.D2(main_videohdmi10to1serializer0_source_payload_data[1]),
+	.D1(videohdmi10to1serializer0_source_payload_data[0]),
+	.D2(videohdmi10to1serializer0_source_payload_data[1]),
 	.R(1'd0),
 	.S(1'd0),
-	.Q(main_pad_o0)
+	.Q(pad_o0)
 );
 
 ODDR #(
@@ -4232,11 +2998,11 @@ ODDR #(
 ) ODDR_2 (
 	.C(hdmi5x_clk),
 	.CE(1'd1),
-	.D1(main_videohdmi10to1serializer1_source_payload_data[0]),
-	.D2(main_videohdmi10to1serializer1_source_payload_data[1]),
+	.D1(videohdmi10to1serializer1_source_payload_data[0]),
+	.D2(videohdmi10to1serializer1_source_payload_data[1]),
 	.R(1'd0),
 	.S(1'd0),
-	.Q(main_pad_o1)
+	.Q(pad_o1)
 );
 
 ODDR #(
@@ -4244,15 +3010,15 @@ ODDR #(
 ) ODDR_3 (
 	.C(hdmi5x_clk),
 	.CE(1'd1),
-	.D1(main_videohdmi10to1serializer2_source_payload_data[0]),
-	.D2(main_videohdmi10to1serializer2_source_payload_data[1]),
+	.D1(videohdmi10to1serializer2_source_payload_data[0]),
+	.D2(videohdmi10to1serializer2_source_payload_data[1]),
 	.R(1'd0),
 	.S(1'd0),
-	.Q(main_pad_o2)
+	.Q(pad_o2)
 );
 
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2023-06-07 10:13:13.
+//  Auto-Generated by LiteX on 2023-06-08 05:16:50.
 //------------------------------------------------------------------------------
