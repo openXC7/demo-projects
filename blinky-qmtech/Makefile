@@ -1,8 +1,10 @@
-PREFIX ?= /snap/openxc7/current
+PREFIX ?= /snap/openxc7/current/opt/nextpnr-xilinx
 DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db
 CHIPDB=../chipdb
 
 PART = xc7k325tffg676-1
+DBPART = $(shell echo ${PART} | sed -e 's/-[0-9]//g')
+SPEEDGRADE = $(shell echo ${PART} | sed -e 's/.*\-\([0-9]\)/\1/g')
 
 .PHONY: all
 all: blinky.bit
@@ -16,13 +18,13 @@ blinky.json: blinky.v
 
 # The chip database only needs to be generated once
 # that is why we don't clean it with make clean
-${CHIPDB}/${PART}.bin:
-	python3 ${PREFIX}/opt/nextpnr-xilinx/python/bbaexport.py --device ${PART} --bba ${PART}.bba
-	bbasm -l ${PART}.bba ${CHIPDB}/${PART}.bin
-	rm -f ${PART}.bba
+${CHIPDB}/${DBPART}.bin:
+	pypy3 ${PREFIX}/python/bbaexport.py --device ${DBPART}-${SPEEDGRADE} --bba ${DBPART}.bba
+	bbasm -l ${DBPART}.bba ${CHIPDB}/${DBPART}.bin
+	rm -f ${DBPART}.bba
 
-blinky.fasm: blinky.json ${CHIPDB}/${PART}.bin
-	nextpnr-xilinx --chipdb ${CHIPDB}/${PART}.bin --xdc blinky.xdc --json blinky.json --fasm $@ --verbose --debug
+blinky.fasm: blinky.json ${CHIPDB}/${DBPART}.bin
+	nextpnr-xilinx --chipdb ${CHIPDB}/${DBPART}.bin --xdc blinky.xdc --json blinky.json --fasm $@ --verbose --debug
 	
 blinky.frames: blinky.fasm
 	fasm2frames --part ${PART} --db-root ${DB_DIR}/kintex7 $< > $@
