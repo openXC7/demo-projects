@@ -1,10 +1,14 @@
-PREFIX ?= /snap/openxc7/current/opt/nextpnr-xilinx
-DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db
-CHIPDB=../chipdb
+NEXTPNR_XILINX_DIR ?= /snap/openxc7/current/opt/nextpnr-xilinx
+NEXTPNR_XILINX_PYTHON_DIR ?= ${NEXTPNR_XILINX_DIR}/python
+PRJXRAY_DB_DIR ?= ${NEXTPNR_XILINX_DIR}/external/prjxray-db
 
+FAMILY = kintex7
 PART = xc7k325tffg676-1
 DBPART = $(shell echo ${PART} | sed -e 's/-[0-9]//g')
 SPEEDGRADE = $(shell echo ${PART} | sed -e 's/.*\-\([0-9]\)/\1/g')
+
+CHIPDB ?= ../chipdb/
+PYPY3 ?= pypy3
 
 .PHONY: all
 all: blinky.bit
@@ -14,12 +18,12 @@ program: blinky.bit
 	openFPGALoader --board qmtechKintex7 --bitstream $<
 
 blinky.json: blinky.v
-	yosys -p "synth_xilinx -flatten -abc9 -nobram -arch xc7 -top blinky; write_json blinky.json" $<
+	yosys -p "synth_xilinx -flatten -abc9 -arch xc7 -top blinky; write_json blinky.json" $<
 
 # The chip database only needs to be generated once
 # that is why we don't clean it with make clean
 ${CHIPDB}/${DBPART}.bin:
-	pypy3 ${PREFIX}/python/bbaexport.py --device ${DBPART}-${SPEEDGRADE} --bba ${DBPART}.bba
+	${PYPY3} ${NEXTPNR_XILINX_PYTHON_DIR}/bbaexport.py --device ${PART} --bba ${DBPART}.bba
 	bbasm -l ${DBPART}.bba ${CHIPDB}/${DBPART}.bin
 	rm -f ${DBPART}.bba
 
@@ -27,10 +31,10 @@ blinky.fasm: blinky.json ${CHIPDB}/${DBPART}.bin
 	nextpnr-xilinx --chipdb ${CHIPDB}/${DBPART}.bin --xdc blinky.xdc --json blinky.json --fasm $@ --verbose --debug
 	
 blinky.frames: blinky.fasm
-	fasm2frames --part ${PART} --db-root ${DB_DIR}/kintex7 $< > $@
+	fasm2frames --part ${PART} --db-root ${PRJXRAY_DB_DIR}/${FAMILY} $< > $@
 
 blinky.bit: blinky.frames
-	xc7frames2bit --part_file ${DB_DIR}/kintex7/${PART}/part.yaml --part_name ${PART} --frm_file $< --output_file $@
+	xc7frames2bit --part_file ${PRJXRAY_DB_DIR}/${FAMILY}/${PART}/part.yaml --part_name ${PART} --frm_file $< --output_file $@
 
 .PHONY: clean
 clean:
