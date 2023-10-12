@@ -11,7 +11,7 @@ PYPY3 ?= pypy3
 TOP ?= ${PROJECT}
 TOP_MODULE ?= ${TOP}
 
-PNR_DEBUG = # --verbose --debug
+PNR_DEBUG ?= # --verbose --debug
 
 BOARD ?= UNKNOWN
 JTAG_LINK ?= --board ${BOARD}
