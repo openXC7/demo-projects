@@ -11,7 +11,7 @@ c3=get_cell('ddr3_top.ddr3_phy_inst.genblk5[0].OSERDESE2_train')
 c2=get_cell('ddr3_top.ddr3_phy_inst.genblk5[1].ISERDESE2_train')
 c4=get_cell('ddr3_top.ddr3_phy_inst.genblk5[1].OSERDESE2_train')
 
-# Usually, nextpnr-xilinx would place thes on X0Y149, but
+# Usually, nextpnr-xilinx would place these on X0Y149, but
 # prjxray has missing PIPs on _SING tiles, so we need to
 # place these on a non-SING tile to make it work
 c2.setAttr('BEL', 'ILOGIC_X0Y145/ISERDESE2')
