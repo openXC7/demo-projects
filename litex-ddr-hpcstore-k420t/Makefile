@@ -2,6 +2,7 @@ FAMILY  = kintex7
 PART    = xc7k420tffg901-1
 FPGA_LINK = -c ft4232
 PROJECT = hpcstore_xc7k420t
+CHIPDB  = ${KINTEX7_CHIPDB}
 
 VEXRISCV=../vexriscv
 ADDITIONAL_SOURCES=${VEXRISCV}/VexRiscv.v

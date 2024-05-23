@@ -1,7 +1,7 @@
 PROJECT_NAME = sitlinv_stlv7325
 PREFIX ?= /snap/openxc7/current
-DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db
-CHIPDB=../chipdb
+DB_DIR = ${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db
+CHIPDB  = ${KINTEX7_CHIPDB}
 VEXRISCV=../vexriscv
 
 PART = xc7k325tffg676-1
