@@ -6,6 +6,10 @@ DBPART = $(shell echo ${PART} | sed -e 's/-[0-9]//g')
 SPEEDGRADE = $(shell echo ${PART} | sed -e 's/.*\-\([0-9]\)/\1/g')
 
 CHIPDB ?= ../chipdb/
+ifeq ($(CHIPDB),)
+CHIPDB = ../chipdb/
+endif
+
 PYPY3 ?= pypy3
 
 TOP ?= ${PROJECT}
