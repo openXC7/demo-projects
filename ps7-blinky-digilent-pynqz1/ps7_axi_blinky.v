@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 `timescale 1ns / 1ps
  
-module top(
+module ps7_axi_blinky(
 	input clk,
 	output [3:0]led,
 	input [1:0]sw
