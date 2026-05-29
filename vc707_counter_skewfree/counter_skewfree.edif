@@ -1,0 +1,435 @@
+(edif top
+  (edifversion 2 0 0)
+  (edifLevel 0)
+  (keywordmap (keywordlevel 0))
+  (status (written (timeStamp 2026 5 28 15 14 2)
+      (program "fpga_synth")))
+  (Library hdi_primitives
+    (edifLevel 0)
+    (technology (numberDefinition))
+    (cell GND (celltype GENERIC) (view netlist (viewtype NETLIST) (interface (port G (direction OUTPUT)))))
+    (cell VCC (celltype GENERIC) (view netlist (viewtype NETLIST) (interface (port P (direction OUTPUT)))))
+    (cell CARRY4 (celltype GENERIC)
+      (view netlist (viewtype NETLIST)
+        (interface
+          (port CYINIT (direction INPUT))
+          (port CI (direction INPUT))
+          (port (array (rename DI "DI[3:0]") 4) (direction INPUT))
+          (port (array (rename S "S[3:0]") 4) (direction INPUT))
+          (port (array (rename CO "CO[3:0]") 4) (direction OUTPUT))
+          (port (array (rename O "O[3:0]") 4) (direction OUTPUT))
+        )))
+    (cell LUT1 (celltype GENERIC)
+      (view netlist (viewtype NETLIST)
+        (interface
+          (port I0 (direction INPUT))
+          (port O (direction OUTPUT))
+        )))
+    (cell FDRE (celltype GENERIC)
+      (view netlist (viewtype NETLIST)
+        (interface
+          (port C (direction INPUT))
+          (port CE (direction INPUT))
+          (port R (direction INPUT))
+          (port D (direction INPUT))
+          (port Q (direction OUTPUT))
+        )))
+    (cell IBUF (celltype GENERIC)
+      (view netlist (viewtype NETLIST)
+        (interface
+          (port I (direction INPUT))
+          (port O (direction OUTPUT))
+        )))
+    (cell OBUF (celltype GENERIC)
+      (view netlist (viewtype NETLIST)
+        (interface
+          (port I (direction INPUT))
+          (port O (direction OUTPUT))
+        )))
+    (cell BUFG (celltype GENERIC)
+      (view netlist (viewtype NETLIST)
+        (interface
+          (port I (direction INPUT))
+          (port O (direction OUTPUT))
+        )))
+  )
+  (Library work
+    (edifLevel 0)
+    (technology (numberDefinition))
+    (cell top (celltype GENERIC)
+      (view top (viewtype NETLIST)
+        (interface
+          (port sw_clk (direction INPUT))
+          (port (array (rename led "led[7:0]") 8) (direction OUTPUT))
+        )
+        (contents
+          (instance n_GND_inst (viewref netlist (cellref GND (libraryref hdi_primitives))))
+          (instance n_VCC_inst (viewref netlist (cellref VCC (libraryref hdi_primitives))))
+          (instance the_IBUF_129 (viewref netlist (cellref IBUF (libraryref hdi_primitives)))
+          )
+          (instance the_BUFG_131 (viewref netlist (cellref BUFG (libraryref hdi_primitives)))
+          )
+          (instance the_FDRE_122 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_124 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_117 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_119 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_112 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_114 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance inv_0 (viewref netlist (cellref LUT1 (libraryref hdi_primitives)))
+            (property INIT (string "2'b01"))
+          )
+          (instance c4_0_93 (viewref netlist (cellref CARRY4 (libraryref hdi_primitives)))
+          )
+          (instance the_FDRE_127 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_133 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_OBUF_135 (viewref netlist (cellref OBUF (libraryref hdi_primitives)))
+          )
+          (instance the_OBUF_108 (viewref netlist (cellref OBUF (libraryref hdi_primitives)))
+          )
+          (instance the_OBUF_106 (viewref netlist (cellref OBUF (libraryref hdi_primitives)))
+          )
+          (instance the_OBUF_104 (viewref netlist (cellref OBUF (libraryref hdi_primitives)))
+          )
+          (instance the_FDRE_86 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_88 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_81 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_83 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_76 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_78 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance c4_1_71 (viewref netlist (cellref CARRY4 (libraryref hdi_primitives)))
+          )
+          (instance the_FDRE_98 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_FDRE_100 (viewref netlist (cellref FDRE (libraryref hdi_primitives)))
+            (property INIT (string "1'b0"))
+          )
+          (instance the_OBUF_102 (viewref netlist (cellref OBUF (libraryref hdi_primitives)))
+          )
+          (instance the_OBUF_66 (viewref netlist (cellref OBUF (libraryref hdi_primitives)))
+          )
+          (instance the_OBUF_64 (viewref netlist (cellref OBUF (libraryref hdi_primitives)))
+          )
+          (instance the_OBUF_62 (viewref netlist (cellref OBUF (libraryref hdi_primitives)))
+          )
+          (net n25
+            (joined
+              (portref (member led 4))
+              (portref O (instanceref the_OBUF_104)))
+          )
+          (net n37
+            (joined
+              (portref I (instanceref the_OBUF_62))
+              (portref (member S 0) (instanceref c4_1_71))
+              (portref (member DI 0) (instanceref c4_1_71))
+              (portref Q (instanceref the_FDRE_88)))
+          )
+          (net n43
+            (joined
+              (portref (member led 2))
+              (portref O (instanceref the_OBUF_66)))
+          )
+          (net n34
+            (joined
+              (portref (member CO 2) (instanceref c4_1_71)))
+          )
+          (net n27
+            (joined
+              (portref I (instanceref the_OBUF_102))
+              (portref Q (instanceref the_FDRE_100))
+              (portref (member S 3) (instanceref c4_1_71))
+              (portref (member DI 3) (instanceref c4_1_71)))
+          )
+          (net n17
+            (joined
+              (portref D (instanceref the_FDRE_124))
+              (portref Q (instanceref the_FDRE_122)))
+          )
+          (net n24
+            (joined
+              (portref (member led 5))
+              (portref O (instanceref the_OBUF_106)))
+          )
+          (net n_VCC
+            (joined
+              (portref P (instanceref n_VCC_inst))
+              (portref CE (instanceref the_FDRE_100))
+              (portref CE (instanceref the_FDRE_98))
+              (portref CE (instanceref the_FDRE_78))
+              (portref CE (instanceref the_FDRE_76))
+              (portref CE (instanceref the_FDRE_83))
+              (portref CE (instanceref the_FDRE_81))
+              (portref CE (instanceref the_FDRE_88))
+              (portref CE (instanceref the_FDRE_86))
+              (portref CE (instanceref the_FDRE_133))
+              (portref CE (instanceref the_FDRE_127))
+              (portref CE (instanceref the_FDRE_114))
+              (portref CE (instanceref the_FDRE_112))
+              (portref CE (instanceref the_FDRE_119))
+              (portref CE (instanceref the_FDRE_117))
+              (portref CE (instanceref the_FDRE_124))
+              (portref CE (instanceref the_FDRE_122)))
+          )
+          (net n7
+            (joined
+              (portref D (instanceref the_FDRE_133))
+              (portref Q (instanceref the_FDRE_127)))
+          )
+          (net n11
+            (joined
+              (portref (member O 0) (instanceref c4_0_93))
+              (portref D (instanceref the_FDRE_122)))
+          )
+          (net n42
+            (joined
+              (portref D (instanceref the_FDRE_78))
+              (portref Q (instanceref the_FDRE_76)))
+          )
+          (net n13
+            (joined
+              (portref (member CO 2) (instanceref c4_0_93)))
+          )
+          (net n29
+            (joined
+              (portref D (instanceref the_FDRE_98))
+              (portref (member O 3) (instanceref c4_1_71)))
+          )
+          (net n38
+            (joined
+              (portref D (instanceref the_FDRE_88))
+              (portref Q (instanceref the_FDRE_86)))
+          )
+          (net n35
+            (joined
+              (portref (member CO 1) (instanceref c4_1_71)))
+          )
+          (net n20
+            (joined
+              (portref I (instanceref the_OBUF_108))
+              (portref (member S 2) (instanceref c4_0_93))
+              (portref (member DI 2) (instanceref c4_0_93))
+              (portref Q (instanceref the_FDRE_114)))
+          )
+          (net n9
+            (joined
+              (portref (member O 2) (instanceref c4_0_93))
+              (portref D (instanceref the_FDRE_112)))
+          )
+          (net n32
+            (joined
+              (portref (member O 0) (instanceref c4_1_71))
+              (portref D (instanceref the_FDRE_86)))
+          )
+          (net n45
+            (joined
+              (portref (member led 0))
+              (portref O (instanceref the_OBUF_62)))
+          )
+          (net n2
+            (joined
+              (portref sw_clk)
+              (portref I (instanceref the_IBUF_129)))
+          )
+          (net n22
+            (joined
+              (portref (member S 3) (instanceref c4_0_93))
+              (portref O (instanceref inv_0)))
+          )
+          (net n5
+            (joined
+              (portref C (instanceref the_FDRE_100))
+              (portref C (instanceref the_FDRE_98))
+              (portref C (instanceref the_FDRE_78))
+              (portref C (instanceref the_FDRE_76))
+              (portref C (instanceref the_FDRE_83))
+              (portref C (instanceref the_FDRE_81))
+              (portref C (instanceref the_FDRE_88))
+              (portref C (instanceref the_FDRE_86))
+              (portref C (instanceref the_FDRE_133))
+              (portref C (instanceref the_FDRE_127))
+              (portref C (instanceref the_FDRE_114))
+              (portref C (instanceref the_FDRE_112))
+              (portref C (instanceref the_FDRE_119))
+              (portref C (instanceref the_FDRE_117))
+              (portref C (instanceref the_FDRE_124))
+              (portref C (instanceref the_FDRE_122))
+              (portref O (instanceref the_BUFG_131)))
+          )
+          (net n12
+            (joined
+              (portref (member CO 3) (instanceref c4_0_93)))
+          )
+          (net n44
+            (joined
+              (portref (member led 1))
+              (portref O (instanceref the_OBUF_64)))
+          )
+          (net n15
+            (joined
+              (portref CI (instanceref c4_1_71))
+              (portref (member CO 0) (instanceref c4_0_93)))
+          )
+          (net n16
+            (joined
+              (portref I (instanceref the_OBUF_104))
+              (portref (member S 0) (instanceref c4_0_93))
+              (portref (member DI 0) (instanceref c4_0_93))
+              (portref Q (instanceref the_FDRE_124)))
+          )
+          (net n39
+            (joined
+              (portref I (instanceref the_OBUF_64))
+              (portref (member S 1) (instanceref c4_1_71))
+              (portref (member DI 1) (instanceref c4_1_71))
+              (portref Q (instanceref the_FDRE_83)))
+          )
+          (net n23
+            (joined
+              (portref (member led 6))
+              (portref O (instanceref the_OBUF_108)))
+          )
+          (net n3
+            (joined
+              (portref (member led 7))
+              (portref O (instanceref the_OBUF_135)))
+          )
+          (net n31
+            (joined
+              (portref (member O 1) (instanceref c4_1_71))
+              (portref D (instanceref the_FDRE_81)))
+          )
+          (net n19
+            (joined
+              (portref D (instanceref the_FDRE_119))
+              (portref Q (instanceref the_FDRE_117)))
+          )
+          (net n6
+            (joined
+              (portref I (instanceref the_BUFG_131))
+              (portref O (instanceref the_IBUF_129)))
+          )
+          (net n40
+            (joined
+              (portref D (instanceref the_FDRE_83))
+              (portref Q (instanceref the_FDRE_81)))
+          )
+          (net n14
+            (joined
+              (portref (member CO 1) (instanceref c4_0_93)))
+          )
+          (net n18
+            (joined
+              (portref I (instanceref the_OBUF_106))
+              (portref (member S 1) (instanceref c4_0_93))
+              (portref (member DI 1) (instanceref c4_0_93))
+              (portref Q (instanceref the_FDRE_119)))
+          )
+          (net n26
+            (joined
+              (portref (member led 3))
+              (portref O (instanceref the_OBUF_102)))
+          )
+          (net n33
+            (joined
+              (portref (member CO 3) (instanceref c4_1_71)))
+          )
+          (net n36
+            (joined
+              (portref (member CO 0) (instanceref c4_1_71)))
+          )
+          (net n8
+            (joined
+              (portref D (instanceref the_FDRE_127))
+              (portref (member O 3) (instanceref c4_0_93)))
+          )
+          (net n21
+            (joined
+              (portref D (instanceref the_FDRE_114))
+              (portref Q (instanceref the_FDRE_112)))
+          )
+          (net n30
+            (joined
+              (portref (member O 2) (instanceref c4_1_71))
+              (portref D (instanceref the_FDRE_76)))
+          )
+          (net n41
+            (joined
+              (portref I (instanceref the_OBUF_66))
+              (portref (member S 2) (instanceref c4_1_71))
+              (portref (member DI 2) (instanceref c4_1_71))
+              (portref Q (instanceref the_FDRE_78)))
+          )
+          (net n4
+            (joined
+              (portref I (instanceref the_OBUF_135))
+              (portref Q (instanceref the_FDRE_133))
+              (portref (member DI 3) (instanceref c4_0_93))
+              (portref I0 (instanceref inv_0)))
+          )
+          (net n28
+            (joined
+              (portref D (instanceref the_FDRE_100))
+              (portref Q (instanceref the_FDRE_98)))
+          )
+          (net n10
+            (joined
+              (portref (member O 1) (instanceref c4_0_93))
+              (portref D (instanceref the_FDRE_117)))
+          )
+          (net n_GND
+            (joined
+              (portref G (instanceref n_GND_inst))
+              (portref R (instanceref the_FDRE_100))
+              (portref R (instanceref the_FDRE_98))
+              (portref CYINIT (instanceref c4_1_71))
+              (portref R (instanceref the_FDRE_78))
+              (portref R (instanceref the_FDRE_76))
+              (portref R (instanceref the_FDRE_83))
+              (portref R (instanceref the_FDRE_81))
+              (portref R (instanceref the_FDRE_88))
+              (portref R (instanceref the_FDRE_86))
+              (portref R (instanceref the_FDRE_133))
+              (portref R (instanceref the_FDRE_127))
+              (portref CI (instanceref c4_0_93))
+              (portref CYINIT (instanceref c4_0_93))
+              (portref R (instanceref the_FDRE_114))
+              (portref R (instanceref the_FDRE_112))
+              (portref R (instanceref the_FDRE_119))
+              (portref R (instanceref the_FDRE_117))
+              (portref R (instanceref the_FDRE_124))
+              (portref R (instanceref the_FDRE_122)))
+          )
+        )
+      )
+    )
+  )
+  (Design top (cellref top (libraryref work)))
+)

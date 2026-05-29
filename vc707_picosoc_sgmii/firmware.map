@@ -1,0 +1,82 @@
+
+There are no discarded input sections
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+FLASH            0x00100000         0x00400000         xr
+RAM              0x00000000         0x00000200         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+
+.text           0x00100000      0x264
+                0x00100000                        . = ALIGN (0x4)
+ *(.text)
+ .text          0x00100000      0x198 start.o
+                0x00100100                flashio_worker_begin
+                0x00100198                flashio_worker_end
+ .text          0x00100198        0x0 firmware.o
+ *(.text*)
+ .text.startup  0x00100198       0xa8 firmware.o
+                0x00100198                main
+ *(.rodata)
+ *(.rodata*)
+ .rodata.str1.4
+                0x00100240       0x23 firmware.o
+ *(.srodata)
+ *(.srodata*)
+                0x00100264                        . = ALIGN (0x4)
+ *fill*         0x00100263        0x1 
+                0x00100264                        _etext = .
+                0x00100264                        _sidata = _etext
+
+.rela.dyn       0x00100264        0x0
+ .rela.text     0x00100264        0x0 start.o
+
+.data           0x00000000        0x0 load address 0x00100264
+                0x00000000                        . = ALIGN (0x4)
+                0x00000000                        _sdata = .
+                0x00000000                        _ram_start = .
+                0x00000000                        . = ALIGN (0x4)
+ *(.data)
+ .data          0x00000000        0x0 start.o
+ .data          0x00000000        0x0 firmware.o
+ *(.data*)
+ *(.sdata)
+ *(.sdata*)
+                0x00000000                        . = ALIGN (0x4)
+                0x00000000                        _edata = .
+
+.bss            0x00000000        0x0 load address 0x00100264
+                0x00000000                        . = ALIGN (0x4)
+                0x00000000                        _sbss = .
+ *(.bss)
+ .bss           0x00000000        0x0 start.o
+ .bss           0x00000000        0x0 firmware.o
+ *(.bss*)
+ *(.sbss)
+ *(.sbss*)
+ *(COMMON)
+                0x00000000                        . = ALIGN (0x4)
+                0x00000000                        _ebss = .
+
+.heap           0x00000000        0x0
+                0x00000000                        . = ALIGN (0x4)
+                0x00000000                        _heap_start = .
+LOAD start.o
+LOAD firmware.o
+LOAD /usr/lib/gcc/riscv64-unknown-elf/13.2.0/rv32i/ilp32/libgcc.a
+OUTPUT(firmware.elf elf32-littleriscv)
+
+.riscv.attributes
+                0x00000000       0x1c
+ .riscv.attributes
+                0x00000000       0x1a start.o
+ .riscv.attributes
+                0x0000001a       0x1c firmware.o
+
+.comment        0x00000000       0x22
+ .comment       0x00000000       0x22 firmware.o
+                                 0x23 (size before relaxing)

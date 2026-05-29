@@ -1,0 +1,12 @@
++--------------------------+--------------------------+----------------------------------------------------------------------------------------------------------+
+|       Launch Clock       |      Capture Clock       |                                                 Pin                                                      |
++--------------------------+--------------------------+----------------------------------------------------------------------------------------------------------+
+|                   sysclk |                   sysclk |                                                                soc/cpu/is_beq_bne_blt_bge_bltu_bgeu_reg/D|
+|                   sysclk |                   sysclk |                                                                                  soc/cpu/reg_out_reg[1]/D|
+|                   sysclk |                   sysclk |                                                                        soc/cpu/prefetched_high_word_reg/D|
+|                   sysclk |                   sysclk |                                                                                  soc/cpu/reg_out_reg[0]/D|
+|                   sysclk |                   sysclk |                                                                                 soc/cpu/reg_out_reg[12]/D|
+|                   sysclk |                   sysclk |                                                                                  soc/cpu/reg_out_reg[2]/D|
+|                   sysclk |                   sysclk |                                                                                 soc/cpu/reg_out_reg[15]/D|
+|                   sysclk |                   sysclk |                                                                                 soc/cpu/reg_out_reg[14]/D|
++--------------------------+--------------------------+----------------------------------------------------------------------------------------------------------+

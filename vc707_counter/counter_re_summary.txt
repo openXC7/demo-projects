@@ -1,0 +1,161 @@
+# Reverse-engineering report — counter.bit (2026-05-28 09:31)
+
+Source design : ~/vc707_counter/counter.v (VC707 8-bit counter, 200 MHz IBUFDS+BUFG, written by Vivado 2020.1)
+Source bitstream : ~/vc707_counter/counter.bit (21,271,448 bytes, 2010 set bits)
+Reverse-engineered with: prjxray utils/bit2fasm.py --verbose
+Database state : ~/prjxray/database/virtex7/ as of 2026-05-28 09:31
+
+==============================================================================
+KNOWN FEATURES IDENTIFIED
+==============================================================================
+Total: 515 FASM features matched against current segbits
+
+  INT_R                           228
+  CLBLM_R                         197
+  INT_L                            45
+  LIOB18                           35
+  RIOB18                            8
+  HCLK_L                            2
+
+==============================================================================
+UNKNOWN BITS (set in bitstream, not yet covered by segbits)
+==============================================================================
+Total: 69 bits across 9 segments
+
+  segment 0x00001000  (22 bits)
+    tile types here : ['HCLK_IOI', 'HCLK_L', 'INT_L', 'LIOB18', 'LIOI', 'LIOI_TBYTESRC', 'LIOI_TBYTETERM']
+    e.g. HCLK_IOI_X82Y130  block=CLB_IO_CLK  offset=50 words  frames=42  words=1
+    expected fuzzers : 058-pip-hclk, 047-hclk-ioi18-pips / 030-iob18
+    bits :
+      abs=0000101d_49_13             seg_relative=29_1581
+      abs=0000101e_68_9              seg_relative=30_2185
+      abs=0000101e_76_9              seg_relative=30_2441
+      abs=0000101e_80_9              seg_relative=30_2569
+      abs=0000101f_57_22             seg_relative=31_1846
+      abs=0000101f_69_22             seg_relative=31_2230
+      abs=0000101f_77_22             seg_relative=31_2486
+      abs=0000101f_81_22             seg_relative=31_2614
+      abs=00001020_57_2              seg_relative=32_1826
+      abs=00001020_67_16             seg_relative=32_2160
+      abs=00001020_69_2              seg_relative=32_2210
+      abs=00001020_75_16             seg_relative=32_2416
+      abs=00001020_77_2              seg_relative=32_2466
+      abs=00001020_79_16             seg_relative=32_2544
+      abs=00001020_81_2              seg_relative=32_2594
+      ... (7 more)
+
+  segment 0x00001080  (1 bits)
+    tile types here : ['CMT_TOP_R_LOWER_B', 'CMT_TOP_R_UPPER_T', 'HCLK_CMT', 'HCLK_R', 'INT_R']
+    e.g. CMT_TOP_R_LOWER_B_X88Y113  block=CLB_IO_CLK  offset=0 words  frames=30  words=49
+    expected fuzzers : 045-hclk-cmt-pips, 058-pip-hclk
+    bits :
+      abs=0000109b_50_21             seg_relative=27_1621
+
+  segment 0x00002580  (9 bits)
+    tile types here : ['CLK_BUFG_REBUF', 'CLK_HROW_BOT_R', 'HCLK_R', 'INT_R']
+    e.g. CLK_BUFG_REBUF_X192Y117  block=CLB_IO_CLK  offset=24 words  frames=30  words=4
+    expected fuzzers : 043-clk-rebuf-pips, 040-clk-hrow-config / 041-clk-hrow-pips, 058-pip-hclk
+    bits :
+      abs=0000259a_50_23             seg_relative=26_1623
+      abs=0000259a_51_28             seg_relative=26_1660
+      abs=0000259b_24_0              seg_relative=27_768
+      abs=0000259b_51_19             seg_relative=27_1651
+      abs=0000259b_51_23             seg_relative=27_1655
+      abs=0000259b_51_26             seg_relative=27_1658
+      abs=0000259b_73_0              seg_relative=27_2336
+      abs=0000259b_73_2              seg_relative=27_2338
+      abs=0000259b_73_14             seg_relative=27_2350
+
+  segment 0x00022580  (7 bits)
+    tile types here : ['CLK_BUFG_BOT_R', 'CLK_BUFG_REBUF', 'CLK_HROW_BOT_R', 'HCLK_R', 'INT_R']
+    e.g. CLK_BUFG_BOT_R_X192Y204  block=CLB_IO_CLK  offset=93 words  frames=30  words=8
+    expected fuzzers : 042-clk-bufg-config, 043-clk-rebuf-pips, 040-clk-hrow-config / 041-clk-hrow-pips, 058-pip-hclk
+    bits :
+      abs=0002259a_50_23             seg_relative=26_1623
+      abs=0002259b_24_0              seg_relative=27_768
+      abs=0002259b_24_2              seg_relative=27_770
+      abs=0002259b_24_14             seg_relative=27_782
+      abs=0002259b_73_0              seg_relative=27_2336
+      abs=0002259b_73_2              seg_relative=27_2338
+      abs=0002259b_73_14             seg_relative=27_2350
+
+  segment 0x00042580  (9 bits)
+    tile types here : ['CLK_BUFG_REBUF', 'CLK_BUFG_TOP_R', 'CLK_HROW_TOP_R', 'HCLK_R', 'INT_R']
+    e.g. CLK_BUFG_REBUF_X192Y221  block=CLB_IO_CLK  offset=24 words  frames=30  words=4
+    expected fuzzers : 042-clk-bufg-config, 043-clk-rebuf-pips, 040-clk-hrow-config / 041-clk-hrow-pips, 058-pip-hclk
+    bits :
+      abs=0004259a_0_8               seg_relative=26_08
+      abs=0004259a_42_20             seg_relative=26_1364
+      abs=0004259b_0_0               seg_relative=27_00
+      abs=0004259b_0_2               seg_relative=27_02
+      abs=0004259b_0_3               seg_relative=27_03
+      abs=0004259b_0_12              seg_relative=27_12
+      abs=0004259b_0_14              seg_relative=27_14
+      abs=0004259b_0_15              seg_relative=27_15
+      abs=0004259b_24_2              seg_relative=27_770
+
+  segment 0x00062580  (3 bits)
+    tile types here : ['CLK_BUFG_REBUF', 'CLK_HROW_TOP_R', 'HCLK_R', 'INT_R']
+    e.g. CLK_BUFG_REBUF_X192Y273  block=CLB_IO_CLK  offset=24 words  frames=30  words=4
+    expected fuzzers : 043-clk-rebuf-pips, 040-clk-hrow-config / 041-clk-hrow-pips, 058-pip-hclk
+    bits :
+      abs=0006259a_42_25             seg_relative=26_1369
+      abs=0006259a_42_28             seg_relative=26_1372
+      abs=0006259c_50_18             seg_relative=28_1618
+
+  segment 0x00063c00  (4 bits)
+    tile types here : ['CMT_TOP_L_LOWER_B', 'CMT_TOP_L_UPPER_T', 'HCLK_CMT_L', 'HCLK_L', 'INT_L']
+    e.g. CMT_TOP_L_LOWER_B_X305Y269  block=CLB_IO_CLK  offset=0 words  frames=30  words=49
+    expected fuzzers : 045-hclk-cmt-pips, 058-pip-hclk
+    bits :
+      abs=00063c1b_49_23             seg_relative=27_1591
+      abs=00063c1b_49_25             seg_relative=27_1593
+      abs=00063c1b_49_29             seg_relative=27_1597
+      abs=00063c1b_49_31             seg_relative=27_1599
+
+  segment 0x00063c80  (8 bits)
+    tile types here : ['HCLK_IOI', 'HCLK_R', 'INT_R', 'RIOB18', 'RIOB18_SING', 'RIOI', 'RIOI_SING', 'RIOI_TBYTESRC', 'RIOI_TBYTETERM']
+    e.g. HCLK_IOI_X311Y286  block=CLB_IO_CLK  offset=50 words  frames=42  words=1
+    expected fuzzers : 058-pip-hclk, 047-hclk-ioi18-pips / 030-iob18
+    bits :
+      abs=00063c9d_54_13             seg_relative=29_1741
+      abs=00063ca6_51_8              seg_relative=38_1640
+      abs=00063ca6_51_28             seg_relative=38_1660
+      abs=00063ca6_52_8              seg_relative=38_1672
+      abs=00063ca7_51_15             seg_relative=39_1647
+      abs=00063ca7_51_21             seg_relative=39_1653
+      abs=00063ca7_52_5              seg_relative=39_1669
+      abs=00063ca7_52_9              seg_relative=39_1673
+
+  segment 0x00421000  (6 bits)
+    tile types here : ['HCLK_IOI', 'HCLK_L', 'INT_L', 'LIOB18', 'LIOI', 'LIOI_TBYTESRC', 'LIOI_TBYTETERM']
+    e.g. HCLK_IOI_X82Y26  block=CLB_IO_CLK  offset=50 words  frames=42  words=1
+    expected fuzzers : 058-pip-hclk, 047-hclk-ioi18-pips / 030-iob18
+    bits :
+      abs=0042101e_100_9             seg_relative=30_3209
+      abs=00421020_99_16             seg_relative=32_3184
+      abs=00421021_100_29            seg_relative=33_3229
+      abs=00421026_99_12             seg_relative=38_3180
+      abs=00421026_100_0             seg_relative=38_3200
+      abs=00421026_100_2             seg_relative=38_3202
+
+==============================================================================
+VERIFICATION RECIPE (after fuzzer build completes)
+==============================================================================
+
+When the bg fuzzer build finishes, re-run:
+  python3 ~/prjxray/utils/bit2fasm.py --verbose ~/vc707_counter/counter.bit \
+    > ~/vc707_counter/counter_re_v2.fasm
+
+Then diff:
+  diff <(grep -v unknown counter_re.fasm | sort) \
+       <(grep -v unknown counter_re_v2.fasm | sort)
+  -> NEW features identified  =  fuzzer-derived coverage gain
+
+  diff <(grep unknown counter_re.fasm | sort) \
+       <(grep unknown counter_re_v2.fasm | sort)
+  -> bits 'demoted' from unknown to known by fuzzers
+
+Each segment address in the UNKNOWN BITS section above should drop bits as
+its corresponding fuzzer pushes new segbits to ~/prjxray/database/virtex7/.
+

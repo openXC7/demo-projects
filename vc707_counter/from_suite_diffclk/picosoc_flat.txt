@@ -1,0 +1,25 @@
+module top
+  signal tick: uint<1>
+  signal count: uint<8>
+  input rst: uint<1>
+  signal prescaler: uint<24>
+  output led: uint<8>
+  input clk: uint<1>
+
+process assign_led (*)
+  led := count;
+end process
+
+process net_assign_tick (*)
+  tick := (prescaler == 24'0);
+end process
+
+process always_ff (@posedge clk)
+  begin
+    count := (rst ? 8'0 : (tick ? (count + 8'1) : count));
+  end
+  begin
+    prescaler := (rst ? 24'0 : (prescaler + 24'1));
+  end
+end process
+end module

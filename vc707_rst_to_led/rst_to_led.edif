@@ -1,0 +1,69 @@
+(edif top
+  (edifversion 2 0 0)
+  (edifLevel 0)
+  (keywordmap (keywordlevel 0))
+  (status (written (timeStamp 2026 5 28 16 35 53)
+      (program "fpga_synth")))
+  (Library hdi_primitives
+    (edifLevel 0)
+    (technology (numberDefinition))
+    (cell GND (celltype GENERIC) (view netlist (viewtype NETLIST) (interface (port G (direction OUTPUT)))))
+    (cell VCC (celltype GENERIC) (view netlist (viewtype NETLIST) (interface (port P (direction OUTPUT)))))
+    (cell OBUF (celltype GENERIC)
+      (view netlist (viewtype NETLIST)
+        (interface
+          (port I (direction INPUT))
+          (port O (direction OUTPUT))
+        )))
+    (cell IBUF (celltype GENERIC)
+      (view netlist (viewtype NETLIST)
+        (interface
+          (port I (direction INPUT))
+          (port O (direction OUTPUT))
+        )))
+  )
+  (Library work
+    (edifLevel 0)
+    (technology (numberDefinition))
+    (cell top (celltype GENERIC)
+      (view top (viewtype NETLIST)
+        (interface
+          (port rst (direction INPUT))
+          (port led (direction OUTPUT))
+        )
+        (contents
+          (instance n_GND_inst (viewref netlist (cellref GND (libraryref hdi_primitives))))
+          (instance n_VCC_inst (viewref netlist (cellref VCC (libraryref hdi_primitives))))
+          (instance the_IBUF_6 (viewref netlist (cellref IBUF (libraryref hdi_primitives)))
+          )
+          (instance the_OBUF_8 (viewref netlist (cellref OBUF (libraryref hdi_primitives)))
+          )
+          (net n2
+            (joined
+              (portref rst)
+              (portref I (instanceref the_IBUF_6)))
+          )
+          (net n3
+            (joined
+              (portref led)
+              (portref O (instanceref the_OBUF_8)))
+          )
+          (net n_GND
+            (joined
+              (portref G (instanceref n_GND_inst)))
+          )
+          (net n_VCC
+            (joined
+              (portref P (instanceref n_VCC_inst)))
+          )
+          (net n4
+            (joined
+              (portref I (instanceref the_OBUF_8))
+              (portref O (instanceref the_IBUF_6)))
+          )
+        )
+      )
+    )
+  )
+  (Design top (cellref top (libraryref work)))
+)

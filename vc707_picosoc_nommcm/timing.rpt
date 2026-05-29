@@ -1,0 +1,691 @@
+Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2020.1.1 (lin64) Build 2960000 Wed Aug  5 22:57:21 MDT 2020
+| Date         : Fri May 29 09:09:29 2026
+| Host         : jonathan-nuc10i7fnk running 64-bit KDE neon Unstable Edition
+| Command      : report_timing_summary -file timing.rpt -max_paths 3
+| Design       : top
+| Device       : 7vx485t-ffg1761
+| Speed File   : -2  PRODUCTION 1.12 2014-09-11
+--------------------------------------------------------------------------------------
+
+Timing Summary Report
+
+------------------------------------------------------------------------------------------------
+| Timer Settings
+| --------------
+------------------------------------------------------------------------------------------------
+
+  Enable Multi Corner Analysis               :  Yes
+  Enable Pessimism Removal                   :  Yes
+  Pessimism Removal Resolution               :  Nearest Common Node
+  Enable Input Delay Default Clock           :  No
+  Enable Preset / Clear Arcs                 :  No
+  Disable Flight Delays                      :  No
+  Ignore I/O Paths                           :  No
+  Timing Early Launch at Borrowing Latches   :  No
+  Borrow Time for Max Delay Exceptions       :  Yes
+  Merge Timing Exceptions                    :  Yes
+
+  Corner  Analyze    Analyze    
+  Name    Max Paths  Min Paths  
+  ------  ---------  ---------  
+  Slow    Yes        Yes        
+  Fast    Yes        Yes        
+
+
+
+check_timing report
+
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (2)
+6. checking no_output_delay (9)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+1. checking no_clock (0)
+------------------------
+ There are 0 register/latch pins with no clock.
+
+
+2. checking constant_clock (0)
+------------------------------
+ There are 0 register/latch pins with constant_clock.
+
+
+3. checking pulse_width_clock (0)
+---------------------------------
+ There are 0 register/latch pins which need pulse_width check
+
+
+4. checking unconstrained_internal_endpoints (0)
+------------------------------------------------
+ There are 0 pins that are not constrained for maximum delay.
+
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+
+
+5. checking no_input_delay (2)
+------------------------------
+ There are 2 input ports with no input delay specified. (HIGH)
+
+ There are 0 input ports with no input delay but user has a false path constraint.
+
+
+6. checking no_output_delay (9)
+-------------------------------
+ There are 9 ports with no output delay specified. (HIGH)
+
+ There are 0 ports with no output delay but user has a false path constraint
+
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+
+
+7. checking multiple_clock (0)
+------------------------------
+ There are 0 register/latch pins with multiple clocks.
+
+
+8. checking generated_clocks (0)
+--------------------------------
+ There are 0 generated clocks that are not connected to a clock source.
+
+
+9. checking loops (0)
+---------------------
+ There are 0 combinational loops in the design.
+
+
+10. checking partial_input_delay (0)
+------------------------------------
+ There are 0 input ports with partial input delay specified.
+
+
+11. checking partial_output_delay (0)
+-------------------------------------
+ There are 0 ports with partial output delay specified.
+
+
+12. checking latch_loops (0)
+----------------------------
+ There are 0 combinational latch loops in the design through latch input
+
+
+
+------------------------------------------------------------------------------------------------
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+     -0.062       -0.097                      2                24504        0.076        0.000                      0                24504        1.732        0.000                       0                  3602  
+
+
+Timing constraints are not met.
+
+
+------------------------------------------------------------------------------------------------
+| Clock Summary
+| -------------
+------------------------------------------------------------------------------------------------
+
+Clock   Waveform(ns)         Period(ns)      Frequency(MHz)
+-----   ------------         ----------      --------------
+sysclk  {0.000 2.500}        5.000           200.000         
+
+
+------------------------------------------------------------------------------------------------
+| Intra Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+Clock             WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----             -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+sysclk             -0.062       -0.097                      2                24503        0.076        0.000                      0                24503        1.732        0.000                       0                  3602  
+
+
+------------------------------------------------------------------------------------------------
+| Inter Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------    --------          -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+
+
+------------------------------------------------------------------------------------------------
+| Other Path Groups Table
+| -----------------------
+------------------------------------------------------------------------------------------------
+
+Path Group         From Clock         To Clock               WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------         ----------         --------               -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+**async_default**  sysclk             sysclk                   3.010        0.000                      0                    1        0.767        0.000                      0                    1  
+
+
+------------------------------------------------------------------------------------------------
+| Timing Details
+| --------------
+------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------
+From Clock:  sysclk
+  To Clock:  sysclk
+
+Setup :            2  Failing Endpoints,  Worst Slack       -0.062ns,  Total Violation       -0.097ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.076ns,  Total Violation        0.000ns
+PW    :            0  Failing Endpoints,  Worst Slack        1.732ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (VIOLATED) :        -0.062ns  (required time - arrival time)
+  Source:                 soc/progmem/mem_data_reg_3/CLKARDCLK
+                            (rising edge-triggered cell RAMB36E1 clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            soc/cpu/mem_rdata_q_reg[25]/CE
+                            (rising edge-triggered cell FDRE clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             sysclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            5.000ns  (sysclk rise@5.000ns - sysclk rise@0.000ns)
+  Data Path Delay:        4.705ns  (logic 2.058ns (43.738%)  route 2.647ns (56.262%))
+  Logic Levels:           6  (LUT5=1 LUT6=5)
+  Clock Path Skew:        -0.144ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    4.079ns = ( 9.079 - 5.000 ) 
+    Source Clock Delay      (SCD):    4.555ns
+    Clock Pessimism Removal (CPR):    0.333ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.954     0.954 r  sysclk_ibufds/O
+                         net (fo=1, routed)           1.866     2.820    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.093     2.913 r  cpu_bufg/O
+                         net (fo=3601, routed)        1.643     4.555    soc/progmem/cpu_clk
+    RAMB36_X2Y28         RAMB36E1                                     r  soc/progmem/mem_data_reg_3/CLKARDCLK
+  -------------------------------------------------------------------    -------------------
+    RAMB36_X2Y28         RAMB36E1 (Prop_ramb36e1_CLKARDCLK_DOADO[1])
+                                                      1.800     6.355 r  soc/progmem/mem_data_reg_3/DOADO[1]
+                         net (fo=1, routed)           0.382     6.738    soc/progmem/mem_data_reg[25]
+    SLICE_X34Y141        LUT6 (Prop_lut6_I2_O)        0.043     6.781 r  soc/progmem/mem_16bit_buffer[9]_i_2/O
+                         net (fo=2, routed)           0.509     7.289    soc/cpu/mem_16bit_buffer_reg[9]_0
+    SLICE_X42Y140        LUT6 (Prop_lut6_I4_O)        0.043     7.332 r  soc/cpu/decoded_rs1[2]_i_7/O
+                         net (fo=1, routed)           0.108     7.440    soc/cpu/decoded_rs1[2]_i_7_n_0
+    SLICE_X42Y140        LUT6 (Prop_lut6_I4_O)        0.043     7.483 r  soc/cpu/decoded_rs1[2]_i_4/O
+                         net (fo=11, routed)          0.585     8.068    soc/cpu/decoded_rs1[2]_i_4_n_0
+    SLICE_X45Y139        LUT5 (Prop_lut5_I1_O)        0.043     8.111 r  soc/cpu/instr_jalr_i_3/O
+                         net (fo=10, routed)          0.302     8.413    soc/cpu/instr_jalr_i_3_n_0
+    SLICE_X44Y141        LUT6 (Prop_lut6_I4_O)        0.043     8.456 r  soc/cpu/mem_rdata_q[31]_i_3/O
+                         net (fo=4, routed)           0.437     8.893    soc/cpu/mem_rdata_q[31]_i_3_n_0
+    SLICE_X46Y141        LUT6 (Prop_lut6_I1_O)        0.043     8.936 r  soc/cpu/mem_rdata_q[31]_i_1/O
+                         net (fo=10, routed)          0.324     9.261    soc/cpu/mem_rdata_q[31]_i_1_n_0
+    SLICE_X46Y142        FDRE                                         r  soc/cpu/mem_rdata_q_reg[25]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock sysclk rise edge)     5.000     5.000 r  
+    E19                                               0.000     5.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     5.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.851     5.851 r  sysclk_ibufds/O
+                         net (fo=1, routed)           1.734     7.585    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.083     7.668 r  cpu_bufg/O
+                         net (fo=3601, routed)        1.411     9.079    soc/cpu/cpu_clk
+    SLICE_X46Y142        FDRE                                         r  soc/cpu/mem_rdata_q_reg[25]/C
+                         clock pessimism              0.333     9.412    
+                         clock uncertainty           -0.035     9.376    
+    SLICE_X46Y142        FDRE (Setup_fdre_C_CE)      -0.178     9.198    soc/cpu/mem_rdata_q_reg[25]
+  -------------------------------------------------------------------
+                         required time                          9.198    
+                         arrival time                          -9.261    
+  -------------------------------------------------------------------
+                         slack                                 -0.062    
+
+Slack (VIOLATED) :        -0.035ns  (required time - arrival time)
+  Source:                 soc/progmem/mem_data_reg_3/CLKARDCLK
+                            (rising edge-triggered cell RAMB36E1 clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            soc/cpu/mem_rdata_q_reg[28]/CE
+                            (rising edge-triggered cell FDRE clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             sysclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            5.000ns  (sysclk rise@5.000ns - sysclk rise@0.000ns)
+  Data Path Delay:        4.676ns  (logic 2.058ns (44.012%)  route 2.618ns (55.988%))
+  Logic Levels:           6  (LUT5=1 LUT6=5)
+  Clock Path Skew:        -0.146ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    4.077ns = ( 9.077 - 5.000 ) 
+    Source Clock Delay      (SCD):    4.555ns
+    Clock Pessimism Removal (CPR):    0.333ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.954     0.954 r  sysclk_ibufds/O
+                         net (fo=1, routed)           1.866     2.820    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.093     2.913 r  cpu_bufg/O
+                         net (fo=3601, routed)        1.643     4.555    soc/progmem/cpu_clk
+    RAMB36_X2Y28         RAMB36E1                                     r  soc/progmem/mem_data_reg_3/CLKARDCLK
+  -------------------------------------------------------------------    -------------------
+    RAMB36_X2Y28         RAMB36E1 (Prop_ramb36e1_CLKARDCLK_DOADO[1])
+                                                      1.800     6.355 r  soc/progmem/mem_data_reg_3/DOADO[1]
+                         net (fo=1, routed)           0.382     6.738    soc/progmem/mem_data_reg[25]
+    SLICE_X34Y141        LUT6 (Prop_lut6_I2_O)        0.043     6.781 r  soc/progmem/mem_16bit_buffer[9]_i_2/O
+                         net (fo=2, routed)           0.509     7.289    soc/cpu/mem_16bit_buffer_reg[9]_0
+    SLICE_X42Y140        LUT6 (Prop_lut6_I4_O)        0.043     7.332 r  soc/cpu/decoded_rs1[2]_i_7/O
+                         net (fo=1, routed)           0.108     7.440    soc/cpu/decoded_rs1[2]_i_7_n_0
+    SLICE_X42Y140        LUT6 (Prop_lut6_I4_O)        0.043     7.483 r  soc/cpu/decoded_rs1[2]_i_4/O
+                         net (fo=11, routed)          0.585     8.068    soc/cpu/decoded_rs1[2]_i_4_n_0
+    SLICE_X45Y139        LUT5 (Prop_lut5_I1_O)        0.043     8.111 r  soc/cpu/instr_jalr_i_3/O
+                         net (fo=10, routed)          0.302     8.413    soc/cpu/instr_jalr_i_3_n_0
+    SLICE_X44Y141        LUT6 (Prop_lut6_I4_O)        0.043     8.456 r  soc/cpu/mem_rdata_q[31]_i_3/O
+                         net (fo=4, routed)           0.437     8.893    soc/cpu/mem_rdata_q[31]_i_3_n_0
+    SLICE_X46Y141        LUT6 (Prop_lut6_I1_O)        0.043     8.936 r  soc/cpu/mem_rdata_q[31]_i_1/O
+                         net (fo=10, routed)          0.295     9.231    soc/cpu/mem_rdata_q[31]_i_1_n_0
+    SLICE_X46Y139        FDRE                                         r  soc/cpu/mem_rdata_q_reg[28]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock sysclk rise edge)     5.000     5.000 r  
+    E19                                               0.000     5.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     5.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.851     5.851 r  sysclk_ibufds/O
+                         net (fo=1, routed)           1.734     7.585    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.083     7.668 r  cpu_bufg/O
+                         net (fo=3601, routed)        1.409     9.077    soc/cpu/cpu_clk
+    SLICE_X46Y139        FDRE                                         r  soc/cpu/mem_rdata_q_reg[28]/C
+                         clock pessimism              0.333     9.410    
+                         clock uncertainty           -0.035     9.374    
+    SLICE_X46Y139        FDRE (Setup_fdre_C_CE)      -0.178     9.196    soc/cpu/mem_rdata_q_reg[28]
+  -------------------------------------------------------------------
+                         required time                          9.196    
+                         arrival time                          -9.231    
+  -------------------------------------------------------------------
+                         slack                                 -0.035    
+
+Slack (MET) :             0.019ns  (required time - arrival time)
+  Source:                 soc/progmem/mem_data_reg_3/CLKARDCLK
+                            (rising edge-triggered cell RAMB36E1 clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            soc/cpu/mem_rdata_q_reg[14]/CE
+                            (rising edge-triggered cell FDRE clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             sysclk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            5.000ns  (sysclk rise@5.000ns - sysclk rise@0.000ns)
+  Data Path Delay:        4.600ns  (logic 2.058ns (44.737%)  route 2.542ns (55.263%))
+  Logic Levels:           6  (LUT5=1 LUT6=5)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    4.078ns = ( 9.078 - 5.000 ) 
+    Source Clock Delay      (SCD):    4.555ns
+    Clock Pessimism Removal (CPR):    0.333ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.954     0.954 r  sysclk_ibufds/O
+                         net (fo=1, routed)           1.866     2.820    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.093     2.913 r  cpu_bufg/O
+                         net (fo=3601, routed)        1.643     4.555    soc/progmem/cpu_clk
+    RAMB36_X2Y28         RAMB36E1                                     r  soc/progmem/mem_data_reg_3/CLKARDCLK
+  -------------------------------------------------------------------    -------------------
+    RAMB36_X2Y28         RAMB36E1 (Prop_ramb36e1_CLKARDCLK_DOADO[1])
+                                                      1.800     6.355 r  soc/progmem/mem_data_reg_3/DOADO[1]
+                         net (fo=1, routed)           0.382     6.738    soc/progmem/mem_data_reg[25]
+    SLICE_X34Y141        LUT6 (Prop_lut6_I2_O)        0.043     6.781 r  soc/progmem/mem_16bit_buffer[9]_i_2/O
+                         net (fo=2, routed)           0.509     7.289    soc/cpu/mem_16bit_buffer_reg[9]_0
+    SLICE_X42Y140        LUT6 (Prop_lut6_I4_O)        0.043     7.332 r  soc/cpu/decoded_rs1[2]_i_7/O
+                         net (fo=1, routed)           0.108     7.440    soc/cpu/decoded_rs1[2]_i_7_n_0
+    SLICE_X42Y140        LUT6 (Prop_lut6_I4_O)        0.043     7.483 r  soc/cpu/decoded_rs1[2]_i_4/O
+                         net (fo=11, routed)          0.585     8.068    soc/cpu/decoded_rs1[2]_i_4_n_0
+    SLICE_X45Y139        LUT5 (Prop_lut5_I1_O)        0.043     8.111 r  soc/cpu/instr_jalr_i_3/O
+                         net (fo=10, routed)          0.302     8.413    soc/cpu/instr_jalr_i_3_n_0
+    SLICE_X44Y141        LUT6 (Prop_lut6_I4_O)        0.043     8.456 r  soc/cpu/mem_rdata_q[31]_i_3/O
+                         net (fo=4, routed)           0.437     8.893    soc/cpu/mem_rdata_q[31]_i_3_n_0
+    SLICE_X46Y141        LUT6 (Prop_lut6_I1_O)        0.043     8.936 r  soc/cpu/mem_rdata_q[31]_i_1/O
+                         net (fo=10, routed)          0.219     9.156    soc/cpu/mem_rdata_q[31]_i_1_n_0
+    SLICE_X47Y140        FDRE                                         r  soc/cpu/mem_rdata_q_reg[14]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock sysclk rise edge)     5.000     5.000 r  
+    E19                                               0.000     5.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     5.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.851     5.851 r  sysclk_ibufds/O
+                         net (fo=1, routed)           1.734     7.585    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.083     7.668 r  cpu_bufg/O
+                         net (fo=3601, routed)        1.410     9.078    soc/cpu/cpu_clk
+    SLICE_X47Y140        FDRE                                         r  soc/cpu/mem_rdata_q_reg[14]/C
+                         clock pessimism              0.333     9.411    
+                         clock uncertainty           -0.035     9.375    
+    SLICE_X47Y140        FDRE (Setup_fdre_C_CE)      -0.201     9.174    soc/cpu/mem_rdata_q_reg[14]
+  -------------------------------------------------------------------
+                         required time                          9.174    
+                         arrival time                          -9.156    
+  -------------------------------------------------------------------
+                         slack                                  0.019    
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.076ns  (arrival time - required time)
+  Source:                 soc/cpu/mem_addr_reg[8]/C
+                            (rising edge-triggered cell FDRE clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            soc/memory/mem_reg_2304_2559_2_2/RAMS64E_A/WADR6
+                            (rising edge-triggered cell RAMS64E clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             sysclk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (sysclk rise@0.000ns - sysclk rise@0.000ns)
+  Data Path Delay:        0.218ns  (logic 0.091ns (41.812%)  route 0.127ns (58.188%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.014ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    2.483ns
+    Source Clock Delay      (SCD):    2.104ns
+    Clock Pessimism Removal (CPR):    0.365ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.436     0.436 r  sysclk_ibufds/O
+                         net (fo=1, routed)           0.912     1.348    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.026     1.374 r  cpu_bufg/O
+                         net (fo=3601, routed)        0.730     2.104    soc/cpu/cpu_clk
+    SLICE_X33Y143        FDRE                                         r  soc/cpu/mem_addr_reg[8]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X33Y143        FDRE (Prop_fdre_C_Q)         0.091     2.195 r  soc/cpu/mem_addr_reg[8]/Q
+                         net (fo=3077, routed)        0.127     2.322    soc/memory/mem_reg_2304_2559_2_2/A6
+    SLICE_X32Y144        RAMS64E                                      r  soc/memory/mem_reg_2304_2559_2_2/RAMS64E_A/WADR6
+  -------------------------------------------------------------------    -------------------
+
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.518     0.518 r  sysclk_ibufds/O
+                         net (fo=1, routed)           0.981     1.499    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.030     1.529 r  cpu_bufg/O
+                         net (fo=3601, routed)        0.954     2.483    soc/memory/mem_reg_2304_2559_2_2/WCLK
+    SLICE_X32Y144        RAMS64E                                      r  soc/memory/mem_reg_2304_2559_2_2/RAMS64E_A/CLK
+                         clock pessimism             -0.365     2.118    
+    SLICE_X32Y144        RAMS64E (Hold_rams64e_CLK_WADR6)
+                                                      0.128     2.246    soc/memory/mem_reg_2304_2559_2_2/RAMS64E_A
+  -------------------------------------------------------------------
+                         required time                         -2.246    
+                         arrival time                           2.322    
+  -------------------------------------------------------------------
+                         slack                                  0.076    
+
+Slack (MET) :             0.076ns  (arrival time - required time)
+  Source:                 soc/cpu/mem_addr_reg[8]/C
+                            (rising edge-triggered cell FDRE clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            soc/memory/mem_reg_2304_2559_2_2/RAMS64E_B/WADR6
+                            (rising edge-triggered cell RAMS64E clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             sysclk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (sysclk rise@0.000ns - sysclk rise@0.000ns)
+  Data Path Delay:        0.218ns  (logic 0.091ns (41.812%)  route 0.127ns (58.188%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.014ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    2.483ns
+    Source Clock Delay      (SCD):    2.104ns
+    Clock Pessimism Removal (CPR):    0.365ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.436     0.436 r  sysclk_ibufds/O
+                         net (fo=1, routed)           0.912     1.348    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.026     1.374 r  cpu_bufg/O
+                         net (fo=3601, routed)        0.730     2.104    soc/cpu/cpu_clk
+    SLICE_X33Y143        FDRE                                         r  soc/cpu/mem_addr_reg[8]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X33Y143        FDRE (Prop_fdre_C_Q)         0.091     2.195 r  soc/cpu/mem_addr_reg[8]/Q
+                         net (fo=3077, routed)        0.127     2.322    soc/memory/mem_reg_2304_2559_2_2/A6
+    SLICE_X32Y144        RAMS64E                                      r  soc/memory/mem_reg_2304_2559_2_2/RAMS64E_B/WADR6
+  -------------------------------------------------------------------    -------------------
+
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.518     0.518 r  sysclk_ibufds/O
+                         net (fo=1, routed)           0.981     1.499    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.030     1.529 r  cpu_bufg/O
+                         net (fo=3601, routed)        0.954     2.483    soc/memory/mem_reg_2304_2559_2_2/WCLK
+    SLICE_X32Y144        RAMS64E                                      r  soc/memory/mem_reg_2304_2559_2_2/RAMS64E_B/CLK
+                         clock pessimism             -0.365     2.118    
+    SLICE_X32Y144        RAMS64E (Hold_rams64e_CLK_WADR6)
+                                                      0.128     2.246    soc/memory/mem_reg_2304_2559_2_2/RAMS64E_B
+  -------------------------------------------------------------------
+                         required time                         -2.246    
+                         arrival time                           2.322    
+  -------------------------------------------------------------------
+                         slack                                  0.076    
+
+Slack (MET) :             0.076ns  (arrival time - required time)
+  Source:                 soc/cpu/mem_addr_reg[8]/C
+                            (rising edge-triggered cell FDRE clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            soc/memory/mem_reg_2304_2559_2_2/RAMS64E_C/WADR6
+                            (rising edge-triggered cell RAMS64E clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             sysclk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (sysclk rise@0.000ns - sysclk rise@0.000ns)
+  Data Path Delay:        0.218ns  (logic 0.091ns (41.812%)  route 0.127ns (58.188%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.014ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    2.483ns
+    Source Clock Delay      (SCD):    2.104ns
+    Clock Pessimism Removal (CPR):    0.365ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.436     0.436 r  sysclk_ibufds/O
+                         net (fo=1, routed)           0.912     1.348    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.026     1.374 r  cpu_bufg/O
+                         net (fo=3601, routed)        0.730     2.104    soc/cpu/cpu_clk
+    SLICE_X33Y143        FDRE                                         r  soc/cpu/mem_addr_reg[8]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X33Y143        FDRE (Prop_fdre_C_Q)         0.091     2.195 r  soc/cpu/mem_addr_reg[8]/Q
+                         net (fo=3077, routed)        0.127     2.322    soc/memory/mem_reg_2304_2559_2_2/A6
+    SLICE_X32Y144        RAMS64E                                      r  soc/memory/mem_reg_2304_2559_2_2/RAMS64E_C/WADR6
+  -------------------------------------------------------------------    -------------------
+
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.518     0.518 r  sysclk_ibufds/O
+                         net (fo=1, routed)           0.981     1.499    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.030     1.529 r  cpu_bufg/O
+                         net (fo=3601, routed)        0.954     2.483    soc/memory/mem_reg_2304_2559_2_2/WCLK
+    SLICE_X32Y144        RAMS64E                                      r  soc/memory/mem_reg_2304_2559_2_2/RAMS64E_C/CLK
+                         clock pessimism             -0.365     2.118    
+    SLICE_X32Y144        RAMS64E (Hold_rams64e_CLK_WADR6)
+                                                      0.128     2.246    soc/memory/mem_reg_2304_2559_2_2/RAMS64E_C
+  -------------------------------------------------------------------
+                         required time                         -2.246    
+                         arrival time                           2.322    
+  -------------------------------------------------------------------
+                         slack                                  0.076    
+
+
+
+
+
+Pulse Width Checks
+--------------------------------------------------------------------------------------
+Clock Name:         sysclk
+Waveform(ns):       { 0.000 2.500 }
+Period(ns):         5.000
+Sources:            { clk_p }
+
+Check Type        Corner  Lib Pin             Reference Pin  Required(ns)  Actual(ns)  Slack(ns)  Location       Pin
+Min Period        n/a     RAMB36E1/CLKARDCLK  n/a            1.839         5.000       3.161      RAMB36_X3Y27   soc/progmem/mem_data_reg_1/CLKARDCLK
+Min Period        n/a     RAMB36E1/CLKARDCLK  n/a            1.839         5.000       3.161      RAMB36_X3Y29   soc/progmem/mem_data_reg_2/CLKARDCLK
+Min Period        n/a     RAMB36E1/CLKARDCLK  n/a            1.839         5.000       3.161      RAMB36_X2Y28   soc/progmem/mem_data_reg_3/CLKARDCLK
+Low Pulse Width   Slow    RAMS64E/CLK         n/a            0.768         2.500       1.732      SLICE_X26Y150  soc/memory/mem_reg_2560_2815_4_4/RAMS64E_D/CLK
+Low Pulse Width   Slow    RAMS64E/CLK         n/a            0.768         2.500       1.732      SLICE_X22Y153  soc/memory/mem_reg_2560_2815_5_5/RAMS64E_A/CLK
+Low Pulse Width   Slow    RAMS64E/CLK         n/a            0.768         2.500       1.732      SLICE_X22Y153  soc/memory/mem_reg_2560_2815_5_5/RAMS64E_B/CLK
+High Pulse Width  Slow    RAMS64E/CLK         n/a            0.768         2.500       1.732      SLICE_X32Y179  soc/memory/mem_reg_1792_2047_19_19/RAMS64E_A/CLK
+High Pulse Width  Slow    RAMS64E/CLK         n/a            0.768         2.500       1.732      SLICE_X32Y179  soc/memory/mem_reg_1792_2047_19_19/RAMS64E_B/CLK
+High Pulse Width  Slow    RAMS64E/CLK         n/a            0.768         2.500       1.732      SLICE_X32Y179  soc/memory/mem_reg_1792_2047_19_19/RAMS64E_C/CLK
+
+
+
+---------------------------------------------------------------------------------------------------
+Path Group:  **async_default**
+From Clock:  sysclk
+  To Clock:  sysclk
+
+Setup :            0  Failing Endpoints,  Worst Slack        3.010ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.767ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             3.010ns  (required time - arrival time)
+  Source:                 resetn_cnt_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            soc/progmem/o_ready_reg/CLR
+                            (recovery check against rising-edge clock sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             **async_default**
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            5.000ns  (sysclk rise@5.000ns - sysclk rise@0.000ns)
+  Data Path Delay:        1.762ns  (logic 0.266ns (15.093%)  route 1.496ns (84.907%))
+  Logic Levels:           1  (LUT6=1)
+  Clock Path Skew:        -0.038ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    4.139ns = ( 9.139 - 5.000 ) 
+    Source Clock Delay      (SCD):    4.510ns
+    Clock Pessimism Removal (CPR):    0.333ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.954     0.954 r  sysclk_ibufds/O
+                         net (fo=1, routed)           1.866     2.820    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.093     2.913 r  cpu_bufg/O
+                         net (fo=3601, routed)        1.597     4.510    cpu_clk
+    SLICE_X43Y133        FDRE                                         r  resetn_cnt_reg[3]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X43Y133        FDRE (Prop_fdre_C_Q)         0.223     4.733 r  resetn_cnt_reg[3]/Q
+                         net (fo=6, routed)           0.509     5.242    soc/cpu/pcpi_div/trap_reg[3]
+    SLICE_X42Y133        LUT6 (Prop_lut6_I2_O)        0.043     5.285 f  soc/cpu/pcpi_div/FSM_onehot_irq_state[2]_i_1/O
+                         net (fo=529, routed)         0.987     6.272    soc/progmem/SS[0]
+    SLICE_X38Y142        FDCE                                         f  soc/progmem/o_ready_reg/CLR
+  -------------------------------------------------------------------    -------------------
+
+                         (clock sysclk rise edge)     5.000     5.000 r  
+    E19                                               0.000     5.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     5.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.851     5.851 r  sysclk_ibufds/O
+                         net (fo=1, routed)           1.734     7.585    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.083     7.668 r  cpu_bufg/O
+                         net (fo=3601, routed)        1.471     9.139    soc/progmem/cpu_clk
+    SLICE_X38Y142        FDCE                                         r  soc/progmem/o_ready_reg/C
+                         clock pessimism              0.333     9.472    
+                         clock uncertainty           -0.035     9.436    
+    SLICE_X38Y142        FDCE (Recov_fdce_C_CLR)     -0.154     9.282    soc/progmem/o_ready_reg
+  -------------------------------------------------------------------
+                         required time                          9.282    
+                         arrival time                          -6.272    
+  -------------------------------------------------------------------
+                         slack                                  3.010    
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.767ns  (arrival time - required time)
+  Source:                 resetn_cnt_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Destination:            soc/progmem/o_ready_reg/CLR
+                            (removal check against rising-edge clock sysclk  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             **async_default**
+  Path Type:              Removal (Min at Fast Process Corner)
+  Requirement:            0.000ns  (sysclk rise@0.000ns - sysclk rise@0.000ns)
+  Data Path Delay:        0.759ns  (logic 0.128ns (16.855%)  route 0.631ns (83.145%))
+  Logic Levels:           1  (LUT6=1)
+  Clock Path Skew:        0.042ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    2.476ns
+    Source Clock Delay      (SCD):    2.091ns
+    Clock Pessimism Removal (CPR):    0.343ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.436     0.436 r  sysclk_ibufds/O
+                         net (fo=1, routed)           0.912     1.348    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.026     1.374 r  cpu_bufg/O
+                         net (fo=3601, routed)        0.717     2.091    cpu_clk
+    SLICE_X43Y133        FDRE                                         r  resetn_cnt_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X43Y133        FDRE (Prop_fdre_C_Q)         0.100     2.191 r  resetn_cnt_reg[2]/Q
+                         net (fo=6, routed)           0.090     2.281    soc/cpu/pcpi_div/trap_reg[2]
+    SLICE_X42Y133        LUT6 (Prop_lut6_I3_O)        0.028     2.309 f  soc/cpu/pcpi_div/FSM_onehot_irq_state[2]_i_1/O
+                         net (fo=529, routed)         0.541     2.850    soc/progmem/SS[0]
+    SLICE_X38Y142        FDCE                                         f  soc/progmem/o_ready_reg/CLR
+  -------------------------------------------------------------------    -------------------
+
+                         (clock sysclk rise edge)     0.000     0.000 r  
+    E19                                               0.000     0.000 r  clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_p
+    E19                  IBUFDS (Prop_ibufds_I_O)     0.518     0.518 r  sysclk_ibufds/O
+                         net (fo=1, routed)           0.981     1.499    sysclk_ibuf
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.030     1.529 r  cpu_bufg/O
+                         net (fo=3601, routed)        0.947     2.476    soc/progmem/cpu_clk
+    SLICE_X38Y142        FDCE                                         r  soc/progmem/o_ready_reg/C
+                         clock pessimism             -0.343     2.133    
+    SLICE_X38Y142        FDCE (Remov_fdce_C_CLR)     -0.050     2.083    soc/progmem/o_ready_reg
+  -------------------------------------------------------------------
+                         required time                         -2.083    
+                         arrival time                           2.850    
+  -------------------------------------------------------------------
+                         slack                                  0.767    
+
+
+
+
+

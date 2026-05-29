@@ -1,0 +1,204 @@
+{
+  "creator": "Next Generation Place and Route (Version 1743d0f)",
+  "modules": {
+    "top": {
+      "settings": {
+        "route": "00000000000000000000000000000001",
+        "router1/fullCleanupReroute": "1 ",
+        "router1/cleanupReroute": "1 ",
+        "router1/maxIterCnt": "200",
+        "placer1/startTemp": "1.000000",
+        "router": "router1",
+        "placer1/budgetBased": "0 ",
+        "arch.type": " ",
+        "placerHeap/criticalityExponent": "2",
+        "target_freq": "12000000.000000",
+        "router1/useEstimate": "1 ",
+        "synth": "00000000000000000000000000000001",
+        "timing_driven": "00000000000000000000000000000001",
+        "placer1/constraintWeight": "10.000000",
+        "slack_redist_iter": "00000000000000000000000000000000",
+        "placer1/netShareWeight": "0.000000",
+        "auto_freq": "00000000000000000000000000000000",
+        "placer": "heap",
+        "placerHeap/alpha": "0.100000",
+        "placer1/minBelsForGridPick": "64",
+        "arch.name": "xilinx",
+        "placerHeap/beta": "0.900000",
+        "placerHeap/timingWeight": "10 ",
+        "seed": "01010011010110001001011110010011"
+      },
+      "attributes": {
+        "step": "place",
+        "top": "00000000000000000000000000000001"
+      },
+      "ports": {
+        "rst": {
+          "direction": "input",
+          "bits": [ 52012 ]
+        },
+        "led": {
+          "direction": "output",
+          "bits": [ 52011 ]
+        }
+      },
+      "cells": {
+        "the_IBUF_6$intcell$IBUF": {
+          "hide_name": 0,
+          "type": "IOB18_INBUF_DCIEN",
+          "parameters": {
+          },
+          "attributes": {
+            "BEL_STRENGTH": "00000000000000000000000000000101",
+            "NEXTPNR_BEL": "IOB_X0Y124/IOB18/INBUF_DCIEN",
+            "X_ORIG_PORT_OUT": "O",
+            "X_ORIG_PORT_PAD": "I",
+            "X_ORIG_TYPE": "IBUF"
+          },
+          "port_directions": {
+            "PAD": "input",
+            "OUT": "output"
+          },
+          "connections": {
+            "PAD": [ 52012 ],
+            "OUT": [ 52014 ]
+          }
+        },
+        "the_OBUF_8$intcell$OBUF": {
+          "hide_name": 0,
+          "type": "IOB18_OUTBUF_DCIEN",
+          "parameters": {
+          },
+          "attributes": {
+            "NEXTPNR_BEL": "IOB_X0Y138/IOB18/OUTBUF_DCIEN",
+            "X_ORIG_PORT_OUT": "O",
+            "X_ORIG_TYPE": "OBUF",
+            "BEL_STRENGTH": "00000000000000000000000000000101",
+            "X_ORIG_PORT_IN": "I"
+          },
+          "port_directions": {
+            "IN": "input",
+            "OUT": "output"
+          },
+          "connections": {
+            "IN": [ 52014 ],
+            "OUT": [ 52011 ]
+          }
+        },
+        "rst": {
+          "hide_name": 0,
+          "type": "PAD",
+          "parameters": {
+          },
+          "attributes": {
+            "BEL_STRENGTH": "00000000000000000000000000000101",
+            "NEXTPNR_BEL": "IOB_X0Y124/IOB18/PAD",
+            "X_ORIG_PORT_PAD": "PAD",
+            "X_ORIG_TYPE": "PAD",
+            "LOC": "AV40",
+            "X_IO_DIR": "IN",
+            "PACKAGE_PIN": "AV40",
+            "IOSTANDARD": "LVCMOS18"
+          },
+          "port_directions": {
+            "PAD": "inout"
+          },
+          "connections": {
+            "PAD": [ 52012 ]
+          }
+        },
+        "led": {
+          "hide_name": 0,
+          "type": "PAD",
+          "parameters": {
+          },
+          "attributes": {
+            "BEL_STRENGTH": "00000000000000000000000000000101",
+            "NEXTPNR_BEL": "IOB_X0Y138/IOB18/PAD",
+            "X_ORIG_PORT_PAD": "PAD",
+            "X_ORIG_TYPE": "PAD",
+            "LOC": "AM39",
+            "X_IO_DIR": "OUT",
+            "PACKAGE_PIN": "AM39",
+            "IOSTANDARD": "LVCMOS18"
+          },
+          "port_directions": {
+            "PAD": "inout"
+          },
+          "connections": {
+            "PAD": [ 52011 ]
+          }
+        },
+        "$PACKER_VCC_DRV": {
+          "hide_name": 1,
+          "type": "PSEUDO_VCC",
+          "parameters": {
+          },
+          "attributes": {
+            "BEL_STRENGTH": "00000000000000000000000000000001",
+            "NEXTPNR_BEL": "CLBLM_R_X7Y242/PSEUDO_VCC_BEL"
+          },
+          "port_directions": {
+            "Y": "output"
+          },
+          "connections": {
+            "Y": [ 52257 ]
+          }
+        },
+        "$PACKER_GND_DRV": {
+          "hide_name": 1,
+          "type": "PSEUDO_GND",
+          "parameters": {
+          },
+          "attributes": {
+            "BEL_STRENGTH": "00000000000000000000000000000001",
+            "NEXTPNR_BEL": "NULL_X0Y337/PSEUDO_GND_BEL"
+          },
+          "port_directions": {
+            "Y": "output"
+          },
+          "connections": {
+            "Y": [ 52255 ]
+          }
+        }
+      },
+      "netnames": {
+        "$PACKER_VCC_NET": {
+          "hide_name": 1,
+          "bits": [ 52257 ] ,
+          "attributes": {
+            "ROUTING": " "
+          }
+        },
+        "$PACKER_GND_NET": {
+          "hide_name": 1,
+          "bits": [ 52255 ] ,
+          "attributes": {
+            "ROUTING": " "
+          }
+        },
+        "led": {
+          "hide_name": 0,
+          "bits": [ 52011 ] ,
+          "attributes": {
+            "ROUTING": "SITEWIRE/IOB_X0Y138/OUTBUF_DCIEN_OUT;;1"
+          }
+        },
+        "$frontend$4": {
+          "hide_name": 1,
+          "bits": [ 52014 ] ,
+          "attributes": {
+            "ROUTING": "SITEWIRE/IOB_X0Y124/I;SITEWIRE/IOB_X0Y124/INBUF_DCIEN_OUT->SITEWIRE/IOB_X0Y124/I;1;LIOI_X82Y128/LIOI_I1;LIOB18_X81Y128/IOB_IBUF1->LIOI_X82Y128/LIOI_I1;1;SITEWIRE/IOB_X0Y138/OUSED_OUT;SITEWIRE/IOB_X0Y138/O->SITEWIRE/IOB_X0Y138/OUSED_OUT;1;LIOB18_X81Y128/IOB_IBUF1;SITEWIRE/IOB_X0Y124/I->LIOB18_X81Y128/IOB_IBUF1;1;LIOI_TBYTETERM_X82Y143/IOI_OLOGIC1_D1;INT_L_X32Y137/IMUX_L34->LIOI_TBYTETERM_X82Y143/IOI_OLOGIC1_D1;1;INT_L_X32Y137/IMUX_L34;INT_L_X32Y137/BYP_BOUNCE0->INT_L_X32Y137/IMUX_L34;1;LIOI_X82Y128/LIOI_ILOGIC1_D;LIOI_X82Y128/LIOI_I1->LIOI_X82Y128/LIOI_ILOGIC1_D;1;LIOI_X82Y128/IOI_ILOGIC1_O;LIOI_X82Y128/LIOI_ILOGIC1_D->LIOI_X82Y128/IOI_ILOGIC1_O;1;SITEWIRE/IOB_X0Y138/O;LIOB18_X81Y143/IOB_O1->SITEWIRE/IOB_X0Y138/O;1;SITEWIRE/IOB_X0Y124/INBUF_DCIEN_OUT;;1;LIOB18_X81Y143/IOB_O1;LIOI_TBYTETERM_X82Y143/LIOI_OLOGIC1_OQ->LIOB18_X81Y143/IOB_O1;1;INT_L_X32Y130/NN6A0;INT_L_X32Y125/NN6B0->INT_L_X32Y130/NN6A0;1;LIOI_TBYTETERM_X82Y143/LIOI_OLOGIC1_OQ;LIOI_TBYTETERM_X82Y143/IOI_OLOGIC1_D1->LIOI_TBYTETERM_X82Y143/LIOI_OLOGIC1_OQ;1;IO_INT_INTERFACE_L_X32Y123/INT_INTERFACE_LOGIC_OUTS_L_B18;LIOI_X82Y128/IOI_ILOGIC1_O->IO_INT_INTERFACE_L_X32Y123/INT_INTERFACE_LOGIC_OUTS_L_B18;1;INT_L_X32Y137/BYP_ALT0;INT_L_X32Y136/NN2A0->INT_L_X32Y137/BYP_ALT0;1;INT_L_X32Y137/BYP_BOUNCE0;INT_L_X32Y137/BYP_ALT0->INT_L_X32Y137/BYP_BOUNCE0;1;INT_L_X32Y123/LOGIC_OUTS_L18;IO_INT_INTERFACE_L_X32Y123/INT_INTERFACE_LOGIC_OUTS_L_B18->INT_L_X32Y123/LOGIC_OUTS_L18;1;INT_L_X32Y125/NN6B0;INT_L_X32Y123/LOGIC_OUTS_L18->INT_L_X32Y125/NN6B0;1;INT_L_X32Y136/NN2A0;INT_L_X32Y130/NN6A0->INT_L_X32Y136/NN2A0;1"
+          }
+        },
+        "rst": {
+          "hide_name": 0,
+          "bits": [ 52012 ] ,
+          "attributes": {
+            "ROUTING": " "
+          }
+        }
+      }
+    }
+  }
+}

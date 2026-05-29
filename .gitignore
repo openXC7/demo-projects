@@ -1,0 +1,27 @@
+# Vivado scratch directories
+**/.cache/
+**/.runs/
+**/.hw/
+**/.ip_user_files/
+**/.sim/
+**/.srcs/
+**/.Xil/
+**/.hbs/
+
+# Vivado logs and journals
+**/vivado.log
+**/vivado.jou
+**/vivado_*.backup.log
+**/vivado_*.backup.jou
+
+# FASM-pipeline scratch (regenerable, 50+ MB each)
+**/*.frm
+
+# fasm2bels working DB (4+ GB SQLite)
+**/fasm2bels_work/
+
+# Verilator obj_dir
+**/obj_dir/
+
+# debug stderr logs
+**/parser_stderr.log
