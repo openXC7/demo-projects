@@ -1,0 +1,141 @@
+# Heavy end-to-end test (Tier 1, slow projects)
+#
+# Nightly build of the big demo projects (picosoc, LiteX DDR designs).
+# Same toolchain + chipdb flow as smoke.yml, but these place-and-route
+# runs take tens of minutes each, so this runs on a schedule instead of
+# on every PR.
+#
+# Projects excluded here and why:
+#   litex-ddr-hdmi-stlv7325 / litex-ddr-hdmi-enclustra-kx2:
+#     Makefiles hardcode the snap layout (PREFIX=/snap/openxc7/current)
+#   vexriscv_smp: no Makefile
+#   blinky-colorlight: ECP5 (colorlight_i5), not a Xilinx 7-series project
+
+name: heavy
+
+on:
+  schedule:
+    - cron: "15 2 * * *" # nightly 02:15 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: heavy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TOOLCHAIN_NIX_REPO: openXC7/toolchain-nix
+  VEXRISCV_REPO: SpinalHDL/VexRiscv
+
+jobs:
+  # ---------------------------------------------------------------------
+  # Stage 1: chipdb for the families the heavy projects need.
+  # ---------------------------------------------------------------------
+  chipdb:
+    name: chipdb-${{ matrix.family }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - family: artix7
+            bins: "xc7a35t xc7a100t"
+          - family: kintex7
+            bins: "xc7k160t xc7k325t xc7k420t"
+          - family: spartan7
+            bins: "xc7s50"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TOOLCHAIN_NIX_REPO }}
+          path: toolchain-nix
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      - name: Build chipdb (${{ matrix.family }})
+        id: build
+        run: |
+          set -euo pipefail
+          OUT=$(nix build ./toolchain-nix#nextpnr-xilinx-chipdb.${{ matrix.family }} \
+            --print-out-paths --no-link)
+          mkdir -p "$GITHUB_WORKSPACE/stage"
+          for b in ${{ matrix.bins }}; do
+            cp "$OUT/$b.bin" "$GITHUB_WORKSPACE/stage/"
+          done
+          echo "stage=$GITHUB_WORKSPACE/stage" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chipdb-${{ matrix.family }}
+          path: ${{ steps.build.outputs.stage }}
+          retention-days: 3
+
+  # ---------------------------------------------------------------------
+  # Stage 2: build the heavy projects.
+  # ---------------------------------------------------------------------
+  heavy:
+    name: heavy-${{ matrix.family }}
+    needs: chipdb
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - family: kintex7
+            upper: KINTEX7
+            vexriscv: true
+            projects: >-
+              picosoc
+              litex-ddr-kc705
+              litex-ddr-stlv7325
+              litex-ddr-enclustra-kx2
+              litex-ddr-hpcstore-k420t
+          - family: artix7
+            upper: ARTIX7
+            vexriscv: true
+            projects: >-
+              litex-ddr-qmtech-artix7
+              litex-sata-alientek-davincipro
+          - family: spartan7
+            upper: SPARTAN7
+            vexriscv: false
+            projects: litex-ddr-arty-s7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TOOLCHAIN_NIX_REPO }}
+          path: toolchain-nix
+      # ../vexriscv is required by litex-ddr-kc705 and litex-sata-alientek-davincipro
+      - uses: actions/checkout@v4
+        if: matrix.vexriscv
+        with:
+          repository: ${{ env.VEXRISCV_REPO }}
+          path: vexriscv
+      - uses: actions/download-artifact@v4
+        with:
+          name: chipdb-${{ matrix.family }}
+          path: chipdb
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      - name: Build heavy projects
+        env:
+          CHIPDB_DIR: ${{ github.workspace }}/chipdb
+          UPPER: ${{ matrix.upper }}
+          PROJECTS: ${{ matrix.projects }}
+          # picosoc selects its part via BOARD (genesys2 here); the other
+          # projects only use BOARD for the `program` target, which we
+          # never invoke in CI.
+          BOARD: genesys2
+        run: |
+          export ${UPPER}_CHIPDB="$CHIPDB_DIR"
+          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF'
+            for p in $PROJECTS; do
+              echo "=== building $p (timeout 90 min) ==="
+              timeout 5400 make -C "$p"
+              ls -la "$p"/*.bit
+            done
+          EOF

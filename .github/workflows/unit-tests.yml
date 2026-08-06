@@ -1,0 +1,66 @@
+# Unit tests (Tier 3)
+#
+# Runs the nextpnr-xilinx gtest suite with the build dependencies from
+# the toolchain-nix flake (`ci-tests` devshell).
+#
+# What is *not* tested here, and why:
+#   - nextpnr-xilinx ARCH=xilinx unit tests: there is no tests/xilinx
+#     directory in the nextpnr-tests submodule, and CMake's
+#     aux_source_directory() fails at configure time when the directory
+#     is missing. Only the `generic` architecture has a test suite today.
+#   - fasm pytest: the nix package sets doCheck = false ("broken
+#     upstream", see toolchain-nix/nix/fasm/default.nix).
+#   - prjxray: the tests/ directory only contains test_util.py.
+
+name: unit-tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: unit-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TOOLCHAIN_NIX_REPO: openXC7/toolchain-nix
+  # Keep in sync with toolchain-nix/nix/nextpnr-xilinx.nix (src.rev)
+  NEXTPNR_XILINX_REPO: openXC7/nextpnr-xilinx
+  NEXTPNR_XILINX_REF: fedc910d79576871c8fcd853be5c91739efe0b21
+
+jobs:
+  nextpnr-gtest:
+    name: nextpnr-xilinx gtest (generic)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TOOLCHAIN_NIX_REPO }}
+          path: toolchain-nix
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.NEXTPNR_XILINX_REPO }}
+          ref: ${{ env.NEXTPNR_XILINX_REF }}
+          path: nextpnr-xilinx
+      # The tests/ submodule (YosysHQ/nextpnr-tests) is the only one
+      # needed for the test build; skip the large prjxray-db submodule.
+      - name: Fetch tests submodule
+        run: git -C nextpnr-xilinx submodule update --init --depth 1 tests
+
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      - name: Build and run gtest suite
+        run: |
+          nix develop ./toolchain-nix#ci-tests --command bash -euxo pipefail -c '
+            cmake -S nextpnr-xilinx -B build \
+              -DARCH=generic \
+              -DBUILD_TESTS=ON \
+              -DBUILD_GUI=OFF \
+              -DUSE_OPENMP=ON
+            cmake --build build --parallel 2
+            ctest --test-dir build --output-on-failure
+          '

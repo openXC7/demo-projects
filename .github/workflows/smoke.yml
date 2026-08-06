@@ -1,0 +1,195 @@
+# End-to-end toolchain test (Tiers 1 + 2)
+#
+# 1. Builds the full toolchain (nextpnr-xilinx + prjxray + fasm + chipdb)
+#    from the latest toolchain-nix flake.
+# 2. Builds every blinky-class demo project to a .bit file
+#    (yosys -> nextpnr-xilinx -> fasm2frames -> xc7frames2bit).
+# 3. Compares regenerated .bit files against the golden .bit files
+#    committed in the repo (regression check).
+# 4. Rebuilds one project per family and checks bitstream determinism.
+#
+# Layout: jobs run per FPGA family. The chipdb stage is the long pole
+# (bbaexport takes 1-3 h per family on first run); the magic-nix-cache
+# action makes repeat runs with an unchanged toolchain fast.
+#
+# workflow_dispatch input `update-goldens: true`:
+#   skips the golden-compare failure, uploads the freshly built .bit
+#   files as an artifact so they can be committed manually.
+
+name: smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      update-goldens:
+        description: "Regenerate golden bitstreams: skip compare failure, upload new .bit files as artifact"
+        type: boolean
+        default: false
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Sibling repo used to build the toolchain. Change if you fork.
+  TOOLCHAIN_NIX_REPO: openXC7/toolchain-nix
+
+jobs:
+  # ---------------------------------------------------------------------
+  # Stage 1: build the toolchain + chipdb for one family per job.
+  # ---------------------------------------------------------------------
+  chipdb:
+    name: chipdb-${{ matrix.family }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - family: artix7
+            bins: "xc7a35t xc7a100t"
+          - family: kintex7
+            bins: "xc7k160t xc7k325t xc7k420t"
+          - family: spartan7
+            bins: "xc7s50"
+          - family: zynq7
+            bins: "xc7z020"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TOOLCHAIN_NIX_REPO }}
+          path: toolchain-nix
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      - name: Build chipdb (${{ matrix.family }})
+        id: build
+        run: |
+          set -euo pipefail
+          OUT=$(nix build ./toolchain-nix#nextpnr-xilinx-chipdb.${{ matrix.family }} \
+            --print-out-paths --no-link)
+          # Only keep the footprint .bin files demo projects actually use.
+          mkdir -p "$GITHUB_WORKSPACE/stage"
+          for b in ${{ matrix.bins }}; do
+            cp "$OUT/$b.bin" "$GITHUB_WORKSPACE/stage/"
+          done
+          ls -la "$GITHUB_WORKSPACE/stage"
+          echo "stage=$GITHUB_WORKSPACE/stage" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chipdb-${{ matrix.family }}
+          path: ${{ steps.build.outputs.stage }}
+          retention-days: 3
+
+  # ---------------------------------------------------------------------
+  # Stage 2: build demo projects, compare against golden bitstreams,
+  # check determinism.
+  # ---------------------------------------------------------------------
+  blinky:
+    name: projects-${{ matrix.family }}
+    needs: chipdb
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - family: artix7
+            upper: ARTIX7
+            projects: blinky-digilent-arty blinky-digilent-basys-3
+            determinism: true
+          - family: kintex7
+            upper: KINTEX7
+            projects: blinky-genesys2 blinky-kc705 blinky-qmtech blinky-stlv7325
+            determinism: true
+          - family: zynq7
+            upper: ZYNQ7
+            projects: blinky-digilent-zybo
+            determinism: true
+          - family: spartan7
+            upper: SPARTAN7
+            projects: ddr3-test-arty-s7
+            determinism: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TOOLCHAIN_NIX_REPO }}
+          path: toolchain-nix
+      - uses: actions/download-artifact@v4
+        with:
+          name: chipdb-${{ matrix.family }}
+          path: chipdb
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      - name: Build projects, compare goldens, check determinism
+        env:
+          CHIPDB_DIR: ${{ github.workspace }}/chipdb
+          UPPER: ${{ matrix.upper }}
+          PROJECTS: ${{ matrix.projects }}
+          DETERMINISM: ${{ matrix.determinism }}
+          UPDATE_GOLDENS: ${{ inputs.update-goldens == true }}
+        run: |
+          export ${UPPER}_CHIPDB="$CHIPDB_DIR"
+          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF'
+            # stash the committed golden bitstreams before make overwrites them
+            for p in $PROJECTS; do
+              for f in "$p"/*.bit; do
+                if [ -e "$f" ]; then cp "$f" "/tmp/golden-$p"; fi
+              done
+            done
+
+            # Tier 1: end-to-end build to .bit
+            for p in $PROJECTS; do
+              echo "=== building $p ==="
+              make -C "$p"
+              ls -la "$p"/*.bit
+            done
+
+            # Tier 2a: regression check against committed golden bitstreams
+            for p in $PROJECTS; do
+              if [ ! -f "/tmp/golden-$p" ]; then
+                echo "no golden bitstream for $p, skipping compare"
+                continue
+              fi
+              new=$(sha256sum "$p"/*.bit | cut -d' ' -f1)
+              old=$(sha256sum "/tmp/golden-$p" | cut -d' ' -f1)
+              if [ "$new" != "$old" ]; then
+                echo "::warning::bitstream for $p differs from committed golden"
+                if [ "$UPDATE_GOLDENS" != "true" ]; then
+                  echo "::error::$p: rebuilt bitstream differs from committed golden (sha256 $old vs $new)."
+                  echo "Run the workflow with update-goldens=true to regenerate, then commit."
+                  exit 1
+                fi
+                mkdir -p "$GITHUB_WORKSPACE/regenerated-goldens/$p"
+                cp "$p"/*.bit "$GITHUB_WORKSPACE/regenerated-goldens/$p/"
+              fi
+            done
+
+            # Tier 2b: determinism check (rebuild once, compare hashes)
+            if [ "$DETERMINISM" = "true" ]; then
+              p=$(echo "$PROJECTS" | cut -d' ' -f1)
+              first=$(sha256sum "$p"/*.bit | cut -d' ' -f1)
+              make -C "$p" clean
+              make -C "$p"
+              second=$(sha256sum "$p"/*.bit | cut -d' ' -f1)
+              if [ "$first" != "$second" ]; then
+                echo "::error::$p: nondeterministic build (sha256 $first vs $second)"
+                exit 1
+              fi
+              echo "determinism ok: $p ($first)"
+            fi
+          EOF
+
+      - name: Upload regenerated golden bitstreams
+        if: inputs.update-goldens == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-goldens-${{ matrix.family }}
+          path: regenerated-goldens
