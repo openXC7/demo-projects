@@ -49,14 +49,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # The chipdb output contains one .bin per footprint (e.g.
+          # xc7k325tffg900.bin), so we copy them all; each project
+          # Makefile picks its part via ${UPPER}_CHIPDB.
           - family: artix7
-            bins: "xc7a35t xc7a100t"
           - family: kintex7
-            bins: "xc7k160t xc7k325t xc7k420t"
           - family: spartan7
-            bins: "xc7s50"
           - family: zynq7
-            bins: "xc7z020"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -72,11 +71,8 @@ jobs:
           set -euo pipefail
           OUT=$(nix build ./toolchain-nix#nextpnr-xilinx-chipdb.${{ matrix.family }} \
             --print-out-paths --no-link)
-          # Only keep the footprint .bin files demo projects actually use.
           mkdir -p "$GITHUB_WORKSPACE/stage"
-          for b in ${{ matrix.bins }}; do
-            cp "$OUT/$b.bin" "$GITHUB_WORKSPACE/stage/"
-          done
+          cp "$OUT"/*.bin "$GITHUB_WORKSPACE/stage/"
           ls -la "$GITHUB_WORKSPACE/stage"
           echo "stage=$GITHUB_WORKSPACE/stage" >> "$GITHUB_OUTPUT"
 
@@ -138,6 +134,11 @@ jobs:
         run: |
           export ${UPPER}_CHIPDB="$CHIPDB_DIR"
           nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF'
+            # xc7frames2bit stamps the .bit header with the build date/time,
+            # so byte-exact hashes can never match across builds.  Blank the
+            # header timestamp ('c'/'d' TLV sections) before hashing.
+            normhash() { python3 .github/scripts/normbit.py "$1"; }
+
             # stash the committed golden bitstreams before make overwrites them
             for p in $PROJECTS; do
               for f in "$p"/*.bit; do
@@ -158,12 +159,12 @@ jobs:
                 echo "no golden bitstream for $p, skipping compare"
                 continue
               fi
-              new=$(sha256sum "$p"/*.bit | cut -d' ' -f1)
-              old=$(sha256sum "/tmp/golden-$p" | cut -d' ' -f1)
+              new=$(normhash "$p"/*.bit)
+              old=$(normhash "/tmp/golden-$p")
               if [ "$new" != "$old" ]; then
                 echo "::warning::bitstream for $p differs from committed golden"
                 if [ "$UPDATE_GOLDENS" != "true" ]; then
-                  echo "::error::$p: rebuilt bitstream differs from committed golden (sha256 $old vs $new)."
+                  echo "::error::$p: rebuilt bitstream differs from committed golden (normalized sha256 $old vs $new)."
                   echo "Run the workflow with update-goldens=true to regenerate, then commit."
                   exit 1
                 fi
@@ -175,12 +176,12 @@ jobs:
             # Tier 2b: determinism check (rebuild once, compare hashes)
             if [ "$DETERMINISM" = "true" ]; then
               p=$(echo "$PROJECTS" | cut -d' ' -f1)
-              first=$(sha256sum "$p"/*.bit | cut -d' ' -f1)
+              first=$(normhash "$p"/*.bit)
               make -C "$p" clean
               make -C "$p"
-              second=$(sha256sum "$p"/*.bit | cut -d' ' -f1)
+              second=$(normhash "$p"/*.bit)
               if [ "$first" != "$second" ]; then
-                echo "::error::$p: nondeterministic build (sha256 $first vs $second)"
+                echo "::error::$p: nondeterministic build (normalized sha256 $first vs $second)"
                 exit 1
               fi
               echo "determinism ok: $p ($first)"

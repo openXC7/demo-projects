@@ -38,12 +38,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # The chipdb output contains one .bin per footprint (e.g.
+          # xc7k325tffg900.bin), so we copy them all; each project
+          # Makefile picks its part via ${UPPER}_CHIPDB.
           - family: artix7
-            bins: "xc7a35t xc7a100t"
           - family: kintex7
-            bins: "xc7k160t xc7k325t xc7k420t"
           - family: spartan7
-            bins: "xc7s50"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -60,9 +60,7 @@ jobs:
           OUT=$(nix build ./toolchain-nix#nextpnr-xilinx-chipdb.${{ matrix.family }} \
             --print-out-paths --no-link)
           mkdir -p "$GITHUB_WORKSPACE/stage"
-          for b in ${{ matrix.bins }}; do
-            cp "$OUT/$b.bin" "$GITHUB_WORKSPACE/stage/"
-          done
+          cp "$OUT"/*.bin "$GITHUB_WORKSPACE/stage/"
           echo "stage=$GITHUB_WORKSPACE/stage" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
