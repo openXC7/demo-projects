@@ -1,1 +1,0 @@
-{"buildTargets":["all","check","clean","picosoc.bit","picosoc.fasm","picosoc.frames","picosoc.json"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
