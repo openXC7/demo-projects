@@ -1,0 +1,69 @@
+# Render the demo project test matrix as a static HTML dashboard and
+# deploy it to GitHub Pages, plus embed the same matrix into README.md.
+#
+# Regenerates whenever the smoke or heavy workflow completes, nightly,
+# or on demand.  The README commit only touches README.md, which smoke
+# and unit-tests exclude via paths-ignore, so there is no retrigger loop.
+#
+# Prerequisite for the Pages half: enable Pages with source "GitHub
+# Actions" (Settings -> Pages -> Build and deployment -> Source).
+# The dashboard then lives at https://<owner>.github.io/demo-projects/
+#
+# workflow_run is restricted to the repo's own smoke/heavy workflows
+# (zizmor: ignore[dangerous-triggers]); payload (job names, URLs) is
+# rendered only for runs on the default branch and escaped before
+# embedding.
+
+name: pages
+
+on:
+  # zizmor: ignore[dangerous-triggers]
+  workflow_run:
+    workflows: [smoke, heavy]
+    types: [completed]
+  schedule:
+    - cron: "45 2 * * *" # nightly 02:45 UTC, after the heavy run
+  workflow_dispatch:
+
+permissions:
+  contents: write # commit the README matrix section
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  matrix-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Collect and render matrix report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/scripts/matrix_report.py
+
+      - name: Commit updated README matrix
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "README matrix unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "ci: update README test matrix"
+          git pull --rebase origin main || true
+          git push
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
