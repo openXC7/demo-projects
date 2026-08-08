@@ -1,8 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/devel/HDL/kintex-reveng/picosoc'
-echo "BOARD environment variable not set. Available boards:"
-echo " * qmtech"
-echo " * genesys2"
-exit 1
-make: Leaving directory '/devel/HDL/kintex-reveng/picosoc'
- 
