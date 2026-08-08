@@ -38,7 +38,7 @@ below is the same matrix, embedded and updated by CI.
 | `litex-ddr-qmtech-artix7` | · | · | · | · | · | · | · | · | — |
 | `litex-ddr-qmtech-kintex7` | · | · | · | · | · | · | · | · | — |
 | `litex-ddr-stlv7325` | · | · | · | · | · | · | · | · | — |
-| `matrix.project` | · | … | … | … | … | … | … | … | — |
+| `matrix.project` | … | … | … | … | … | … | … | … | — |
 | `picosoc` | · | · | · | · | · | · | · | · | — |
 | `projects-${{ matrix.family }}` | · | · | · | · | · | · | · | · | — |
 | `ps7-blinky-digilent-pynqz1` | · | · | · | · | · | · | · | · | — |
