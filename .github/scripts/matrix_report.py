@@ -66,6 +66,23 @@ def fetch_workflows() -> dict[str, str]:
     return names
 
 
+def fetch_projects_from_tree() -> list[str]:
+    """All demo projects: every top-level directory that contains a Makefile.
+
+    The dashboard lists the whole demo-projects tree (blinky-*, litex-ddr-*,
+    ...) so projects without a recent CI run still show up with "not in
+    this run" cells, instead of only the projects that happened to have
+    jobs in the last few runs.
+    """
+    data = fetch_json(f"repos/{REPO}/git/trees/{DEFAULT_BRANCH}?recursive=1")
+    projects = set()
+    for entry in data.get("tree", []):
+        p = entry.get("path", "")
+        if p.endswith("/Makefile"):
+            projects.add(p[: -len("/Makefile")])
+    return sorted(projects)
+
+
 def fetch_runs(path: str) -> list[dict]:
     url = f"repos/{REPO}/actions/workflows/{path}/runs?per_page={RUNS_PER_WORKFLOW}"
     data = fetch_json(url)
@@ -168,7 +185,9 @@ def build_data() -> tuple[dict[str, str], list[dict], list[str]]:
 
     runs.sort(key=lambda r: r["created_at"])
 
-    projects: set[str] = set()
+    # The tree is the source of truth; job names from recent runs only
+    # fill gaps (e.g. a project whose Makefile was just renamed).
+    projects: set[str] = set(fetch_projects_from_tree())
     for run in runs:
         for job in run["_jobs"]:
             if classify_job(job["name"]) == "project":
