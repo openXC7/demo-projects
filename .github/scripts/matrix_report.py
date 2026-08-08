@@ -74,10 +74,24 @@ def fetch_runs(path: str) -> list[dict]:
 
 def fetch_jobs(run_id: int) -> list[dict]:
     url = f"repos/{REPO}/actions/runs/{run_id}/jobs?per_page=100"
-    text = gh("--paginate", url)
-    if not text.strip():
+    data = fetch_json(url)
+    if not data:
         return []
-    return json.JSONDecoder().decode(text)
+    # The jobs endpoint returns an object ({total_count, jobs}); the
+    # --paginate flag only merges array responses, so page manually if a
+    # run ever has more jobs than one page.
+    jobs = list(data.get("jobs", []))
+    total = data.get("total_count", len(jobs))
+    while len(jobs) < total:
+        url = (
+            f"repos/{REPO}/actions/runs/{run_id}/jobs"
+            f"?per_page=100&page={len(jobs) // 100 + 1}"
+        )
+        page = fetch_json(url)
+        jobs.extend(page.get("jobs", []))
+        if not page.get("jobs"):
+            break
+    return jobs
 
 
 def classify_job(name: str) -> str:
