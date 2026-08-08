@@ -27,6 +27,7 @@ on:
 
 permissions:
   contents: write # commit the README matrix section
+  actions: read # gh api .../actions/workflows and run/job lookups
   pages: write
   id-token: write
 

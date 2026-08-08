@@ -52,12 +52,17 @@ def fetch_json(url: str) -> Any:
 
 
 def fetch_workflows() -> dict[str, str]:
-    """Map workflow file path -> display name for the tracked workflows."""
+    """Map workflow file name -> display name for the tracked workflows.
+
+    The API reports the full path (".github/workflows/smoke.yml"); the
+    runs endpoint only accepts the bare file name, so key by basename.
+    """
     data = fetch_json(f"repos/{REPO}/actions/workflows")
     names = {}
     for wf in data.get("workflows", []):
-        if wf["path"] in TRACKED_WORKFLOWS:
-            names[wf["path"]] = wf["name"]
+        fname = wf["path"].rsplit("/", 1)[-1]
+        if fname in TRACKED_WORKFLOWS:
+            names[fname] = wf["name"]
     return names
 
 
