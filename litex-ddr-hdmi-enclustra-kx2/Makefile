@@ -1,6 +1,7 @@
 PROJECT_NAME = enclustra_mercury_kx2
-PREFIX ?= /snap/openxc7/current
-DB_DIR=${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db/kintex7
+# Paths come from the toolchain-nix devshell / CI environment
+# (PRJXRAY_DB_DIR, NEXTPNR_XILINX_PYTHON_DIR); no snap layout.
+DB_DIR ?= ${PRJXRAY_DB_DIR}/kintex7
 #DB_DIR=../../db-workspace-for-kintex7/
 CHIPDB  = ${KINTEX7_CHIPDB}
 VEXRISCV=../vexriscv
@@ -17,7 +18,7 @@ ${PROJECT_NAME}.json: ${PROJECT_NAME}.v
 # The chip database only needs to be generated once
 # that is why we don't clean it with make clean
 ${CHIPDB}/${PART}.bin:
-	pypy3 ${PREFIX}/opt/nextpnr-xilinx/python/bbaexport.py --device ${PART} --bba ${PART}.bba
+	${NEXTPNR_XILINX_PYTHON_DIR}/bbaexport.py --device ${PART} --bba ${PART}.bba
 	bbasm -l ${PART}.bba ${CHIPDB}/${PART}.bin
 	rm -f ${PART}.bba
 

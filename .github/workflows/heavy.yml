@@ -3,13 +3,16 @@
 # Nightly build of the big demo projects (picosoc, LiteX DDR designs).
 # Same toolchain + chipdb flow as smoke.yml, but these place-and-route
 # runs take tens of minutes each, so this runs on a schedule instead of
-# on every PR.
+# on every PR.  One job per project, so the nightly overview shows
+# exactly which subprojects succeed and fail.
 #
 # Projects excluded here and why:
-#   litex-ddr-hdmi-stlv7325 / litex-ddr-hdmi-enclustra-kx2:
-#     Makefiles hardcode the snap layout (PREFIX=/snap/openxc7/current)
 #   vexriscv_smp: no Makefile
 #   blinky-colorlight: ECP5 (colorlight_i5), not a Xilinx 7-series project
+#
+# litex-ddr-hdmi-* are included: their Makefiles now take the db and
+# bbaexport paths from the devshell environment (PRJXRAY_DB_DIR,
+# NEXTPNR_XILINX_PYTHON_DIR) instead of the obsolete snap layout.
 
 name: heavy
 
@@ -61,6 +64,7 @@ jobs:
             --print-out-paths --no-link)
           mkdir -p "$GITHUB_WORKSPACE/stage"
           cp "$OUT"/*.bin "$GITHUB_WORKSPACE/stage/"
+          ls -la "$GITHUB_WORKSPACE/stage"
           echo "stage=$GITHUB_WORKSPACE/stage" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
@@ -70,10 +74,10 @@ jobs:
           retention-days: 3
 
   # ---------------------------------------------------------------------
-  # Stage 2: build the heavy projects.
+  # Stage 2: one job per heavy project.
   # ---------------------------------------------------------------------
-  heavy:
-    name: heavy-${{ matrix.family }}
+  project:
+    name: ${{ matrix.project }}
     needs: chipdb
     runs-on: ubuntu-latest
     timeout-minutes: 360
@@ -83,30 +87,56 @@ jobs:
         include:
           - family: kintex7
             upper: KINTEX7
+            project: picosoc
+            vexriscv: false
+          - family: kintex7
+            upper: KINTEX7
+            project: litex-ddr-kc705
             vexriscv: true
-            projects: >-
-              picosoc
-              litex-ddr-kc705
-              litex-ddr-stlv7325
-              litex-ddr-enclustra-kx2
-              litex-ddr-hpcstore-k420t
+          - family: kintex7
+            upper: KINTEX7
+            project: litex-ddr-stlv7325
+            vexriscv: false
+          - family: kintex7
+            upper: KINTEX7
+            project: litex-ddr-enclustra-kx2
+            vexriscv: false
+          - family: kintex7
+            upper: KINTEX7
+            project: litex-ddr-hdmi-stlv7325
+            vexriscv: true
+          - family: kintex7
+            upper: KINTEX7
+            project: litex-ddr-hdmi-enclustra-kx2
+            vexriscv: true
+          - family: kintex7
+            upper: KINTEX7
+            project: litex-ddr-qmtech-kintex7
+            vexriscv: true
+          - family: kintex7
+            upper: KINTEX7
+            project: litex-ddr-hpcstore-k420t
+            vexriscv: false
           - family: artix7
             upper: ARTIX7
+            project: litex-ddr-qmtech-artix7
             vexriscv: true
-            projects: >-
-              litex-ddr-qmtech-artix7
-              litex-sata-alientek-davincipro
+            # known-failing: BRAM/LUTFF legaliser spiral (a7-only)
+          - family: artix7
+            upper: ARTIX7
+            project: litex-sata-alientek-davincipro
+            vexriscv: true
           - family: spartan7
             upper: SPARTAN7
+            project: litex-ddr-arty-s7
             vexriscv: false
-            projects: litex-ddr-arty-s7
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:
           repository: ${{ env.TOOLCHAIN_NIX_REPO }}
           path: toolchain-nix
-      # ../vexriscv is required by litex-ddr-kc705 and litex-sata-alientek-davincipro
+      # ../vexriscv is required by the projects that include VexRiscv.v
       - uses: actions/checkout@v4
         if: matrix.vexriscv
         with:
@@ -119,11 +149,11 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v14
       - uses: DeterminateSystems/magic-nix-cache-action@v8
 
-      - name: Build heavy projects
+      - name: Build project
         env:
           CHIPDB_DIR: ${{ github.workspace }}/chipdb
           UPPER: ${{ matrix.upper }}
-          PROJECTS: ${{ matrix.projects }}
+          PROJECT: ${{ matrix.project }}
           # picosoc selects its part via BOARD (genesys2 here); the other
           # projects only use BOARD for the `program` target, which we
           # never invoke in CI.
@@ -131,9 +161,7 @@ jobs:
         run: |
           export ${UPPER}_CHIPDB="$CHIPDB_DIR"
           nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF'
-            for p in $PROJECTS; do
-              echo "=== building $p (timeout 90 min) ==="
-              timeout 5400 make -C "$p"
-              ls -la "$p"/*.bit
-            done
+            echo "=== building $PROJECT (timeout 90 min) ==="
+            timeout 5400 make -C "$PROJECT"
+            ls -la "$PROJECT"/*.bit
           EOF

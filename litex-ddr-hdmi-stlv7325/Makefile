@@ -1,6 +1,7 @@
 PROJECT_NAME = sitlinv_stlv7325
-PREFIX ?= /snap/openxc7/current
-DB_DIR = ${PREFIX}/opt/nextpnr-xilinx/external/prjxray-db
+# Paths come from the toolchain-nix devshell / CI environment
+# (PRJXRAY_DB_DIR, NEXTPNR_XILINX_PYTHON_DIR); no snap layout.
+DB_DIR ?= ${PRJXRAY_DB_DIR}/kintex7
 CHIPDB  = ${KINTEX7_CHIPDB}
 VEXRISCV=../vexriscv
 
@@ -15,7 +16,7 @@ ${PROJECT_NAME}.json: ${PROJECT_NAME}.v
 # The chip database only needs to be generated once
 # that is why we don't clean it with make clean
 ${CHIPDB}/${PART}.bin:
-	python3 ${PREFIX}/opt/nextpnr-xilinx/python/bbaexport.py --device ${PART} --bba ${PART}.bba
+	${NEXTPNR_XILINX_PYTHON_DIR}/bbaexport.py --device ${PART} --bba ${PART}.bba
 	bbasm -l ${PART}.bba ${CHIPDB}/${PART}.bin
 	rm -f ${PART}.bba
 
@@ -23,10 +24,10 @@ ${PROJECT_NAME}.fasm: ${PROJECT_NAME}.json ${CHIPDB}/${PART}.bin
 	nextpnr-xilinx --chipdb ${CHIPDB}/${PART}.bin --xdc ${PROJECT_NAME}.xdc  --json $< --write ${PROJECT_NAME}_routed.json --fasm $@  --freq 50 #--router router2 #--debug-router ##--verbose --debug
 
 ${PROJECT_NAME}.frames: ${PROJECT_NAME}.fasm
-	fasm2frames --part ${PART} --db-root ${DB_DIR}/kintex7 $< > $@
+	fasm2frames --part ${PART} --db-root ${DB_DIR} $< > $@
 
 ${PROJECT_NAME}.bit: ${PROJECT_NAME}.frames
-	xc7frames2bit --part_file ${DB_DIR}/kintex7/${PART}/part.yaml --part_name ${PART} --frm_file $< --output_file $@
+	xc7frames2bit --part_file ${DB_DIR}/${PART}/part.yaml --part_name ${PART} --frm_file $< --output_file $@
 
 .PHONY: clean pnrclean
 clean:

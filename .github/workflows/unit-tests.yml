@@ -34,9 +34,7 @@ concurrency:
 
 env:
   TOOLCHAIN_NIX_REPO: openXC7/toolchain-nix
-  # Keep in sync with toolchain-nix/nix/nextpnr-xilinx.nix (src.rev)
   NEXTPNR_XILINX_REPO: openXC7/nextpnr-xilinx
-  NEXTPNR_XILINX_REF: a92eb3d1aea4ab089982cff0086871865b78d0e4
 
 jobs:
   nextpnr-gtest:
@@ -48,18 +46,25 @@ jobs:
         with:
           repository: ${{ env.TOOLCHAIN_NIX_REPO }}
           path: toolchain-nix
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      # Test the exact revision the flake pins, not a hand-maintained
+      # constant that drifts out of sync (this bit us: the hardcoded ref
+      # was months old while toolchain-nix pinned the current tip).
+      - name: Resolve pinned nextpnr-xilinx revision
+        id: rev
+        run: echo "rev=$(nix eval --raw ./toolchain-nix#nextpnr-xilinx.src.rev)" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v4
         with:
           repository: ${{ env.NEXTPNR_XILINX_REPO }}
-          ref: ${{ env.NEXTPNR_XILINX_REF }}
+          ref: ${{ steps.rev.outputs.rev }}
           path: nextpnr-xilinx
       # The tests/ submodule (YosysHQ/nextpnr-tests) is the only one
       # needed for the test build; skip the large prjxray-db submodule.
       - name: Fetch tests submodule
         run: git -C nextpnr-xilinx submodule update --init --depth 1 tests
-
-      - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
 
       - name: Build and run gtest suite
         run: |
