@@ -74,7 +74,16 @@ jobs:
           repository: ${{ env.TOOLCHAIN_NIX_REPO }}
           path: toolchain-nix
       - uses: DeterminateSystems/nix-installer-action@v14
+      # v8+ caches through FlakeHub and requires a token; register at
+      # flakehub.com and add FLAKEHUB_TOKEN to the repo secrets.
+      - name: Configure FlakeHub cache token
+        if: ${{ secrets.FLAKEHUB_TOKEN != '' }}
+        env:
+          FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
+        run: echo "FLAKEHUB_TOKEN set"
       - uses: DeterminateSystems/magic-nix-cache-action@v8
+        env:
+          FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
 
       - name: Build chipdb (${{ matrix.family }})
         id: build
@@ -185,7 +194,16 @@ jobs:
           name: chipdb-${{ matrix.family }}
           path: chipdb
       - uses: DeterminateSystems/nix-installer-action@v14
+      # v8+ caches through FlakeHub and requires a token; register at
+      # flakehub.com and add FLAKEHUB_TOKEN to the repo secrets.
+      - name: Configure FlakeHub cache token
+        if: ${{ secrets.FLAKEHUB_TOKEN != '' }}
+        env:
+          FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
+        run: echo "FLAKEHUB_TOKEN set"
       - uses: DeterminateSystems/magic-nix-cache-action@v8
+        env:
+          FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
 
       - name: Build project and compare against golden
         env:
@@ -271,7 +289,16 @@ jobs:
           name: chipdb-${{ matrix.family }}
           path: chipdb
       - uses: DeterminateSystems/nix-installer-action@v14
+      # v8+ caches through FlakeHub and requires a token; register at
+      # flakehub.com and add FLAKEHUB_TOKEN to the repo secrets.
+      - name: Configure FlakeHub cache token
+        if: ${{ secrets.FLAKEHUB_TOKEN != '' }}
+        env:
+          FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
+        run: echo "FLAKEHUB_TOKEN set"
       - uses: DeterminateSystems/magic-nix-cache-action@v8
+        env:
+          FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
 
       - name: Determinism check
         env:
