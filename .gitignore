@@ -1,0 +1,63 @@
+# ---- bitstreams / place-and-route outputs ----
+*.bit
+*.fasm
+*.frames
+*.json
+*.bin
+*.bba
+
+# ---- Vivado / Xilinx tool output ----
+vivado
+*.jou
+*.log
+*.backup.jou
+*.backup.log
+*.Xil/
+*.defasm
+*.vcd
+*.wdb
+*.xpr
+*.cache/
+*.gen/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
+*.srcs/
+
+# ---- yosys / nextpnr scratch ----
+abc.history
+*.fasm.orig
+nextpnr-*.cast
+
+# ---- build directories ----
+build/
+_site/
+chipdb
+footprints.txt
+bin/
+
+# ---- generated memory image / coefficient files (litex / hdmi demos) ----
+*.init
+
+# ---- Xilinx ISE output ----
+ise/
+
+# ---- editor / IDE ----
+.vscode/
+.idea/
+*.swp
+*~
+
+# ---- JVM / tool crash dumps ----
+hs_err_pid*.log
+replay_pid*.log
+
+# ---- misc scratch ----
+pins.txt
+table.txt
+err.txt
+ioi-err.txt
+nobram.txt
+out
+log
