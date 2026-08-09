@@ -21,10 +21,6 @@ on:
     - cron: "15 2 * * *" # nightly 02:15 UTC
   workflow_dispatch:
 
-permissions:
-  contents: read
-  id-token: write # FlakeHub cache OIDC auth (magic-nix-cache v8)
-
 concurrency:
   group: heavy-${{ github.ref }}
   cancel-in-progress: true
@@ -58,12 +54,9 @@ jobs:
           repository: ${{ env.TOOLCHAIN_NIX_REPO }}
           path: toolchain-nix
       - uses: DeterminateSystems/nix-installer-action@v14
-      # v8+ caches through FlakeHub; the token comes from the
-      # FLAKEHUB_TOKEN repo secret.  (The secrets context is not
-      # available in step-level if: conditions, so no guard step.)
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
-        env:
-          FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
+      # v6: the last release before the FlakeHub cache requirement --
+      # uses the native GitHub Actions cache directly, no token needed.
+      - uses: DeterminateSystems/magic-nix-cache-action@v6
 
       - name: Build chipdb (${{ matrix.family }})
         id: build
@@ -156,12 +149,9 @@ jobs:
           name: chipdb-${{ matrix.family }}
           path: chipdb
       - uses: DeterminateSystems/nix-installer-action@v14
-      # v8+ caches through FlakeHub; the token comes from the
-      # FLAKEHUB_TOKEN repo secret.  (The secrets context is not
-      # available in step-level if: conditions, so no guard step.)
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
-        env:
-          FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
+      # v6: the last release before the FlakeHub cache requirement --
+      # uses the native GitHub Actions cache directly, no token needed.
+      - uses: DeterminateSystems/magic-nix-cache-action@v6
 
       - name: Build project
         env:
