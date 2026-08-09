@@ -196,14 +196,12 @@ def build_data() -> tuple[dict[str, str], list[dict], list[str]]:
 
     runs.sort(key=lambda r: r["created_at"])
 
-    # The tree is the source of truth; job names from recent runs only
-    # fill gaps (e.g. a project whose Makefile was just renamed).
-    projects: set[str] = set(fetch_projects_from_tree())
-    for run in runs:
-        for job in run["_jobs"]:
-            if classify_job(job["name"]) == "project":
-                projects.add(job["name"])
-    return wf_names, runs, sorted(projects)
+    # The tree is the source of truth.  Job names from runs are NOT
+    # unioned in: runs made by older workflow versions carry template
+    # job names (e.g. "projects-${{ matrix.family }}", "matrix.project")
+    # that would show up as bogus projects.
+    projects = fetch_projects_from_tree()
+    return wf_names, runs, projects
 
 
 def render(wf_names: dict, runs: list[dict], projects: list[str]) -> str:
