@@ -66,6 +66,12 @@ def fetch_workflows() -> dict[str, str]:
     return names
 
 
+# Directories that ship a Makefile but are NOT demo projects:
+#   vexriscv -- pre-generated Verilog consumed by the litex-ddr-hdmi
+#   projects; its Makefile only regenerates the sources via sbt.
+NON_PROJECT_DIRS = {"vexriscv"}
+
+
 def fetch_projects_from_tree() -> list[str]:
     """All demo projects: every top-level directory that contains a Makefile.
 
@@ -78,8 +84,13 @@ def fetch_projects_from_tree() -> list[str]:
     projects = set()
     for entry in data.get("tree", []):
         p = entry.get("path", "")
-        if p.endswith("/Makefile"):
-            projects.add(p[: -len("/Makefile")])
+        # top-level dirs only ("name/Makefile"); nested Makefiles (build
+        # dirs, vivado projects, ...) are not demo projects.
+        if p.endswith("/Makefile") and p.count("/") == 1:
+            name = p[: -len("/Makefile")]
+            if name in NON_PROJECT_DIRS:
+                continue
+            projects.add(name)
     return sorted(projects)
 
 
