@@ -74,13 +74,9 @@ jobs:
           repository: ${{ env.TOOLCHAIN_NIX_REPO }}
           path: toolchain-nix
       - uses: DeterminateSystems/nix-installer-action@v14
-      # v8+ caches through FlakeHub and requires a token; register at
-      # flakehub.com and add FLAKEHUB_TOKEN to the repo secrets.
-      - name: Configure FlakeHub cache token
-        if: ${{ secrets.FLAKEHUB_TOKEN != '' }}
-        env:
-          FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
-        run: echo "FLAKEHUB_TOKEN set"
+      # v8+ caches through FlakeHub; the token comes from the
+      # FLAKEHUB_TOKEN repo secret.  (The secrets context is not
+      # available in step-level if: conditions, so no guard step.)
       - uses: DeterminateSystems/magic-nix-cache-action@v8
         env:
           FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
@@ -194,13 +190,9 @@ jobs:
           name: chipdb-${{ matrix.family }}
           path: chipdb
       - uses: DeterminateSystems/nix-installer-action@v14
-      # v8+ caches through FlakeHub and requires a token; register at
-      # flakehub.com and add FLAKEHUB_TOKEN to the repo secrets.
-      - name: Configure FlakeHub cache token
-        if: ${{ secrets.FLAKEHUB_TOKEN != '' }}
-        env:
-          FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
-        run: echo "FLAKEHUB_TOKEN set"
+      # v8+ caches through FlakeHub; the token comes from the
+      # FLAKEHUB_TOKEN repo secret.  (The secrets context is not
+      # available in step-level if: conditions, so no guard step.)
       - uses: DeterminateSystems/magic-nix-cache-action@v8
         env:
           FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
@@ -289,13 +281,9 @@ jobs:
           name: chipdb-${{ matrix.family }}
           path: chipdb
       - uses: DeterminateSystems/nix-installer-action@v14
-      # v8+ caches through FlakeHub and requires a token; register at
-      # flakehub.com and add FLAKEHUB_TOKEN to the repo secrets.
-      - name: Configure FlakeHub cache token
-        if: ${{ secrets.FLAKEHUB_TOKEN != '' }}
-        env:
-          FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
-        run: echo "FLAKEHUB_TOKEN set"
+      # v8+ caches through FlakeHub; the token comes from the
+      # FLAKEHUB_TOKEN repo secret.  (The secrets context is not
+      # available in step-level if: conditions, so no guard step.)
       - uses: DeterminateSystems/magic-nix-cache-action@v8
         env:
           FLAKEHUB_TOKEN: ${{ secrets.FLAKEHUB_TOKEN }}
