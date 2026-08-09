@@ -3,7 +3,7 @@
 #
 # Regenerates whenever the smoke or heavy workflow completes, nightly,
 # or on demand.  The README commit only touches README.md, which smoke
-# and unit-tests exclude via paths-ignore, so there is no retrigger loop.
+# excludes via paths-ignore, so there is no retrigger loop.
 #
 # Prerequisite for the Pages half: enable Pages with source "GitHub
 # Actions" (Settings -> Pages -> Build and deployment -> Source).
