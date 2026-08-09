@@ -13,7 +13,7 @@ the pass/fail status of every demo project across recent CI runs; the table
 below is the same matrix, embedded and updated by CI.
 
 <!-- matrix-report:start -->
-| project | [smoke #11](https://github.com/openXC7/demo-projects/actions/runs/31264181125) | [smoke #10](https://github.com/openXC7/demo-projects/actions/runs/31263970790) | [smoke #9](https://github.com/openXC7/demo-projects/actions/runs/31263850143) | [smoke #8](https://github.com/openXC7/demo-projects/actions/runs/31263554216) | [smoke #7](https://github.com/openXC7/demo-projects/actions/runs/31263547825) | [smoke #6](https://github.com/openXC7/demo-projects/actions/runs/31263538282) | [smoke #5](https://github.com/openXC7/demo-projects/actions/runs/31250283089) | [smoke #4](https://github.com/openXC7/demo-projects/actions/runs/31248356376) | pass rate |
+| project | [heavy #3](https://github.com/openXC7/demo-projects/actions/runs/31293353410) | [smoke #11](https://github.com/openXC7/demo-projects/actions/runs/31264181125) | [smoke #10](https://github.com/openXC7/demo-projects/actions/runs/31263970790) | [smoke #9](https://github.com/openXC7/demo-projects/actions/runs/31263850143) | [smoke #8](https://github.com/openXC7/demo-projects/actions/runs/31263554216) | [smoke #7](https://github.com/openXC7/demo-projects/actions/runs/31263547825) | [smoke #6](https://github.com/openXC7/demo-projects/actions/runs/31263538282) | [smoke #5](https://github.com/openXC7/demo-projects/actions/runs/31250283089) | pass rate |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `blinky-allaboutfpga-edgez7-20` | · | · | · | · | · | · | · | · | — |
 | `blinky-digilent-arty` | · | · | · | · | · | · | · | · | — |
@@ -38,7 +38,7 @@ below is the same matrix, embedded and updated by CI.
 | `litex-ddr-qmtech-artix7` | · | · | · | · | · | · | · | · | — |
 | `litex-ddr-qmtech-kintex7` | · | · | · | · | · | · | · | · | — |
 | `litex-ddr-stlv7325` | · | · | · | · | · | · | · | · | — |
-| `matrix.project` | … | … | … | … | … | … | … | … | — |
+| `matrix.project` | · | … | … | … | … | … | … | … | — |
 | `picosoc` | · | · | · | · | · | · | · | · | — |
 | `projects-${{ matrix.family }}` | · | · | · | · | · | · | · | · | — |
 | `ps7-blinky-digilent-pynqz1` | · | · | · | · | · | · | · | · | — |
