@@ -39,6 +39,10 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+  id-token: write # FlakeHub cache OIDC auth (magic-nix-cache v8)
+
 concurrency:
   group: smoke-${{ github.ref }}
   cancel-in-progress: true
