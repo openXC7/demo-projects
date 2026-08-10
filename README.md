@@ -26,16 +26,16 @@ below is the same matrix, embedded and updated by CI.
 | `blinky-ypcb003381p1` | · | · | · | · | · | · | · | · | — |
 | `ddr3-test-arty-s7` | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125832) | · | · | · | · | · | · | 100% |
 | `hdmi-stlv7325` | · | · | · | · | · | · | · | · | — |
-| `litex-ddr-arty-s7` | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125844) | · | · | · | · | · | · | 0% |
-| `litex-ddr-enclustra-kx2` | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125833) | · | · | · | · | · | · | 100% |
-| `litex-ddr-hdmi-enclustra-kx2` | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125836) | · | · | · | · | · | · | 0% |
-| `litex-ddr-hdmi-stlv7325` | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125862) | · | · | · | · | · | · | 0% |
-| `litex-ddr-hpcstore-k420t` | · | · | · | · | · | · | · | · | — |
-| `litex-ddr-kc705` | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125825) | · | · | · | · | · | · | 0% |
-| `litex-ddr-qmtech-artix7` | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125837) | · | · | · | · | · | · | 0% |
-| `litex-ddr-qmtech-kintex7` | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125846) | · | · | · | · | · | · | 0% |
-| `litex-ddr-stlv7325` | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125831) | · | · | · | · | · | · | 0% |
-| `picosoc` | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125838) | · | · | · | · | · | · | 0% |
+| `litex-ddr-arty-s7` | [✖](https://github.com/openXC7/demo-projects/actions/runs/31354402270/job/93357355080) | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125844) | · | · | · | · | · | · | 0% |
+| `litex-ddr-enclustra-kx2` | [✔](https://github.com/openXC7/demo-projects/actions/runs/31354402270/job/93357355065) | [✔](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125833) | · | · | · | · | · | · | 100% |
+| `litex-ddr-hdmi-enclustra-kx2` | [✖](https://github.com/openXC7/demo-projects/actions/runs/31354402270/job/93357355039) | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125836) | · | · | · | · | · | · | 0% |
+| `litex-ddr-hdmi-stlv7325` | [✖](https://github.com/openXC7/demo-projects/actions/runs/31354402270/job/93357355066) | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125862) | · | · | · | · | · | · | 0% |
+| `litex-ddr-hpcstore-k420t` | [✖](https://github.com/openXC7/demo-projects/actions/runs/31354402270/job/93357355043) | · | · | · | · | · | · | · | 0% |
+| `litex-ddr-kc705` | [✖](https://github.com/openXC7/demo-projects/actions/runs/31354402270/job/93357355060) | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125825) | · | · | · | · | · | · | 0% |
+| `litex-ddr-qmtech-artix7` | [✖](https://github.com/openXC7/demo-projects/actions/runs/31354402270/job/93357355067) | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125837) | · | · | · | · | · | · | 0% |
+| `litex-ddr-qmtech-kintex7` | [✖](https://github.com/openXC7/demo-projects/actions/runs/31354402270/job/93357355036) | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125846) | · | · | · | · | · | · | 0% |
+| `litex-ddr-stlv7325` | [✔](https://github.com/openXC7/demo-projects/actions/runs/31354402270/job/93357355053) | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125831) | · | · | · | · | · | · | 50% |
+| `picosoc` | [✔](https://github.com/openXC7/demo-projects/actions/runs/31354402270/job/93357355049) | [✖](https://github.com/openXC7/demo-projects/actions/runs/31342025218/job/93330125838) | · | · | · | · | · | · | 50% |
 | `ps7-blinky-digilent-pynqz1` | · | · | · | · | · | · | · | · | — |
 
 ✔ pass · ✖ fail · … running / cancelled · · not in run. Newest run left. Cells link to the workflow job.
