@@ -23,6 +23,18 @@ JTAG_LINK ?= --board ${BOARD}
 
 XDC ?= ${PROJECT}.xdc
 
+# fasm2frames writes its target through a shell redirection, so a failure part-way
+# leaves a truncated .frames that is NEWER than its prerequisite. The next make then
+# skips regenerating it and feeds the partial file to xc7frames2bit, which happily
+# produces a normal-looking ~9.7 MB bitstream. It flashes, reports done 1, and the
+# board does nothing -- done 1 means configuration completed, not that the design works.
+# A CI matrix that checks only "was a .bit produced" reports green on exactly this.
+#
+# .DELETE_ON_ERROR makes make remove a target whose recipe failed, so the next run
+# rebuilds it instead of building on top of the wreckage. It covers .fasm, .json and
+# .bit as well, at no cost when nothing fails.
+.DELETE_ON_ERROR:
+
 .PHONY: all
 all: ${PROJECT}.bit
 
