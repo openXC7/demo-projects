@@ -1,9 +1,9 @@
 ################################################################################
 # IO constraints
 ################################################################################
-# cpu_reset:0
-set_property LOC C18 [get_ports {cpu_reset}]
-set_property IOSTANDARD LVCMOS33 [get_ports {cpu_reset}]
+# cpu_reset_n:0
+set_property LOC C18 [get_ports {cpu_reset_n}]
+set_property IOSTANDARD LVCMOS33 [get_ports {cpu_reset_n}]
 
 # clk100:0
 set_property LOC R2 [get_ports {clk100}]
@@ -297,7 +297,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports {user_led3}]
 # Design constraints
 ################################################################################
 
-#set_property INTERNAL_VREF 0.675 [get_iobanks 34]
+set_property INTERNAL_VREF 0.675 [get_iobanks 34]
 
 ################################################################################
 # Clock constraints
@@ -306,15 +306,15 @@ set_property IOSTANDARD LVCMOS33 [get_ports {user_led3}]
 
 create_clock -name clk100 -period 10.0 [get_ports clk100]
 
-#set_clock_groups -group [get_clocks -include_generated_clocks -of [get_nets sys_clk]] -group [get_clocks -include_generated_clocks -of [get_nets main_crg_clkin]] -asynchronous
-
 ################################################################################
 # False path constraints
 ################################################################################
 
 
-#set_false_path -quiet -through [get_nets -hierarchical -filter {mr_ff == TRUE}]
+set_false_path -quiet -to [get_cells -hierarchical -filter {mr_ff == TRUE}]
 
-#set_false_path -quiet -to [get_pins -filter {REF_PIN_NAME == PRE} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE || ars_ff2 == TRUE}]]
+set_false_path -quiet -to [get_pins -filter {REF_PIN_NAME == PRE} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE || ars_ff2 == TRUE}]]
 
-#set_max_delay 2 -quiet -from [get_pins -filter {REF_PIN_NAME == C} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE}]] -to [get_pins -filter {REF_PIN_NAME == D} -of_objects [get_cells -hierarchical -filter {ars_ff2 == TRUE}]]
+set_max_delay 2 -quiet -from [get_pins -filter {REF_PIN_NAME == C} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE}]] -to [get_pins -filter {REF_PIN_NAME == D} -of_objects [get_cells -hierarchical -filter {ars_ff2 == TRUE}]]
+
+set_clock_groups -group [get_clocks -of [get_nets sys_clk]] -group [get_clocks -of [get_nets main_crg_clkin_signal]] -asynchronous
