@@ -187,9 +187,13 @@ jobs:
           UPPER: ${{ matrix.upper }}
           PROJECT: ${{ matrix.project }}
           UPDATE_GOLDENS: ${{ inputs.update-goldens == true }}
+          # picosoc selects its part via BOARD (kx2 here); the other
+          # projects only use BOARD for the `program` target, which we
+          # never invoke in CI.
+          BOARD: kx2
         run: |
           export ${UPPER}_CHIPDB="$CHIPDB_DIR"
-          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF'
+          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF' 2>&1 | tee "$PROJECT/build.log"
             # xc7frames2bit stamps the .bit header with the build date/time,
             # so byte-exact hashes can never match across builds.  Blank the
             # header timestamp ('c'/'d' TLV sections) before hashing.
@@ -222,6 +226,17 @@ jobs:
               cp "$PROJECT"/*.bit "$GITHUB_WORKSPACE/regenerated-goldens/$PROJECT/"
             fi
           EOF
+
+      - name: Upload build artifacts (bitstream + log)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.project }}-artifacts
+          path: |
+            ${{ matrix.project }}/*.bit
+            ${{ matrix.project }}/build.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Upload regenerated golden bitstreams
         if: inputs.update-goldens == true
@@ -269,15 +284,17 @@ jobs:
       # uses the native GitHub Actions cache directly, no token needed.
       - uses: DeterminateSystems/magic-nix-cache-action@v6
 
-      - name: Determinism check
+      - name: Determinism check (two fresh builds)
         env:
           CHIPDB_DIR: ${{ github.workspace }}/chipdb
           UPPER: ${{ matrix.upper }}
           PROJECT: ${{ matrix.project }}
         run: |
           export ${UPPER}_CHIPDB="$CHIPDB_DIR"
-          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF'
+          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF' 2>&1 | tee "$PROJECT/build.log"
             normhash() { python3 .github/scripts/normbit.py "$1"; }
+            make -C "$PROJECT" clean
+            make -C "$PROJECT"
             first=$(normhash "$PROJECT"/*.bit)
             make -C "$PROJECT" clean
             make -C "$PROJECT"
@@ -288,6 +305,17 @@ jobs:
             fi
             echo "determinism ok: $PROJECT ($first)"
           EOF
+
+      - name: Upload build artifacts (bitstream + log)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: determinism-${{ matrix.project }}-artifacts
+          path: |
+            ${{ matrix.project }}/*.bit
+            ${{ matrix.project }}/build.log
+          if-no-files-found: warn
+          retention-days: 7
 
   # ---------------------------------------------------------------------
   # Stage 3: per-project results are visible in the job list itself:

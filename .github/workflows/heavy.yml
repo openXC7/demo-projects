@@ -142,14 +142,25 @@ jobs:
           CHIPDB_DIR: ${{ github.workspace }}/chipdb
           UPPER: ${{ matrix.upper }}
           PROJECT: ${{ matrix.project }}
-          # picosoc selects its part via BOARD (genesys2 here); the other
+          # picosoc selects its part via BOARD (kx2 here); the other
           # projects only use BOARD for the `program` target, which we
           # never invoke in CI.
-          BOARD: genesys2
+          BOARD: kx2
         run: |
           export ${UPPER}_CHIPDB="$CHIPDB_DIR"
-          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF'
+          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF' 2>&1 | tee "$PROJECT/build.log"
             echo "=== building $PROJECT (timeout 90 min) ==="
             timeout 5400 make -C "$PROJECT"
             ls -la "$PROJECT"/*.bit
           EOF
+
+      - name: Upload build artifacts (bitstream + log)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.project }}-artifacts
+          path: |
+            ${{ matrix.project }}/*.bit
+            ${{ matrix.project }}/build.log
+          if-no-files-found: warn
+          retention-days: 7
