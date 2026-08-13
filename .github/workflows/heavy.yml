@@ -27,7 +27,6 @@ concurrency:
 
 env:
   TOOLCHAIN_NIX_REPO: openXC7/toolchain-nix
-  VEXRISCV_REPO: SpinalHDL/VexRiscv
 
 jobs:
   # ---------------------------------------------------------------------
@@ -90,60 +89,45 @@ jobs:
           - family: kintex7
             upper: KINTEX7
             project: picosoc
-            vexriscv: false
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-kc705
-            vexriscv: true
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-stlv7325
-            vexriscv: false
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-enclustra-kx2
-            vexriscv: false
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-hdmi-stlv7325
-            vexriscv: true
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-hdmi-enclustra-kx2
-            vexriscv: true
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-qmtech-kintex7
-            vexriscv: true
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-hpcstore-k420t
-            vexriscv: false
           - family: artix7
             upper: ARTIX7
             project: litex-ddr-qmtech-artix7
-            vexriscv: true
-            # known-failing: BRAM/LUTFF legaliser spiral (a7-only)
           - family: artix7
             upper: ARTIX7
             project: litex-sata-alientek-davincipro
-            vexriscv: true
           - family: spartan7
             upper: SPARTAN7
             project: litex-ddr-arty-s7
-            vexriscv: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:
           repository: ${{ env.TOOLCHAIN_NIX_REPO }}
           path: toolchain-nix
-      # ../vexriscv is required by the projects that include VexRiscv.v
-      - uses: actions/checkout@v4
-        if: matrix.vexriscv
-        with:
-          repository: ${{ env.VEXRISCV_REPO }}
-          path: vexriscv
+      # The projects reference ../vexriscv/VexRiscv.v; the generated
+      # Verilog is vendored in this repo (upstream SpinalHDL/VexRiscv
+      # only ships the Scala sources), so no separate checkout.
       - uses: actions/download-artifact@v4
         with:
           name: chipdb-${{ matrix.family }}

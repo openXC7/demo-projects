@@ -21,9 +21,9 @@
 #   files as an artifact so they can be committed manually.
 #
 # Known-failing projects are kept in the matrix on purpose: the point of
-# the overview is to show their status.  litex-ddr-qmtech-artix7
-# currently fails in placement (BRAM/LUTFF legaliser spiral, see
-# tmp/bram-handoff.md in the kintex-reveng workspace).
+# the overview is to show their status.  litex-ddr-hpcstore-k420t
+# currently fails in placement (unable to find legal placement for a
+# data_mem grain cell on xc7k420t).
 
 name: smoke
 
@@ -46,7 +46,6 @@ concurrency:
 env:
   # Sibling repo used to build the toolchain. Change if you fork.
   TOOLCHAIN_NIX_REPO: openXC7/toolchain-nix
-  VEXRISCV_REPO: SpinalHDL/VexRiscv
 
 jobs:
   # ---------------------------------------------------------------------
@@ -140,7 +139,6 @@ jobs:
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-qmtech-kintex7
-            vexriscv: true
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-enclustra-kx2
@@ -150,38 +148,30 @@ jobs:
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-kc705
-            vexriscv: true
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-hdmi-stlv7325
-            vexriscv: true
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-hdmi-enclustra-kx2
-            vexriscv: true
           - family: kintex7
             upper: KINTEX7
             project: picosoc
           - family: artix7
             upper: ARTIX7
             project: litex-ddr-qmtech-artix7
-            # known-failing: BRAM/LUTFF legaliser spiral (a7-only)
           - family: artix7
             upper: ARTIX7
             project: litex-sata-alientek-davincipro
-            vexriscv: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:
           repository: ${{ env.TOOLCHAIN_NIX_REPO }}
           path: toolchain-nix
-      # ../vexriscv is required by the projects that include VexRiscv.v
-      - uses: actions/checkout@v4
-        if: matrix.vexriscv
-        with:
-          repository: ${{ env.VEXRISCV_REPO }}
-          path: vexriscv
+      # The projects reference ../vexriscv/VexRiscv.v; the generated
+      # Verilog is vendored in this repo (upstream SpinalHDL/VexRiscv
+      # only ships the Scala sources), so no separate checkout.
       - uses: actions/download-artifact@v4
         with:
           name: chipdb-${{ matrix.family }}
