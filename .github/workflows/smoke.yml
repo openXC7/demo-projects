@@ -192,6 +192,7 @@ jobs:
           # never invoke in CI.
           BOARD: kx2
         run: |
+          set -o pipefail
           export ${UPPER}_CHIPDB="$CHIPDB_DIR"
           nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF' 2>&1 | tee "$PROJECT/build.log"
             # xc7frames2bit stamps the .bit header with the build date/time,
@@ -226,6 +227,7 @@ jobs:
               cp "$PROJECT"/*.bit "$GITHUB_WORKSPACE/regenerated-goldens/$PROJECT/"
             fi
           EOF
+          exit $?
 
       - name: Upload build artifacts (bitstream + log)
         if: always()
@@ -290,6 +292,7 @@ jobs:
           UPPER: ${{ matrix.upper }}
           PROJECT: ${{ matrix.project }}
         run: |
+          set -o pipefail
           export ${UPPER}_CHIPDB="$CHIPDB_DIR"
           nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF' 2>&1 | tee "$PROJECT/build.log"
             normhash() { python3 .github/scripts/normbit.py "$1"; }
@@ -305,6 +308,7 @@ jobs:
             fi
             echo "determinism ok: $PROJECT ($first)"
           EOF
+          exit $?
 
       - name: Upload build artifacts (bitstream + log)
         if: always()
