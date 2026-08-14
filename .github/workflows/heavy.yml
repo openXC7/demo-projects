@@ -1,18 +1,19 @@
-# Heavy end-to-end test (Tier 1, slow projects)
+# Heavy end-to-end test: the slow project that smoke.yml cannot cover
 #
-# Nightly build of the big demo projects (picosoc, LiteX DDR designs).
-# Same toolchain + chipdb flow as smoke.yml, but these place-and-route
-# runs take tens of minutes each, so this runs on a schedule instead of
-# on every PR.  One job per project, so the nightly overview shows
-# exactly which subprojects succeed and fail.
+# Every demo project except litex-ddr-hpcstore-k420t is built by
+# smoke.yml on every push and PR.  hpcstore-k420t lives here alone: its
+# place-and-route currently fails (unable to find legal placement for a
+# data_mem grain cell on xc7k420t) and its runs far exceed the 120 min
+# per-job timeout in smoke.yml, so it gets a 360 min timeout here.
 #
-# Projects excluded here and why:
-#   vexriscv_smp: no Makefile
-#   blinky-colorlight: ECP5 (colorlight_i5), not a Xilinx 7-series project
+# Nightly cron is gated on repository activity: the run only proceeds
+# when at least one of the involved repos (demo-projects, toolchain-nix,
+# and the nextpnr-xilinx / prjxray sources toolchain-nix pins) received
+# commits within the previous 24h.  workflow_dispatch always runs.
 #
-# litex-ddr-hdmi-* are included: their Makefiles now take the db and
-# bbaexport paths from the devshell environment (PRJXRAY_DB_DIR,
-# NEXTPNR_XILINX_PYTHON_DIR) instead of the obsolete snap layout.
+# One job per project keeps the overview readable even though there is
+# only one project today; if another too-slow-for-smoke project appears,
+# add it to the matrix, not to smoke.yml.
 
 name: heavy
 
@@ -30,10 +31,41 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------
+  # Stage 0: activity gate for the nightly cron.  Checks the last 24h of
+  # commits in every repo the build depends on; the scheduled run skips
+  # the rest of the pipeline when nothing changed.  Manual dispatches
+  # always proceed.
+  # ---------------------------------------------------------------------
+  gate:
+    name: recent-changes
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - name: Check for commits in the last 24h
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          since="$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)"
+          repos="openXC7/demo-projects openXC7/toolchain-nix openXC7/nextpnr-xilinx openXC7/prjxray"
+          changed=no
+          for repo in $repos; do
+            count="$(gh api "repos/$repo/commits?since=$since&per_page=1" --jq 'length')"
+            echo "$repo: $count commit(s) in the last 24h"
+            if [ "$count" -gt 0 ]; then
+              changed=yes
+            fi
+          done
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------
   # Stage 1: chipdb for the families the heavy projects need.
   # ---------------------------------------------------------------------
   chipdb:
     name: chipdb-${{ matrix.family }}
+    needs: gate
+    if: github.event_name != 'schedule' || needs.gate.outputs.changed == 'yes'
     runs-on: ubuntu-latest
     timeout-minutes: 360
     strategy:
@@ -43,9 +75,7 @@ jobs:
           # The chipdb output contains one .bin per footprint (e.g.
           # xc7k325tffg900.bin), so we copy them all; each project
           # Makefile picks its part via ${UPPER}_CHIPDB.
-          - family: artix7
           - family: kintex7
-          - family: spartan7
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -88,37 +118,7 @@ jobs:
         include:
           - family: kintex7
             upper: KINTEX7
-            project: picosoc
-          - family: kintex7
-            upper: KINTEX7
-            project: litex-ddr-kc705
-          - family: kintex7
-            upper: KINTEX7
-            project: litex-ddr-stlv7325
-          - family: kintex7
-            upper: KINTEX7
-            project: litex-ddr-enclustra-kx2
-          - family: kintex7
-            upper: KINTEX7
-            project: litex-ddr-hdmi-stlv7325
-          - family: kintex7
-            upper: KINTEX7
-            project: litex-ddr-hdmi-enclustra-kx2
-          - family: kintex7
-            upper: KINTEX7
-            project: litex-ddr-qmtech-kintex7
-          - family: kintex7
-            upper: KINTEX7
             project: litex-ddr-hpcstore-k420t
-          - family: artix7
-            upper: ARTIX7
-            project: litex-ddr-qmtech-artix7
-          - family: artix7
-            upper: ARTIX7
-            project: litex-sata-alientek-davincipro
-          - family: spartan7
-            upper: SPARTAN7
-            project: litex-ddr-arty-s7
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4

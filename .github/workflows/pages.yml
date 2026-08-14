@@ -13,6 +13,12 @@
 # (zizmor: ignore[dangerous-triggers]); payload (job names, URLs) is
 # rendered only for runs on the default branch and escaped before
 # embedding.
+#
+# The nightly cron is gated on repository activity like heavy.yml: it
+# only proceeds when at least one involved repo (demo-projects,
+# toolchain-nix, nextpnr-xilinx, prjxray) received commits within the
+# previous 24h.  workflow_run and workflow_dispatch are event-driven
+# and always run.
 
 name: pages
 
@@ -36,7 +42,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Activity gate for the nightly cron; see heavy.yml Stage 0 for the
+  # rationale.  The other triggers are event-driven and always proceed.
+  gate:
+    name: recent-changes
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - name: Check for commits in the last 24h
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          since="$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)"
+          repos="openXC7/demo-projects openXC7/toolchain-nix openXC7/nextpnr-xilinx openXC7/prjxray"
+          changed=no
+          for repo in $repos; do
+            count="$(gh api "repos/$repo/commits?since=$since&per_page=1" --jq 'length')"
+            echo "$repo: $count commit(s) in the last 24h"
+            if [ "$count" -gt 0 ]; then
+              changed=yes
+            fi
+          done
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+
   matrix-report:
+    needs: gate
+    if: github.event_name != 'schedule' || needs.gate.outputs.changed == 'yes'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
