@@ -75,10 +75,9 @@ NON_PROJECT_DIRS = {"vexriscv"}
 def fetch_projects_from_tree() -> list[str]:
     """All demo projects: every top-level directory that contains a Makefile.
 
-    The dashboard lists the whole demo-projects tree (blinky-*, litex-ddr-*,
-    ...) so projects without a recent CI run still show up with "not in
-    this run" cells, instead of only the projects that happened to have
-    jobs in the last few runs.
+    Used only as a fallback when the workflow files are not available
+    (script run outside a repo checkout).  The CI build matrices are the
+    primary source; see fetch_projects_from_workflows().
     """
     data = fetch_json(f"repos/{REPO}/git/trees/{DEFAULT_BRANCH}?recursive=1")
     projects = set()
@@ -92,6 +91,33 @@ def fetch_projects_from_tree() -> list[str]:
                 continue
             projects.add(name)
     return sorted(projects)
+
+
+# `project: <name>` entries in the workflow build matrices.  Deliberately
+# a line regex instead of a YAML parse: the pages job runs on a stock
+# runner python3 without PyYAML, and the matrix entry shape is stable.
+PROJECT_KEY_RE = re.compile(r"^\s*project:\s+(\S+)\s*$")
+
+
+def fetch_projects_from_workflows() -> list[str]:
+    """Demo projects defined in the CI build matrices (smoke.yml, heavy.yml).
+
+    The matrix lists exactly what the CI builds; Makefile-bearing
+    directories that appear in no workflow (stale demos) are left out.
+    Falls back to the tree scan when the workflow files are absent.
+    """
+    projects: set[str] = set()
+    for rel in TRACKED_WORKFLOWS:
+        path = Path(".github/workflows") / rel
+        if not path.exists():
+            continue
+        for line in path.read_text().splitlines():
+            m = PROJECT_KEY_RE.match(line)
+            if m:
+                projects.add(m.group(1))
+    if projects:
+        return sorted(projects)
+    return fetch_projects_from_tree()
 
 
 def fetch_runs(path: str) -> list[dict]:
@@ -196,11 +222,14 @@ def build_data() -> tuple[dict[str, str], list[dict], list[str]]:
 
     runs.sort(key=lambda r: r["created_at"])
 
-    # The tree is the source of truth.  Job names from runs are NOT
-    # unioned in: runs made by older workflow versions carry template
-    # job names (e.g. "projects-${{ matrix.family }}", "matrix.project")
-    # that would show up as bogus projects.
-    projects = fetch_projects_from_tree()
+    # The CI build matrices are the source of truth: only projects the
+    # workflows actually build show up here.  Job names from runs are
+    # NOT unioned in: runs made by older workflow versions carry
+    # template job names (e.g. "projects-${{ matrix.family }}",
+    # "matrix.project") that would show up as bogus projects.
+    # Directories with a Makefile that no workflow builds (stale demos)
+    # are skipped.
+    projects = fetch_projects_from_workflows()
     return wf_names, runs, projects
 
 
