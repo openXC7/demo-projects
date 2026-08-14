@@ -16109,8 +16109,8 @@ OSERDESE2 #(
 	.SHIFTIN2(main_videos7hdmi10to1serializer0_shift[1]),
 	.TCE(1'd0),
 	.OQ(main_pad_o0),
-	.SHIFTOUT1(1'd0),
-	.SHIFTOUT2(1'd0)
+	.SHIFTOUT1(),
+	.SHIFTOUT2()
 );
 
 OSERDESE2 #(
@@ -16132,8 +16132,8 @@ OSERDESE2 #(
 	.D8(main_videos7hdmi10to1serializer0_data_s[7]),
 	.OCE(1'd1),
 	.RST(hdmi_rst),
-	.SHIFTIN1(1'd0),
-	.SHIFTIN2(1'd0),
+	.SHIFTIN1(),
+	.SHIFTIN2(),
 	.TCE(1'd0),
 	.OQ(main_videos7hdmi10to1serializer0),
 	.SHIFTOUT1(main_videos7hdmi10to1serializer0_shift[0]),
@@ -16169,8 +16169,8 @@ OSERDESE2 #(
 	.SHIFTIN2(main_videos7hdmi10to1serializer1_shift[1]),
 	.TCE(1'd0),
 	.OQ(main_pad_o1),
-	.SHIFTOUT1(1'd0),
-	.SHIFTOUT2(1'd0)
+	.SHIFTOUT1(),
+	.SHIFTOUT2()
 );
 
 OSERDESE2 #(
@@ -16192,8 +16192,8 @@ OSERDESE2 #(
 	.D8(main_videos7hdmi10to1serializer1_data_s[7]),
 	.OCE(1'd1),
 	.RST(hdmi_rst),
-	.SHIFTIN1(1'd0),
-	.SHIFTIN2(1'd0),
+	.SHIFTIN1(),
+	.SHIFTIN2(),
 	.TCE(1'd0),
 	.OQ(main_videos7hdmi10to1serializer1),
 	.SHIFTOUT1(main_videos7hdmi10to1serializer1_shift[0]),
@@ -16229,8 +16229,8 @@ OSERDESE2 #(
 	.SHIFTIN2(main_videos7hdmi10to1serializer2_shift[1]),
 	.TCE(1'd0),
 	.OQ(main_pad_o2),
-	.SHIFTOUT1(1'd0),
-	.SHIFTOUT2(1'd0)
+	.SHIFTOUT1(),
+	.SHIFTOUT2()
 );
 
 OSERDESE2 #(
@@ -16252,8 +16252,8 @@ OSERDESE2 #(
 	.D8(main_videos7hdmi10to1serializer2_data_s[7]),
 	.OCE(1'd1),
 	.RST(hdmi_rst),
-	.SHIFTIN1(1'd0),
-	.SHIFTIN2(1'd0),
+	.SHIFTIN1(),
+	.SHIFTIN2(),
 	.TCE(1'd0),
 	.OQ(main_videos7hdmi10to1serializer2),
 	.SHIFTOUT1(main_videos7hdmi10to1serializer2_shift[0]),
