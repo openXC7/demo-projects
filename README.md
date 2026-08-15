@@ -5,6 +5,7 @@ development boards. They are intended to give you a quick
 and easy template to use as a basis for your own projects,
 and also to demonstrate the current capabilites of the toolchain.
 
+[![NLnet Foundation](https://img.shields.io/badge/funded%20by-NLnet%20Foundation-74AA00)](https://nlnet.nl/)
 [![smoke](https://github.com/openXC7/demo-projects/actions/workflows/smoke.yml/badge.svg)](https://github.com/openXC7/demo-projects/actions/workflows/smoke.yml)
 [![test matrix](https://img.shields.io/badge/test%20matrix-dashboard-blue)](https://openXC7.github.io/demo-projects/)
 
