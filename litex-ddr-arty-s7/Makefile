@@ -5,7 +5,7 @@ PROJECT = digilent_arty_s7
 CHIPDB  = ${SPARTAN7_CHIPDB}
 
 VEXRISCV=../vexriscv
-ADDITIONAL_SOURCES=${VEXRISCV}/VexRiscv.v
+ADDITIONAL_SOURCES=${VEXRISCV}/VexRiscv_Min.v
 
 # PNR_ARGS = --freq 80
 
