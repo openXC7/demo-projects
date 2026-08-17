@@ -136,6 +136,9 @@ jobs:
           - family: spartan7
             upper: SPARTAN7
             project: litex-ddr-arty-s7
+          - family: spartan7
+            upper: SPARTAN7
+            project: litex-minimal-arty-s7
           - family: kintex7
             upper: KINTEX7
             project: litex-ddr-qmtech-kintex7
