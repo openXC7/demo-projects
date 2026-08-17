@@ -95,6 +95,46 @@ jobs:
           retention-days: 3
 
   # ---------------------------------------------------------------------
+  # Stage 1b: the nextpnr-xilinx regression suite.
+  #
+  # These cases were moved here from nextpnr-xilinx (that repo has no
+  # chipdb and no working CI) in openXC7/nextpnr-xilinx#118 -- but nothing
+  # was ever wired up to run them, so six cases guarding six fixed bugs
+  # have been executing nowhere. This job runs them.
+  #
+  # They need only yosys + nextpnr-xilinx + one artix7 chipdb, and stop at
+  # the FASM, so this is minutes rather than the hours the demo matrix takes.
+  # ---------------------------------------------------------------------
+  regression:
+    name: regression-suite
+    needs: chipdb
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TOOLCHAIN_NIX_REPO }}
+          path: toolchain-nix
+      - uses: actions/download-artifact@v4
+        with:
+          name: chipdb-artix7
+          path: chipdb
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v6
+
+      - name: Run the regression suite
+        run: |
+          ls -la chipdb
+          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF'
+            CHIPDB="$GITHUB_WORKSPACE/chipdb/xc7a200tfbg484.bin"
+            # An absent chipdb would make every case fail for the wrong
+            # reason, which reads the same as a real regression. Say so.
+            test -s "$CHIPDB" || { echo "::error::no artix7 chipdb at $CHIPDB"; exit 1; }
+            CHIPDB="$CHIPDB" regression/run.sh
+          EOF
+
+  # ---------------------------------------------------------------------
   # Stage 2a: one job per demo project.  The GitHub job list IS the
   # overview: green = the project builds to .bit, red = it does not.
   # ---------------------------------------------------------------------

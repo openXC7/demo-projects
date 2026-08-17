@@ -15,7 +15,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
-                                              iddr-four-iff-flops)
+                                              iddr-four-iff-flops iob-lvcmos33-drive-slew)
 fail=0
 for c in "${cases[@]}"; do
   d="$HERE/$c"
@@ -39,6 +39,18 @@ for c in "${cases[@]}"; do
       grep -qE -- "$pat" "$d/top.fasm" || { printf '  %-26s FAIL (fasm missing: %s)\n' "$c" "$pat"; miss=1; }
     done < "$d/expect.txt"
     [ "$miss" -eq 0 ] || { fail=1; continue; }
+  fi
+  # The mirror of expect.txt: patterns that must NOT appear. A fix that stops
+  # emitting a wrong bit is invisible to a "must contain" check, so those cases
+  # carry a reject.txt instead.
+  if [ -f "$d/reject.txt" ]; then
+    hit=0
+    while read -r pat; do
+      [ -z "$pat" ] && continue
+      if grep -qE -- "$pat" "$d/top.fasm"; then
+        printf '  %-26s FAIL (fasm contains: %s)\n' "$c" "$pat"; hit=1; fi
+    done < "$d/reject.txt"
+    [ "$hit" -eq 0 ] || { fail=1; continue; }
   fi
   printf '  %-26s ok  (%s)\n' "$c" "$(du -h "$d/top.fasm" | cut -f1)"
 done
