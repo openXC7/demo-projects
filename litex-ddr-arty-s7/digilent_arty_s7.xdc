@@ -297,7 +297,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports {user_led3}]
 # Design constraints
 ################################################################################
 
-#set_property INTERNAL_VREF 0.675 [get_iobanks 34]
+set_property INTERNAL_VREF 0.675 [get_iobanks 34]
 
 ################################################################################
 # Clock constraints
