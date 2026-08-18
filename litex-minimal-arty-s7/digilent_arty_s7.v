@@ -11,7 +11,7 @@
 // Device     : xc7s50csga324-1
 // Hierarchy  : disabled
 // LiteX sha1 : 2ad18a345
-// Date       : 2026-08-17 12:00:28
+// Date       : 2026-08-18 07:26:36
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -1175,7 +1175,7 @@ reg           main_a7ddrphy_dqspattern0 = 1'd0;
 reg           main_a7ddrphy_dqspattern1 = 1'd0;
 reg     [7:0] main_a7ddrphy_dqspattern_o0 = 8'd0;
 reg     [7:0] main_a7ddrphy_dqspattern_o1 = 8'd0;
-reg     [4:0] main_a7ddrphy_half_sys8x_taps_storage = 5'd13;
+reg     [4:0] main_a7ddrphy_half_sys8x_taps_storage = 5'd16;
 reg           main_a7ddrphy_half_sys8x_taps_wr_stb = 1'd0;
 wire    [2:0] main_a7ddrphy_pads_ba;
 reg           main_a7ddrphy_rddata_en_tappeddelayline0 = 1'd0;
@@ -2697,11 +2697,11 @@ wire    [1:0] main_basesoc_sdram_tfawcon_count;
 (* dont_touch = "true" *)
 reg           main_basesoc_sdram_tfawcon_ready = 1'd1;
 wire          main_basesoc_sdram_tfawcon_valid;
-reg     [3:0] main_basesoc_sdram_tfawcon_window = 4'd0;
+reg     [2:0] main_basesoc_sdram_tfawcon_window = 3'd0;
 reg     [4:0] main_basesoc_sdram_time0 = 5'd0;
 reg     [3:0] main_basesoc_sdram_time1 = 4'd0;
 wire    [8:0] main_basesoc_sdram_timer_count0;
-reg     [8:0] main_basesoc_sdram_timer_count1 = 9'd468;
+reg     [8:0] main_basesoc_sdram_timer_count1 = 9'd390;
 wire          main_basesoc_sdram_timer_done0;
 wire          main_basesoc_sdram_timer_done1;
 wire          main_basesoc_sdram_timer_wait;
@@ -2721,7 +2721,7 @@ reg           main_basesoc_sdram_zqcs_executer_done = 1'd0;
 reg           main_basesoc_sdram_zqcs_executer_start = 1'd0;
 reg     [4:0] main_basesoc_sdram_zqcs_executer_trigger = 5'd0;
 wire   [25:0] main_basesoc_sdram_zqcs_timer_count0;
-reg    [25:0] main_basesoc_sdram_zqcs_timer_count1 = 26'd59999999;
+reg    [25:0] main_basesoc_sdram_zqcs_timer_count1 = 26'd49999999;
 wire          main_basesoc_sdram_zqcs_timer_done0;
 wire          main_basesoc_sdram_zqcs_timer_done1;
 wire          main_basesoc_sdram_zqcs_timer_wait;
@@ -2935,7 +2935,7 @@ reg           main_basesoc_word_clr = 1'd0;
 reg           main_basesoc_word_inc = 1'd0;
 reg           main_basesoc_write_from_slave = 1'd0;
 reg     [3:0] main_chaser = 4'd0;
-reg    [22:0] main_count = 23'd7500000;
+reg    [22:0] main_count = 23'd6250000;
 (* dont_touch = "true" *)
 wire          main_crg_clkin_signal;
 wire          main_crg_clkout0;
@@ -6710,7 +6710,7 @@ assign main_basesoc_sdram_dfi_p2_odt = {1{main_basesoc_sdram_steerer9}};
 assign main_basesoc_sdram_dfi_p3_reset_n = 1'd1;
 assign main_basesoc_sdram_dfi_p3_cke = {1{main_basesoc_sdram_steerer10}};
 assign main_basesoc_sdram_dfi_p3_odt = {1{main_basesoc_sdram_steerer11}};
-assign main_basesoc_sdram_tfawcon_count = (((main_basesoc_sdram_tfawcon_window[0] + main_basesoc_sdram_tfawcon_window[1]) + main_basesoc_sdram_tfawcon_window[2]) + main_basesoc_sdram_tfawcon_window[3]);
+assign main_basesoc_sdram_tfawcon_count = ((main_basesoc_sdram_tfawcon_window[0] + main_basesoc_sdram_tfawcon_window[1]) + main_basesoc_sdram_tfawcon_window[2]);
 always @(*) begin
     builder_multiplexer_next_state = 4'd0;
     main_basesoc_sdram_choose_cmd_cmd_ready = 1'd0;
@@ -9243,9 +9243,9 @@ always @(posedge sys_clk) begin
     if (((main_basesoc_ram_bus_ram_bus_cyc & main_basesoc_ram_bus_ram_bus_stb) & ((~main_basesoc_ram_bus_ram_bus_ack) | main_basesoc_ram_adr_burst))) begin
         main_basesoc_ram_bus_ram_bus_ack <= 1'd1;
     end
-    {main_basesoc_uart_core_tx_tick, main_basesoc_uart_core_tx_phase} <= 23'h7dd441;
+    {main_basesoc_uart_core_tx_tick, main_basesoc_uart_core_tx_phase} <= 24'd9895604;
     if (main_basesoc_uart_core_tx_enable) begin
-        {main_basesoc_uart_core_tx_tick, main_basesoc_uart_core_tx_phase} <= (main_basesoc_uart_core_tx_phase + 23'h7dd441);
+        {main_basesoc_uart_core_tx_tick, main_basesoc_uart_core_tx_phase} <= (main_basesoc_uart_core_tx_phase + 24'd9895604);
     end
     builder_rs232phytx_state <= builder_rs232phytx_next_state;
     if (main_basesoc_uart_core_tx_count_rs232phytx_next_value_ce0) begin
@@ -9260,7 +9260,7 @@ always @(posedge sys_clk) begin
     main_basesoc_uart_core_rx_rx_d <= main_basesoc_uart_core_rx_rx;
     {main_basesoc_uart_core_rx_tick, main_basesoc_uart_core_rx_phase} <= 32'h80000000;
     if (main_basesoc_uart_core_rx_enable) begin
-        {main_basesoc_uart_core_rx_tick, main_basesoc_uart_core_rx_phase} <= (main_basesoc_uart_core_rx_phase + 23'h7dd441);
+        {main_basesoc_uart_core_rx_tick, main_basesoc_uart_core_rx_phase} <= (main_basesoc_uart_core_rx_phase + 24'd9895604);
     end
     builder_rs232phyrx_state <= builder_rs232phyrx_next_state;
     if (main_basesoc_uart_core_rx_count_rs232phyrx_next_value_ce0) begin
@@ -9615,7 +9615,7 @@ always @(posedge sys_clk) begin
     if ((main_basesoc_sdram_timer_wait & (~main_basesoc_sdram_timer_done0))) begin
         main_basesoc_sdram_timer_count1 <= (main_basesoc_sdram_timer_count1 - 1'd1);
     end else begin
-        main_basesoc_sdram_timer_count1 <= 9'd468;
+        main_basesoc_sdram_timer_count1 <= 9'd390;
     end
     main_basesoc_sdram_postponer_req_o <= 1'd0;
     if (main_basesoc_sdram_postponer_req_i) begin
@@ -9676,7 +9676,7 @@ always @(posedge sys_clk) begin
     if ((main_basesoc_sdram_zqcs_timer_wait & (~main_basesoc_sdram_zqcs_timer_done0))) begin
         main_basesoc_sdram_zqcs_timer_count1 <= (main_basesoc_sdram_zqcs_timer_count1 - 1'd1);
     end else begin
-        main_basesoc_sdram_zqcs_timer_count1 <= 26'd59999999;
+        main_basesoc_sdram_zqcs_timer_count1 <= 26'd49999999;
     end
     main_basesoc_sdram_zqcs_executer_done <= 1'd0;
     if ((main_basesoc_sdram_zqcs_executer_start & (main_basesoc_sdram_zqcs_executer_trigger == 1'd0))) begin
@@ -10921,7 +10921,7 @@ always @(posedge sys_clk) begin
             main_count <= (main_count - 1'd1);
         end
     end else begin
-        main_count <= 23'd7500000;
+        main_count <= 23'd6250000;
     end
     builder_wishbone2csr_state <= builder_wishbone2csr_next_state;
     if (builder_interface1_dat_w_wishbone2csr_next_value_ce0) begin
@@ -11344,7 +11344,7 @@ always @(posedge sys_clk) begin
         main_a7ddrphy_rst_wr_stb <= 1'd0;
         main_a7ddrphy_dly_sel_storage <= 2'd0;
         main_a7ddrphy_dly_sel_wr_stb <= 1'd0;
-        main_a7ddrphy_half_sys8x_taps_storage <= 5'd13;
+        main_a7ddrphy_half_sys8x_taps_storage <= 5'd16;
         main_a7ddrphy_half_sys8x_taps_wr_stb <= 1'd0;
         main_a7ddrphy_wlevel_en_storage <= 1'd0;
         main_a7ddrphy_wlevel_en_wr_stb <= 1'd0;
@@ -11466,13 +11466,13 @@ always @(posedge sys_clk) begin
         main_basesoc_sdram_dfi_p3_we_n <= 1'd1;
         main_basesoc_sdram_dfi_p3_wrdata_en <= 1'd0;
         main_basesoc_sdram_dfi_p3_rddata_en <= 1'd0;
-        main_basesoc_sdram_timer_count1 <= 9'd468;
+        main_basesoc_sdram_timer_count1 <= 9'd390;
         main_basesoc_sdram_postponer_req_o <= 1'd0;
         main_basesoc_sdram_postponer_count <= 1'd0;
         main_basesoc_sdram_sequencer_done1 <= 1'd0;
         main_basesoc_sdram_sequencer_trigger <= 6'd0;
         main_basesoc_sdram_sequencer_count <= 1'd0;
-        main_basesoc_sdram_zqcs_timer_count1 <= 26'd59999999;
+        main_basesoc_sdram_zqcs_timer_count1 <= 26'd49999999;
         main_basesoc_sdram_zqcs_executer_done <= 1'd0;
         main_basesoc_sdram_zqcs_executer_trigger <= 5'd0;
         main_basesoc_sdram_bankmachine0_level <= 4'd0;
@@ -11576,7 +11576,7 @@ always @(posedge sys_clk) begin
         main_basesoc_sdram_trrdcon_ready <= 1'd0;
         main_basesoc_sdram_trrdcon_count <= 1'd0;
         main_basesoc_sdram_tfawcon_ready <= 1'd1;
-        main_basesoc_sdram_tfawcon_window <= 4'd0;
+        main_basesoc_sdram_tfawcon_window <= 3'd0;
         main_basesoc_sdram_tccdcon_ready <= 1'd0;
         main_basesoc_sdram_tccdcon_count <= 1'd0;
         main_basesoc_sdram_twtrcon_ready <= 1'd0;
@@ -11588,7 +11588,7 @@ always @(posedge sys_clk) begin
         main_wr_stb <= 1'd0;
         main_chaser <= 4'd0;
         main_mode <= 1'd0;
-        main_count <= 23'd7500000;
+        main_count <= 23'd6250000;
         builder_interface1_re <= 1'd0;
         builder_interface1_we <= 1'd0;
         builder_selected_r <= 1'd0;
@@ -14634,17 +14634,17 @@ FDCE FDCE_7(
 //------------------------------------------------------------------------------
 PLLE2_ADV #(
 	// Parameters.
-	.CLKFBOUT_MULT  (4'd12),
+	.CLKFBOUT_MULT  (5'd16),
 	.CLKIN1_PERIOD  (10.0),
-	.CLKOUT0_DIVIDE (5'd20),
+	.CLKOUT0_DIVIDE (6'd32),
 	.CLKOUT0_PHASE  (1'd0),
-	.CLKOUT1_DIVIDE (4'd10),
+	.CLKOUT1_DIVIDE (5'd16),
 	.CLKOUT1_PHASE  (1'd0),
-	.CLKOUT2_DIVIDE (3'd5),
+	.CLKOUT2_DIVIDE (4'd8),
 	.CLKOUT2_PHASE  (1'd0),
-	.CLKOUT3_DIVIDE (3'd5),
+	.CLKOUT3_DIVIDE (4'd8),
 	.CLKOUT3_PHASE  (7'd90),
-	.CLKOUT4_DIVIDE (3'd6),
+	.CLKOUT4_DIVIDE (4'd8),
 	.CLKOUT4_PHASE  (1'd0),
 	.DIVCLK_DIVIDE  (1'd1),
 	.REF_JITTER1    (0.01),
@@ -15147,5 +15147,5 @@ FDPE #(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2026-08-17 12:00:29.
+//  Auto-Generated by LiteX on 2026-08-18 07:26:36.
 //------------------------------------------------------------------------------
