@@ -6,10 +6,14 @@
 # data_mem grain cell on xc7k420t) and its runs far exceed the 120 min
 # per-job timeout in smoke.yml, so it gets a 360 min timeout here.
 #
-# Nightly cron is gated on repository activity: the run only proceeds
-# when at least one of the involved repos (demo-projects, toolchain-nix,
-# and the nextpnr-xilinx / prjxray sources toolchain-nix pins) received
-# commits within the previous 24h.  workflow_dispatch always runs.
+# Nightly cron (02:15 UTC) is gated on commit activity since the last
+# completed heavy run.  The gate looks up the most recent completed run
+# of this workflow and proceeds only when one of the three repos the
+# heavy build depends on (demo-projects, toolchain-nix, nextpnr-xilinx)
+# received commits after that run.  The first run (no completed run
+# yet) always proceeds.  prjxray is deliberately NOT in the list: it
+# receives commits daily and previously made the gate always-true.
+# workflow_dispatch always runs.
 #
 # One job per project keeps the overview readable even though there is
 # only one project today; if another too-slow-for-smoke project appears,
@@ -30,11 +34,15 @@ env:
   TOOLCHAIN_NIX_REPO: openXC7/toolchain-nix
 
 jobs:
+
   # ---------------------------------------------------------------------
-  # Stage 0: activity gate for the nightly cron.  Checks the last 24h of
-  # commits in every repo the build depends on; the scheduled run skips
-  # the rest of the pipeline when nothing changed.  Manual dispatches
-  # always proceed.
+  # Stage 0: activity gate for the nightly cron.  Determines the most
+  # recent completed run of this workflow and checks for commits in the
+  # three repos the build depends on (demo-projects, toolchain-nix,
+  # nextpnr-xilinx) since that run.  Skips the pipeline when nothing
+  # changed; the first run (no prior completed run) always proceeds.
+  # Manual dispatches always proceed.  prjxray is excluded: its daily
+  # commits made the gate always-true.
   # ---------------------------------------------------------------------
   gate:
     name: recent-changes
@@ -42,17 +50,24 @@ jobs:
     outputs:
       changed: ${{ steps.check.outputs.changed }}
     steps:
-      - name: Check for commits in the last 24h
+      - name: Check for commits since the last completed run
         id: check
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          since="$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)"
-          repos="openXC7/demo-projects openXC7/toolchain-nix openXC7/nextpnr-xilinx openXC7/prjxray"
+          since="$(gh api "repos/${{ github.repository }}/actions/workflows/heavy.yml/runs?status=completed&per_page=1" --jq '.workflow_runs[0].created_at')"
+          # jq prints "null" (not empty) when there is no completed run yet.
+          if [ -z "$since" ] || [ "$since" = "null" ]; then
+            echo "no previous completed heavy run; forcing first run"
+            echo "changed=yes" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "last completed heavy run: $since"
+          repos="openXC7/nextpnr-xilinx openXC7/demo-projects openXC7/toolchain-nix"
           changed=no
           for repo in $repos; do
             count="$(gh api "repos/$repo/commits?since=$since&per_page=1" --jq 'length')"
-            echo "$repo: $count commit(s) in the last 24h"
+            echo "$repo: $count commit(s) since $since"
             if [ "$count" -gt 0 ]; then
               changed=yes
             fi
