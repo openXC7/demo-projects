@@ -14,28 +14,28 @@ the pass/fail status of every demo project across recent CI runs; the table
 below is the same matrix, embedded and updated by CI.
 
 <!-- matrix-report:start -->
-| project | [smoke #45](https://github.com/openXC7/demo-projects/actions/runs/32914112571) | [smoke #44](https://github.com/openXC7/demo-projects/actions/runs/32913207665) | [smoke #43](https://github.com/openXC7/demo-projects/actions/runs/32896616279) | [smoke #42](https://github.com/openXC7/demo-projects/actions/runs/32895118243) | [heavy #21](https://github.com/openXC7/demo-projects/actions/runs/32804160451) | [heavy #20](https://github.com/openXC7/demo-projects/actions/runs/32685761828) | [heavy #19](https://github.com/openXC7/demo-projects/actions/runs/32614802817) | [heavy #18](https://github.com/openXC7/demo-projects/actions/runs/32548005539) | pass rate |
+| project | [smoke #46](https://github.com/openXC7/demo-projects/actions/runs/32915148368) | [smoke #45](https://github.com/openXC7/demo-projects/actions/runs/32914112571) | [smoke #44](https://github.com/openXC7/demo-projects/actions/runs/32913207665) | [smoke #43](https://github.com/openXC7/demo-projects/actions/runs/32896616279) | [smoke #42](https://github.com/openXC7/demo-projects/actions/runs/32895118243) | [heavy #21](https://github.com/openXC7/demo-projects/actions/runs/32804160451) | [heavy #20](https://github.com/openXC7/demo-projects/actions/runs/32685761828) | [heavy #19](https://github.com/openXC7/demo-projects/actions/runs/32614802817) | pass rate |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `blinky-digilent-arty` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140864) | · | · | · | · | · | 100% |
-| `blinky-digilent-basys-3` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140822) | · | · | · | · | · | 100% |
-| `blinky-digilent-zybo` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140924) | · | · | · | · | · | 100% |
-| `blinky-genesys2` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140889) | · | · | · | · | · | 100% |
-| `blinky-kc705` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140836) | · | · | · | · | · | 100% |
-| `blinky-qmtech` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140851) | · | · | · | · | · | 100% |
-| `blinky-stlv7325` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140804) | · | · | · | · | · | 100% |
-| `ddr3-test-arty-s7` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140819) | · | · | · | · | · | 100% |
-| `litex-ddr-arty-s7` | · | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140837) | · | · | · | · | · | 0% |
-| `litex-ddr-enclustra-kx2` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140800) | · | · | · | · | · | 100% |
-| `litex-ddr-hdmi-enclustra-kx2` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140929) | · | · | · | · | · | 100% |
-| `litex-ddr-hdmi-stlv7325` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974141022) | · | · | · | · | · | 100% |
-| `litex-ddr-hpcstore-k420t` | · | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32804160451/job/97672141608) | [✔](https://github.com/openXC7/demo-projects/actions/runs/32685761828/job/97311593327) | [✔](https://github.com/openXC7/demo-projects/actions/runs/32614802817/job/97134500270) | [✔](https://github.com/openXC7/demo-projects/actions/runs/32548005539/job/96970973433) | 100% |
-| `litex-ddr-kc705` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974141067) | · | · | · | · | · | 100% |
-| `litex-ddr-qmtech-artix7` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974141005) | · | · | · | · | · | 100% |
-| `litex-ddr-qmtech-kintex7` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140835) | · | · | · | · | · | 100% |
-| `litex-ddr-stlv7325` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140956) | · | · | · | · | · | 100% |
-| `litex-minimal-arty-s7` | · | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140858) | · | · | · | · | · | 0% |
-| `litex-sata-alientek-davincipro` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974141020) | · | · | · | · | · | 100% |
-| `picosoc` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140999) | · | · | · | · | · | 100% |
+| `blinky-digilent-arty` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140864) | · | · | · | · | 100% |
+| `blinky-digilent-basys-3` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140822) | · | · | · | · | 100% |
+| `blinky-digilent-zybo` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140924) | · | · | · | · | 100% |
+| `blinky-genesys2` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140889) | · | · | · | · | 100% |
+| `blinky-kc705` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140836) | · | · | · | · | 100% |
+| `blinky-qmtech` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140851) | · | · | · | · | 100% |
+| `blinky-stlv7325` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140804) | · | · | · | · | 100% |
+| `ddr3-test-arty-s7` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140819) | · | · | · | · | 100% |
+| `litex-ddr-arty-s7` | · | · | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140837) | · | · | · | · | 0% |
+| `litex-ddr-enclustra-kx2` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140800) | · | · | · | · | 100% |
+| `litex-ddr-hdmi-enclustra-kx2` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140929) | · | · | · | · | 100% |
+| `litex-ddr-hdmi-stlv7325` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974141022) | · | · | · | · | 100% |
+| `litex-ddr-hpcstore-k420t` | · | · | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32804160451/job/97672141608) | [✔](https://github.com/openXC7/demo-projects/actions/runs/32685761828/job/97311593327) | [✔](https://github.com/openXC7/demo-projects/actions/runs/32614802817/job/97134500270) | 100% |
+| `litex-ddr-kc705` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974141067) | · | · | · | · | 100% |
+| `litex-ddr-qmtech-artix7` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974141005) | · | · | · | · | 100% |
+| `litex-ddr-qmtech-kintex7` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140835) | · | · | · | · | 100% |
+| `litex-ddr-stlv7325` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140956) | · | · | · | · | 100% |
+| `litex-minimal-arty-s7` | · | · | · | [✖](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140858) | · | · | · | · | 0% |
+| `litex-sata-alientek-davincipro` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974141020) | · | · | · | · | 100% |
+| `picosoc` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32896616279/job/97974140999) | · | · | · | · | 100% |
 
 ✔ pass · ✖ fail · … running / cancelled · · not in run. Newest run left. Cells link to the workflow job.
 
