@@ -132,6 +132,10 @@ jobs:
           - family: spartan7
             upper: SPARTAN7
             project: ddr3-test-arty-s7
+          # --- dsp-test: DSP #159 reproducer, serial-verified on board (no golden) ---
+          - family: spartan7
+            upper: SPARTAN7
+            project: dsp-test-arty-s7
           # --- litex-ddr / SoC-class demos (no goldens, gate on the build) ---
           - family: spartan7
             upper: SPARTAN7
