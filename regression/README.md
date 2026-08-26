@@ -14,15 +14,23 @@ One directory per fixed bug. Each design **failed before its patch** and builds 
 | `bufg-fabric-driven` | #111 | the placer aborted instead of pre-placing a BUFG driven from the fabric, so any design that divides or gates a clock in logic and re-buffers it failed to place |
 | `config-primitive-startupe2` | #113 | the single-site configuration primitives had no pre-placement, so instantiating `STARTUPE2` failed to place |
 | `iddr-four-iff-flops` | #115 | only Q1/Q2 of the four-flop IFF were initialised; on silicon the outputs then read Q1=0, Q2=1 despite both being programmed INIT=0 |
+| `dsp-const-only-pins` | #159 | INMODE0..4/ALUMODE2/3/OPMODE6 have no routing path into the DSP site and never got their tile constant bits, so the pins read as their complement on silicon and `INMODE[1]=1` gated the multiplier's A operand to zero |
+| `lut_shared_pin` | #158 | several logical inputs of one LUT that share a physical pin got their `X_ORIG_PORT_*` map written with the separator after each name (`"I1I3 "` instead of `"I1 I3"`); the FASM then encoded the pin as I0 and permuted the LUT's INIT in the bitstream, while the routed JSON, SDF and every simulation stayed correct |
 
 ## Running
 
 ```bash
-CHIPDB=/path/to/xc7a200t.bin regression/run.sh
+CHIPDB=/path/to/xc7a200tfbg484-2.bin regression/run.sh          # one chipdb for all cases
+CHIPDB_DIR=/path/to/chipdb-dir regression/run.sh                # per-case part.txt lookup
+CHIPDB=/path/to/xc7a200tfbg484-2.bin regression/run.sh dsp-const-only-pins
 ```
 
 Needs `yosys` and `nextpnr-xilinx` on `PATH`. **No hardware and no prjxray** — the pass
 criterion stops at the FASM, which is where all of these bugs bit.
+
+In `CHIPDB_DIR` mode each case declares its part in `part.txt` and the runner resolves
+`<part>.bin`; a case whose part is not in the directory is skipped. A run in which every
+case was skipped fails — it proved nothing.
 
 ## Why the pass criterion checks content, not just exit status
 
@@ -35,7 +43,7 @@ failing stage reports success — the same defect class as
 `.frames` yielded a normal-looking 9.7 MB bitstream that flashed, reported `done 1`, and left
 the board silent. An existence check whose negative is unobservable carries no information.
 
-## Two kinds of criterion
+## Three kinds of criterion
 
 Most cases pass on **a non-empty `.fasm`**, because the bug stopped the flow outright.
 
@@ -52,6 +60,24 @@ ILOGIC_Y[01]\.IFF\.ZINIT_Q4
 
 Any case may add an `expect.txt`; it is checked after the size check.
 
+`dsp-const-only-pins` needs the strongest form: presence alone is not enough, because a
+partially broken writer that ties only some of the eight pins would still match per-pin
+regexes. That case carries an executable `check.sh` instead; the runner exports `FASM` and
+the script's exit status is the verdict, so it can assert structure — here, *every* placed
+DSP site must carry all eight const-only pins tied, and a design that placed no DSP at all
+must fail. Any case may add a `check.sh`; it is checked after `expect.txt`.
+
+`lut_shared_pin` is a third shape of `check.sh`: the bug is in a metadata attribute of the
+**routed JSON**, not in the FASM bytes, so the runner also writes `top_routed.json` and
+exports `CASE_DIR`; the case's `check.sh` runs `check_orig_port.py` on that JSON.  A
+`check.sh` may therefore use `$FASM` or `$CASE_DIR/top_routed.json`, whichever exposes the
+bug.
+
+A case that needs DSP inference replaces the runner's default synthesis flags
+(`-flatten -abc9 -nocarry -nodsp`) with its own via `synth_flags` — `dsp-const-only-pins`
+drops `-nodsp`, without which the design would infer no DSP and the check would fail even
+with the fix.
+
 ## Still missing: #109
 
 `set_multicycle_path` being parsed and silently dropped **does not stop the build**, so neither
@@ -66,8 +92,16 @@ Keep the I/O minimal: `bram-sdp-unused-port` drives its address and data from in
 counters, so it needs three pins and almost no constraints, which leaves the feature under
 test as the only interesting thing in the design.
 
+Optional per-case files, all read by `run.sh`: `part.txt` (part for `CHIPDB_DIR` mode),
+`synth_flags` (replaces the default synthesis flags), `expect.txt` (required FASM regexes),
+`check.sh` (executable custom check; sees `$FASM` and `$CASE_DIR/top_routed.json`).
+
 Constraints use `xc7a200tfbg484-2` pins (ALINX AX7203), resolved from `prjxray-db`
-`package_pins.csv`. Another part needs its own `.xdc`.
+`package_pins.csv`. Another part needs its own `.xdc` and a matching `part.txt`.
+
+`lut_shared_pin` targets `xc7z010clg400` (zynq7) — its `part.txt` and zynq7 CLG400 `.xdc`
+differ from the artix7 cases — so it runs under `CHIPDB_DIR` mode (`chipdb/xc7z010clg400.bin`
+is committed here) or with an explicit zynq7 `CHIPDB`, not the single-`CHIPDB` artix7 mode.
 
 ## What is lost by living here, and the mitigation
 
@@ -84,6 +118,7 @@ If `nextpnr-xilinx` gains CI, moving them back becomes the better trade.
 
 ## Chipdb
 
-The runner takes `CHIPDB` from the environment and hard-codes no part, so it fits whatever
-this repository's CI already caches. For reference, `xc7a200tfbg484-2` costs a 939 MB `.bba`
-and a 318 MB `.bin`, which is why the chipdb is generated rather than committed.
+The runner takes a single `CHIPDB` file and hard-codes no part, so it fits whatever this
+repository's CI already caches; with `CHIPDB_DIR` it resolves each case's `part.txt`. For
+reference, `xc7a200tfbg484-2` costs a 939 MB `.bba` and a 318 MB `.bin`, which is why the
+chipdb is generated rather than committed.
