@@ -1,7 +1,7 @@
 # End-to-end toolchain test (Tiers 1 + 2)
 #
 # 1. Builds the full toolchain (nextpnr-xilinx + prjxray + fasm + chipdb)
-#    from the latest toolchain-nix flake.
+#    from the pinned toolchain-nix revision (TOOLCHAIN_NIX_REV).
 # 2. Builds every demo project to a .bit file
 #    (yosys -> nextpnr-xilinx -> fasm2frames -> xc7frames2bit).
 #    One job per project, so the CI overview shows exactly which
@@ -46,6 +46,10 @@ concurrency:
 env:
   # Sibling repo used to build the toolchain. Change if you fork.
   TOOLCHAIN_NIX_REPO: openXC7/toolchain-nix
+  # Single source of truth for the toolchain revision: both jobs (chipdb
+  # and project) MUST resolve this exact rev. Bump it and regenerate the
+  # golden bitstreams together (update-goldens input).
+  TOOLCHAIN_NIX_REV: d4b6b0074ab839957082d6b2b26fd9a156df5bee
 
 jobs:
   # ---------------------------------------------------------------------
@@ -68,10 +72,6 @@ jobs:
           - family: zynq7
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ env.TOOLCHAIN_NIX_REPO }}
-          path: toolchain-nix
       - uses: DeterminateSystems/nix-installer-action@v14
       # v6: the last release before the FlakeHub cache requirement --
       # uses the native GitHub Actions cache directly, no token needed.
@@ -81,7 +81,7 @@ jobs:
         id: build
         run: |
           set -euo pipefail
-          OUT=$(nix build ./toolchain-nix#nextpnr-xilinx-chipdb.${{ matrix.family }} \
+          OUT=$(nix build "github:${TOOLCHAIN_NIX_REPO}/${TOOLCHAIN_NIX_REV}#nextpnr-xilinx-chipdb.${{ matrix.family }}" \
             --print-out-paths --no-link)
           mkdir -p "$GITHUB_WORKSPACE/stage"
           cp "$OUT"/*.bin "$GITHUB_WORKSPACE/stage/"
@@ -168,10 +168,6 @@ jobs:
             project: litex-sata-alientek-davincipro
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ env.TOOLCHAIN_NIX_REPO }}
-          path: toolchain-nix
       # The projects reference ../vexriscv/VexRiscv.v; the generated
       # Verilog is vendored in this repo (upstream SpinalHDL/VexRiscv
       # only ships the Scala sources), so no separate checkout.
@@ -197,7 +193,7 @@ jobs:
         run: |
           set -o pipefail
           export ${UPPER}_CHIPDB="$CHIPDB_DIR"
-          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF' 2>&1 | tee "$PROJECT/build.log"
+          nix develop "github:${TOOLCHAIN_NIX_REPO}/${TOOLCHAIN_NIX_REV}" --command bash -euxo pipefail <<'EOF' 2>&1 | tee "$PROJECT/build.log"
             # xc7frames2bit stamps the .bit header with the build date/time,
             # so byte-exact hashes can never match across builds.  Blank the
             # header timestamp ('c'/'d' TLV sections) before hashing.
@@ -276,10 +272,6 @@ jobs:
             project: ddr3-test-arty-s7
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ env.TOOLCHAIN_NIX_REPO }}
-          path: toolchain-nix
       - uses: actions/download-artifact@v4
         with:
           name: chipdb-${{ matrix.family }}
@@ -297,7 +289,7 @@ jobs:
         run: |
           set -o pipefail
           export ${UPPER}_CHIPDB="$CHIPDB_DIR"
-          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF' 2>&1 | tee "$PROJECT/build.log"
+          nix develop "github:${TOOLCHAIN_NIX_REPO}/${TOOLCHAIN_NIX_REV}" --command bash -euxo pipefail <<'EOF' 2>&1 | tee "$PROJECT/build.log"
             normhash() { python3 .github/scripts/normbit.py "$1"; }
             make -C "$PROJECT" clean
             make -C "$PROJECT"
@@ -323,6 +315,35 @@ jobs:
             ${{ matrix.project }}/build.log
           if-no-files-found: warn
           retention-days: 7
+
+  # ---------------------------------------------------------------------
+  # Stage 2c: xc7 FASM regression cases (regression/run.sh) against the
+  # pinned toolchain and the freshly built artix7 chipdb.  Fast and
+  # hardware-free: the checks stop at the FASM, which is where these
+  # bugs bit.
+  # ---------------------------------------------------------------------
+  regression:
+    name: regression
+    needs: chipdb
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: chipdb-artix7
+          path: chipdb
+      - uses: DeterminateSystems/nix-installer-action@v14
+      # v6: the last release before the FlakeHub cache requirement --
+      # uses the native GitHub Actions cache directly, no token needed.
+      - uses: DeterminateSystems/magic-nix-cache-action@v6
+
+      - name: Run xc7 regression cases
+        env:
+          CHIPDB_DIR: ${{ github.workspace }}/chipdb
+        run: |
+          nix develop "github:${TOOLCHAIN_NIX_REPO}/${TOOLCHAIN_NIX_REV}" --command bash -euxo pipefail -c \
+            'export CHIPDB_DIR="$CHIPDB_DIR"; regression/run.sh'
 
   # ---------------------------------------------------------------------
   # Stage 3: per-project results are visible in the job list itself:

@@ -32,6 +32,10 @@ concurrency:
 
 env:
   TOOLCHAIN_NIX_REPO: openXC7/toolchain-nix
+  # Single source of truth for the toolchain revision: both jobs (chipdb
+  # and project) MUST resolve this exact rev. Bump it and regenerate the
+  # golden bitstreams together (update-goldens input).
+  TOOLCHAIN_NIX_REV: d4b6b0074ab839957082d6b2b26fd9a156df5bee
 
 jobs:
 
@@ -93,10 +97,6 @@ jobs:
           - family: kintex7
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ env.TOOLCHAIN_NIX_REPO }}
-          path: toolchain-nix
       - uses: DeterminateSystems/nix-installer-action@v14
       # v6: the last release before the FlakeHub cache requirement --
       # uses the native GitHub Actions cache directly, no token needed.
@@ -106,7 +106,7 @@ jobs:
         id: build
         run: |
           set -euo pipefail
-          OUT=$(nix build ./toolchain-nix#nextpnr-xilinx-chipdb.${{ matrix.family }} \
+          OUT=$(nix build "github:${TOOLCHAIN_NIX_REPO}/${TOOLCHAIN_NIX_REV}#nextpnr-xilinx-chipdb.${{ matrix.family }}" \
             --print-out-paths --no-link)
           mkdir -p "$GITHUB_WORKSPACE/stage"
           cp "$OUT"/*.bin "$GITHUB_WORKSPACE/stage/"
@@ -136,10 +136,6 @@ jobs:
             project: litex-ddr-hpcstore-k420t
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ env.TOOLCHAIN_NIX_REPO }}
-          path: toolchain-nix
       # The projects reference ../vexriscv/VexRiscv.v; the generated
       # Verilog is vendored in this repo (upstream SpinalHDL/VexRiscv
       # only ships the Scala sources), so no separate checkout.
@@ -164,7 +160,7 @@ jobs:
         run: |
           set -o pipefail
           export ${UPPER}_CHIPDB="$CHIPDB_DIR"
-          nix develop ./toolchain-nix --command bash -euxo pipefail <<'EOF' 2>&1 | tee "$PROJECT/build.log"
+          nix develop "github:${TOOLCHAIN_NIX_REPO}/${TOOLCHAIN_NIX_REV}" --command bash -euxo pipefail <<'EOF' 2>&1 | tee "$PROJECT/build.log"
             echo "=== building $PROJECT (timeout 90 min) ==="
             timeout 5400 make -C "$PROJECT"
             ls -la "$PROJECT"/*.bit
