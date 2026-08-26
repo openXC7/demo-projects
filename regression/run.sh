@@ -43,12 +43,18 @@ for c in "${cases[@]}"; do
   [ -d "$d" ] || { printf '  %-26s NO SUCH CASE\n' "$c"; fail=1; continue; }
 
   # Chipdb resolution: an explicit CHIPDB wins; otherwise look the case's
-  # part.txt up in CHIPDB_DIR and skip the case when its part is missing.
+  # part.txt up in CHIPDB_DIR.  part.txt carries the full speedgrade-suffixed
+  # name (xc7a200tfbg484-2), but the toolchain-nix family chipdb artifacts
+  # strip the speedgrade (xc7a200tfbg484.bin); the demos.yml gate's bbaexport
+  # chipdb keeps it.  Try the exact name first, then the stripped form, and
+  # only skip when neither exists.
   chipdb="${CHIPDB:-}"
   if [ -z "$chipdb" ]; then
     part="$(cat "$d/part.txt" 2>/dev/null || true)"
     if [ -n "$part" ] && [ -f "${CHIPDB_DIR:-}/$part.bin" ]; then
       chipdb="$CHIPDB_DIR/$part.bin"
+    elif [ -n "$part" ] && [ -f "${CHIPDB_DIR:-}/${part%-*}.bin" ]; then
+      chipdb="$CHIPDB_DIR/${part%-*}.bin"
     else
       printf '  %-26s SKIP (no %s.bin in CHIPDB_DIR)\n' "$c" "${part:-<part.txt>}"
       continue
