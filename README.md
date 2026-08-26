@@ -29,7 +29,7 @@ below is the same matrix, embedded and updated by CI.
 | `litex-ddr-enclustra-kx2` | · | · | · | … | [✔](https://github.com/openXC7/demo-projects/actions/runs/32917670664/job/98031454891) | · | · | · | 100% |
 | `litex-ddr-hdmi-enclustra-kx2` | · | · | · | … | [✔](https://github.com/openXC7/demo-projects/actions/runs/32917670664/job/98031454814) | · | · | · | 100% |
 | `litex-ddr-hdmi-stlv7325` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32922582203/job/98046406135) | [✔](https://github.com/openXC7/demo-projects/actions/runs/32917670664/job/98031454911) | · | · | · | 100% |
-| `litex-ddr-hpcstore-k420t` | · | · | · | · | · | · | · | · | — |
+| `litex-ddr-hpcstore-k420t` | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32925792236/job/98055487989) | · | · | · | · | · | 100% |
 | `litex-ddr-kc705` | · | · | · | … | [✔](https://github.com/openXC7/demo-projects/actions/runs/32917670664/job/98031454816) | · | · | · | 100% |
 | `litex-ddr-qmtech-artix7` | · | · | · | … | [✔](https://github.com/openXC7/demo-projects/actions/runs/32917670664/job/98031454985) | · | · | · | 100% |
 | `litex-ddr-qmtech-kintex7` | · | · | · | [✔](https://github.com/openXC7/demo-projects/actions/runs/32922582203/job/98046406182) | [✔](https://github.com/openXC7/demo-projects/actions/runs/32917670664/job/98031454829) | · | · | · | 100% |
