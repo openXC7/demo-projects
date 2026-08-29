@@ -15,8 +15,8 @@ One directory per fixed bug. Each design **failed before its patch** and builds 
 | `config-primitive-startupe2` | #113 | the single-site configuration primitives had no pre-placement, so instantiating `STARTUPE2` failed to place |
 | `iddr-four-iff-flops` | #115 | only Q1/Q2 of the four-flop IFF were initialised; on silicon the outputs then read Q1=0, Q2=1 despite both being programmed INIT=0 |
 | `dsp-const-only-pins` | #159 | **disabled — expected-red until #159 lands in nextpnr-xilinx main.** INMODE0..4/ALUMODE2/3/OPMODE6 have no routing path into the DSP site and never got their tile constant bits, so the pins read as their complement on silicon and `INMODE[1]=1` gated the multiplier's A operand to zero |
-| `lut_shared_pin` | #158 | **disabled — expected-red until #158 lands in nextpnr-xilinx main.** several logical inputs of one LUT that share a physical pin got their `X_ORIG_PORT_*` map written with the separator after each name (`"I1I3 "` instead of `"I1 I3"`); the FASM then encoded the pin as I0 and permuted the LUT's INIT in the bitstream, while the routed JSON, SDF and every simulation stayed correct |
-The default run executes **5** cases (the table rows that are not marked disabled). The two disabled rows are expected-red until their fixes land in `nextpnr-xilinx` main; pass them explicitly (e.g. `run.sh dsp-const-only-pins`) to run them, and re-enable them in the default list once merged.
+| `lut_shared_pin` | #158 | several logical inputs of one LUT that share a physical pin got their `X_ORIG_PORT_*` map written with the separator after each name (`"I1I3 "` instead of `"I1 I3"`); the FASM then encoded the pin as I0 and permuted the LUT's INIT in the bitstream, while the routed JSON, SDF and every simulation stayed correct |
+The default run executes **6** cases (all table rows except the one marked disabled). `dsp-const-only-pins` (#159) remains disabled — expected-red until its fix lands in `nextpnr-xilinx` main; pass it explicitly (`run.sh dsp-const-only-pins`) to run it, and re-enable it in the default list once merged.
 
 ## Running
 

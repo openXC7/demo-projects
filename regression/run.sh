@@ -32,12 +32,12 @@ if [ -z "${CHIPDB:-}" ] && [ -z "${CHIPDB_DIR:-}" ]; then
     exit 2
 fi
 
-# dsp-const-only-pins (#159) and lut_shared_pin (#158) are expected-red until
-# their fixes land in nextpnr-xilinx main; disabled from the default run, pass
-# them explicitly to run.  Re-enable when merged.
+# dsp-const-only-pins (#159) is still expected-red until its fix lands in
+# nextpnr-xilinx main; disabled from the default run, pass it explicitly to
+# run.  lut_shared_pin (#158) landed in main (7cfd1e90) and is re-enabled.
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
-                                              iddr-four-iff-flops)
+                                              iddr-four-iff-flops lut_shared_pin)
 fail=0
 ran=0
 for c in "${cases[@]}"; do
