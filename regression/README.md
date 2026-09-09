@@ -17,7 +17,8 @@ One directory per fixed bug. Each design **failed before its patch** and builds 
 | `dsp-const-only-pins` | #159 | **disabled — expected-red until #159 lands in nextpnr-xilinx main.** INMODE0..4/ALUMODE2/3/OPMODE6 have no routing path into the DSP site and never got their tile constant bits, so the pins read as their complement on silicon and `INMODE[1]=1` gated the multiplier's A operand to zero |
 | `lut_shared_pin` | #158 | several logical inputs of one LUT that share a physical pin got their `X_ORIG_PORT_*` map written with the separator after each name (`"I1I3 "` instead of `"I1 I3"`); the FASM then encoded the pin as I0 and permuted the LUT's INIT in the bitstream, while the routed JSON, SDF and every simulation stayed correct |
 | `fdse-fdpe-undefined-init` | #179 | an FDSE/FDPE whose INIT parameter is *present but undefined* (`x`) was read as INIT=0 — `int_or_default` only falls back to the type default when the key is absent — so the FF got a ZINI feature and powered up 0 on silicon instead of the primitive's INIT=1 default (a Vivado netlist omits the parameter and was already handled; a yosys netlist leaves `INIT=x`) |
-The default run executes **7** cases (all table rows except the one marked disabled). `dsp-const-only-pins` (#159) remains disabled — expected-red until its fix lands in `nextpnr-xilinx` main; pass it explicitly (`run.sh dsp-const-only-pins`) to run it, and re-enable it in the default list once merged. `fdse-fdpe-undefined-init` (#179) landed in main and is re-enabled.
+| `const-holdout` | #184 | **disabled — expected-red until #184 lands in nextpnr-xilinx main.** the post-router constant fill counted a sink it could not reach and moved on, so the pin's IMUX stayed unprogrammed, which reads 1 on xc7; GND-tied RAM32M address bits then floated high and the 16-deep FIFO wrote at 16–31 while reading at 0–15, with a clean exit 0. The check walks the routed JSON: every GND-tied RAMD32 `A<k>`/`WA<k>` pin must be reached at its slice site pin by the GND net or by a constant-0 holdout LUT |
+The default run executes **7** cases (all table rows except the two marked disabled). `dsp-const-only-pins` (#159) and `const-holdout` (#184) are disabled — expected-red until their fixes land in `nextpnr-xilinx` main; pass either explicitly (`run.sh dsp-const-only-pins`, `run.sh const-holdout`) to run it, and re-enable it in the default list once merged. `fdse-fdpe-undefined-init` (#179) landed in main and is re-enabled.
 
 ## Running
 
@@ -73,7 +74,9 @@ must fail. Any case may add a `check.sh`; it is checked after `expect.txt`.
 **routed JSON**, not in the FASM bytes, so the runner also writes `top_routed.json` and
 exports `CASE_DIR`; the case's `check.sh` runs `check_orig_port.py` on that JSON.  A
 `check.sh` may therefore use `$FASM` or `$CASE_DIR/top_routed.json`, whichever exposes the
-bug.
+bug.  `const-holdout` is a fourth: `check_const_pins.py` asserts completeness over the
+routed JSON — *every* GND-tied RAMD32 address pin, not just some, must be delivered at its
+slice site pin — because a design that dropped only a few pins is exactly the bug.
 
 A case that needs DSP inference replaces the runner's default synthesis flags
 (`-flatten -abc9 -nocarry -nodsp`) with its own via `synth_flags` — `dsp-const-only-pins`
@@ -95,8 +98,10 @@ counters, so it needs three pins and almost no constraints, which leaves the fea
 test as the only interesting thing in the design.
 
 Optional per-case files, all read by `run.sh`: `part.txt` (part for `CHIPDB_DIR` mode),
-`synth_flags` (replaces the default synthesis flags), `expect.txt` (required FASM regexes),
-`check.sh` (executable custom check; sees `$FASM` and `$CASE_DIR/top_routed.json`).
+`synth_flags` (replaces the default synthesis flags), `nextpnr_flags` (extra
+nextpnr-xilinx flags, e.g. `--seed 1` when the bug is seed-dependent),
+`expect.txt` (required FASM regexes), `check.sh` (executable custom check; sees `$FASM`
+and `$CASE_DIR/top_routed.json`).
 
 Constraints use `xc7a200tfbg484-2` pins (ALINX AX7203), resolved from `prjxray-db`
 `package_pins.csv`. Another part needs its own `.xdc` and a matching `part.txt`.
@@ -104,6 +109,8 @@ Constraints use `xc7a200tfbg484-2` pins (ALINX AX7203), resolved from `prjxray-d
 `lut_shared_pin` targets `xc7z010clg400` (zynq7) — its `part.txt` and zynq7 CLG400 `.xdc`
 differ from the artix7 cases — so it runs under `CHIPDB_DIR` mode (`chipdb/xc7z010clg400.bin`
 is committed here) or with an explicit zynq7 `CHIPDB`, not the single-`CHIPDB` artix7 mode.
+`const-holdout` targets `xc7a35tcsg324-1` (Arty A7 pins) — the part the nextpnr-xilinx
+`demos.yml` gate already builds a chipdb for, so the case runs on the CI's artix7 row.
 
 ## What is lost by living here, and the mitigation
 

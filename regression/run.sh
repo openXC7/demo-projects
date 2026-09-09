@@ -9,6 +9,8 @@
 #                by the runner).  A DSP case drops "-nodsp".
 #   part.txt     the part whose chipdb the case needs, e.g. xc7a200tfbg484-2;
 #                used only in CHIPDB_DIR mode.
+#   nextpnr_flags  extra nextpnr-xilinx flags appended to the runner's fixed
+#                command line, e.g. "--seed 1" for a seed-dependent bug.
 #   expect.txt   regexes that must all appear in the produced .fasm.
 #   check.sh     executable custom check; receives FASM=<path> and
 #                CASE_DIR=<path> (which holds top_routed.json), and its
@@ -32,10 +34,10 @@ if [ -z "${CHIPDB:-}" ] && [ -z "${CHIPDB_DIR:-}" ]; then
     exit 2
 fi
 
-# dsp-const-only-pins (#159) is still expected-red until its fix lands in
-# nextpnr-xilinx main; disabled from the default run, pass it explicitly to
-# run.  lut_shared_pin (#158) and fdse-fdpe-undefined-init (#179) both
-# landed in main (7cfd1e90, 3ad30f57) and are re-enabled.
+# dsp-const-only-pins (#159) and const-holdout (#184) are expected-red until
+# their fixes land in nextpnr-xilinx main; disabled from the default run, pass
+# them explicitly to run.  lut_shared_pin (#158) and fdse-fdpe-undefined-init
+# (#179) both landed in main (7cfd1e90, 3ad30f57) and are re-enabled.
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
                                               iddr-four-iff-flops lut_shared_pin \
@@ -68,12 +70,14 @@ for c in "${cases[@]}"; do
   rm -f "$d/top.json" "$d/top.fasm" "$d/top_routed.json"
   synth_flags="-flatten -abc9 -nocarry -nodsp"
   [ -f "$d/synth_flags" ] && synth_flags="$(cat "$d/synth_flags")"
+  nextpnr_flags=""
+  [ -f "$d/nextpnr_flags" ] && nextpnr_flags="$(cat "$d/nextpnr_flags")"
   if ! yosys -q -p "read_verilog $d/top.v; \
         synth_xilinx $synth_flags -family xc7 -top top; \
         write_json $d/top.json" >"$d/yosys.log" 2>&1; then
     printf '  %-26s FAIL (synthesis) - %s\n' "$c" "$d/yosys.log"; fail=1; continue; fi
   if ! nextpnr-xilinx --chipdb "$chipdb" --xdc "$d/top.xdc" --json "$d/top.json" \
-        --write "$d/top_routed.json" --fasm "$d/top.fasm" --timing-allow-fail >"$d/nextpnr.log" 2>&1; then
+        --write "$d/top_routed.json" --fasm "$d/top.fasm" $nextpnr_flags --timing-allow-fail >"$d/nextpnr.log" 2>&1; then
     printf '  %-26s FAIL (place/route/fasm) - %s\n' "$c" "$d/nextpnr.log"; fail=1; continue; fi
   # An existing but empty target is how a failed stage reports success. Check content.
   [ -s "$d/top.fasm" ] || { printf '  %-26s FAIL (empty .fasm)\n' "$c"; fail=1; continue; }
