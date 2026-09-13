@@ -41,3 +41,19 @@ below is the same matrix, embedded and updated by CI.
 ✔ pass · ✖ fail · … running / cancelled · · not in run. Newest run left. Cells link to the workflow job.
 
 <!-- matrix-report:end -->
+
+## Hardware checks
+
+The matrix above is hardware-free: it proves a bitstream builds, not that it
+behaves. Two demos ship a host-side console check to run against a real board.
+These are manual checks by design — CI has no board attached, so nothing here
+runs in a workflow; flash the design and run the script yourself.
+
+- `dsp-test-arty-s7/verify.py` — captures the UART (115200 8N1) and checks
+  `p == a*b` on every snapshot line, which is the signature of
+  nextpnr-xilinx#159's missing DSP tile-constant bits.
+- `ddr3-test-arty-s7/verify.py` — drives the controller's UART bridge
+  (9600 8N1: write bytes `'a'..'z'`, read them back with `'A'..'Z'`) and
+  checks the write/read-back pairs. A served read proves the controller
+  reached DONE_CALIBRATE and that data survives the DDR3 round trip; the four
+  debug LEDs only show the calibration state and cannot be scripted.
