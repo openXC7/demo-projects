@@ -36,13 +36,13 @@ fi
 
 # dsp-const-only-pins (#159), const-holdout (#184) and lutram-ram64x1s (#195)
 # are expected-red until their fixes land in nextpnr-xilinx main; disabled from
-# the default run, pass them explicitly to run.  lut_shared_pin (#158) and
-# fdse-fdpe-undefined-init (#179) both landed in main (7cfd1e90, 3ad30f57) and
-# are re-enabled.
+# the default run, pass them explicitly to run.  lut_shared_pin (#158),
+# fdse-fdpe-undefined-init (#179) and lutram-clkinv (#201) are green and run by
+# default.
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
                                               iddr-four-iff-flops lut_shared_pin \
-                                              fdse-fdpe-undefined-init)
+                                              fdse-fdpe-undefined-init lutram-clkinv)
 fail=0
 ran=0
 for c in "${cases[@]}"; do

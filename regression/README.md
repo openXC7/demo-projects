@@ -19,7 +19,8 @@ One directory per fixed bug. Each design **failed before its patch** and builds 
 | `fdse-fdpe-undefined-init` | #179 | an FDSE/FDPE whose INIT parameter is *present but undefined* (`x`) was read as INIT=0 — `int_or_default` only falls back to the type default when the key is absent — so the FF got a ZINI feature and powered up 0 on silicon instead of the primitive's INIT=1 default (a Vivado netlist omits the parameter and was already handled; a yosys netlist leaves `INIT=x`) |
 | `const-holdout` | #184 | **disabled — expected-red until #184 lands in nextpnr-xilinx main.** the post-router constant fill counted a sink it could not reach and moved on, so the pin's IMUX stayed unprogrammed, which reads 1 on xc7; GND-tied RAM32M address bits then floated high and the 16-deep FIFO wrote at 16–31 while reading at 0–15, with a clean exit 0. The check walks the routed JSON: every GND-tied RAMD32 `A<k>`/`WA<k>` pin must be reached at its slice site pin by the GND net or by a constant-0 holdout LUT |
 | `lutram-ram64x1s` | #195 | **disabled — expected-red until #195 lands in nextpnr-xilinx main.** a 64-deep distributed RAM (`reg [W-1:0] m [0:63]`, one shared read/write address) is inferred by yosys as `RAM64X1S` — one cell per data bit — which `dram_types` knew about but the dispatch chain had no arm for, so packing aborted with `Cannot pack unsupported primitive: RAM64X1S` and no bitstream was produced. Its `check.sh` asserts the shape of the fix (8 LUT-RAMs in 2 SLICEM sites, 4 per slice, no `WA7USED`/`WA8USED` write-address mux), because a partial fix can still exit 0 with a plausible-looking FASM |
-The default run executes **7** cases (all table rows except the three marked disabled). `dsp-const-only-pins` (#159), `const-holdout` (#184) and `lutram-ram64x1s` (#195) are disabled — expected-red until their fixes land in `nextpnr-xilinx` main; pass any of them explicitly (`run.sh dsp-const-only-pins`, `run.sh const-holdout`, `run.sh lutram-ram64x1s`) to run it, and re-enable it in the default list once merged. `fdse-fdpe-undefined-init` (#179) landed in main and is re-enabled.
+| `lutram-clkinv` | #201 | a LUT-RAM whose write clock is inverted (`IS_WCLK_INVERTED = 1`, i.e. the `RAM64X1S_1` Unisim variants and Vivado-imported netlists) never reached the half-slice's `CLKINV` bit, which is shared with the FFs: the flow packed, placed, routed and wrote a FASM byte-identical to the non-inverted design and exited 0, so the memory wrote on the opposite clock edge on silicon. Its `check.sh` asserts the `SLICEM_X0` half-slice programs `CLKINV` and not `NOCLKINV` while the 64x1 RAM mode bits are still emitted |
+The default run executes **8** cases (all table rows except the three marked disabled). `dsp-const-only-pins` (#159), `const-holdout` (#184) and `lutram-ram64x1s` (#195) are disabled — expected-red until their fixes land in `nextpnr-xilinx` main; pass any of them explicitly (`run.sh dsp-const-only-pins`, `run.sh const-holdout`, `run.sh lutram-ram64x1s`) to run it, and re-enable it in the default list once merged. `fdse-fdpe-undefined-init` (#179) landed in main and is re-enabled, as is `lutram-clkinv` (#201).
 
 ## Running
 
@@ -82,6 +83,10 @@ slice site pin — because a design that dropped only a few pins is exactly the 
 SLICEM LUT-RAMs, in how many sites, and that no 128/256-deep write-address mux is
 programmed) rather than mere presence, since a partial fix emits a FASM that looks
 plausible and exits 0.
+
+`lutram-clkinv` is of that same kind: pre-fix the flow exited 0 with a FASM identical to the
+non-inverted design, so its `check.sh` asserts that the half-slice holding the RAM programs
+`CLKINV` and not `NOCLKINV`, and that the 64x1 mode bits are still emitted.
 
 A case that needs DSP inference replaces the runner's default synthesis flags
 (`-flatten -abc9 -nocarry -nodsp`) with its own via `synth_flags` — `dsp-const-only-pins`
