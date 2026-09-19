@@ -45,13 +45,20 @@ below is the same matrix, embedded and updated by CI.
 ## Hardware checks
 
 The matrix above is hardware-free: it proves a bitstream builds, not that it
-behaves. Two demos ship a host-side console check to run against a real board.
+behaves. Three demos ship a host-side console check to run against a real board.
 These are manual checks by design — CI has no board attached, so nothing here
 runs in a workflow; flash the design and run the script yourself.
 
 - `dsp-test-arty-s7/verify.py` — captures the UART (115200 8N1) and checks
   `p == a*b` on every snapshot line, which is the signature of
   nextpnr-xilinx#159's missing DSP tile-constant bits.
+- `lutram-test-arty-s7/verify.py` — checks a 64 x 8 distributed RAM, which
+  yosys infers as 8 x `RAM64X1S` in 2 SLICEM sites (nextpnr-xilinx#195: those
+  used to abort at packing). Four write/read passes (address-as-data,
+  complement, and two mixed patterns) are re-derived host-side from the
+  streamed `p<a> a=<addr> d=<data> e=<on-chip error count>` lines, so a packer
+  that agrees with itself still fails. This demo cannot be built by the pinned
+  toolchain until #195 is released, so it is not in the matrix yet.
 - `ddr3-test-arty-s7/verify.py` — drives the controller's UART bridge
   (9600 8N1: write bytes `'a'..'z'`, read them back with `'A'..'Z'`) and
   checks the write/read-back pairs. A served read proves the controller
