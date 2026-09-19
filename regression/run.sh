@@ -34,15 +34,16 @@ if [ -z "${CHIPDB:-}" ] && [ -z "${CHIPDB_DIR:-}" ]; then
     exit 2
 fi
 
-# dsp-const-only-pins (#159), const-holdout (#184) and lutram-ram64x1s (#195)
-# are expected-red until their fixes land in nextpnr-xilinx main; disabled from
-# the default run, pass them explicitly to run.  lut_shared_pin (#158),
-# fdse-fdpe-undefined-init (#179) and lutram-clkinv (#201) are green and run by
-# default.
+# dsp-const-only-pins (#159) is expected-red until its fix lands in
+# nextpnr-xilinx main; disabled from the default run, pass it explicitly
+# (run.sh dsp-const-only-pins).  Everything else has landed and runs by default:
+# lut_shared_pin (#158), fdse-fdpe-undefined-init (#179), const-holdout (#184),
+# lutram-ram64x1s (#195, fixed by #196) and lutram-clkinv (#201).
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
                                               iddr-four-iff-flops lut_shared_pin \
-                                              fdse-fdpe-undefined-init lutram-clkinv)
+                                              fdse-fdpe-undefined-init const-holdout \
+                                              lutram-ram64x1s lutram-clkinv)
 fail=0
 ran=0
 for c in "${cases[@]}"; do
