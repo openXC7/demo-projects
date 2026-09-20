@@ -43,7 +43,9 @@ cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-p
                                               bufg-fabric-driven config-primitive-startupe2 \
                                               iddr-four-iff-flops lut_shared_pin \
                                               fdse-fdpe-undefined-init const-holdout \
-                                              lutram-ram64x1s lutram-clkinv)
+                                              lutram-ram64x1s lutram-clkinv \
+                                              srl-init xorigport-unknown-name \
+                                              srl-wemux dup-package-pin)
 fail=0
 ran=0
 for c in "${cases[@]}"; do
@@ -80,7 +82,22 @@ for c in "${cases[@]}"; do
     printf '  %-26s FAIL (synthesis) - %s\n' "$c" "$d/yosys.log"; fail=1; continue; fi
   if ! nextpnr-xilinx --chipdb "$chipdb" --xdc "$d/top.xdc" --json "$d/top.json" \
         --write "$d/top_routed.json" --fasm "$d/top.fasm" $nextpnr_flags --timing-allow-fail >"$d/nextpnr.log" 2>&1; then
-    printf '  %-26s FAIL (place/route/fasm) - %s\n' "$c" "$d/nextpnr.log"; fail=1; continue; fi
+    # An expected-fail case (e.g. the duplicate-package-pin warning) declares
+    # nextpnr's non-zero exit as the expected outcome and lets its check.sh read
+    # nextpnr.log for the verdict.
+    if [ -f "$d/expect_fail" ]; then
+      if [ -x "$d/check.sh" ]; then
+        if ! FASM="$d/top.fasm" CASE_DIR="$d" bash "$d/check.sh" >"$d/check.log" 2>&1; then
+          printf '  %-26s FAIL (check.sh) - %s\n' "$c" "$d/check.log"; fail=1; continue
+        fi
+        ran=$((ran+1))
+        printf '  %-26s ok  (expected-fail + check.sh)\n' "$c"
+        continue
+      fi
+      printf '  %-26s FAIL (expected-fail case has no check.sh)\n' "$c"; fail=1; continue
+    fi
+    printf '  %-26s FAIL (place/route/fasm) - %s\n' "$c" "$d/nextpnr.log"; fail=1; continue
+  fi
   # An existing but empty target is how a failed stage reports success. Check content.
   [ -s "$d/top.fasm" ] || { printf '  %-26s FAIL (empty .fasm)\n' "$c"; fail=1; continue; }
   # Some fixes changed which bits are emitted, not whether the flow completes. Those

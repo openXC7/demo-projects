@@ -1,0 +1,7 @@
+create_clock -period 10.000 -name clk [get_ports clk]
+set_property PACKAGE_PIN R4 [get_ports clk]
+set_property PACKAGE_PIN T6 [get_ports o16]
+set_property PACKAGE_PIN R6 [get_ports o32]
+set_property IOSTANDARD LVCMOS33 [get_ports clk]
+set_property IOSTANDARD LVCMOS33 [get_ports o16]
+set_property IOSTANDARD LVCMOS33 [get_ports o32]
