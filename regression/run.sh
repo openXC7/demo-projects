@@ -45,7 +45,9 @@ cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-p
                                               fdse-fdpe-undefined-init const-holdout \
                                               lutram-ram64x1s lutram-clkinv \
                                               srl-init xorigport-unknown-name \
-                                              srl-wemux dup-package-pin)
+                                              srl-wemux dup-package-pin \
+                                              bufio-in-use bufr-pad-site \
+                                              bufr-sink-region bufh-clock-constraint)
 fail=0
 ran=0
 for c in "${cases[@]}"; do
@@ -76,12 +78,18 @@ for c in "${cases[@]}"; do
   [ -f "$d/synth_flags" ] && synth_flags="$(cat "$d/synth_flags")"
   nextpnr_flags=""
   [ -f "$d/nextpnr_flags" ] && nextpnr_flags="$(cat "$d/nextpnr_flags")"
+  # A placement-level case (e.g. a regional-buffer legality check whose I pin
+  # cannot route until the chipdb is regenerated) carries an empty `no_route`
+  # marker: it stops after placement and asserts NEXTPNR_BEL in the placed
+  # JSON instead of a FASM.
+  no_route=""
+  [ -f "$d/no_route" ] && no_route="--no-route"
   if ! yosys -q -p "read_verilog $d/top.v; \
         synth_xilinx $synth_flags -family xc7 -top top; \
         write_json $d/top.json" >"$d/yosys.log" 2>&1; then
     printf '  %-26s FAIL (synthesis) - %s\n' "$c" "$d/yosys.log"; fail=1; continue; fi
   if ! nextpnr-xilinx --chipdb "$chipdb" --xdc "$d/top.xdc" --json "$d/top.json" \
-        --write "$d/top_routed.json" --fasm "$d/top.fasm" $nextpnr_flags --timing-allow-fail >"$d/nextpnr.log" 2>&1; then
+        --write "$d/top_routed.json" --fasm "$d/top.fasm" $nextpnr_flags $no_route --timing-allow-fail >"$d/nextpnr.log" 2>&1; then
     # An expected-fail case (e.g. the duplicate-package-pin warning) declares
     # nextpnr's non-zero exit as the expected outcome and lets its check.sh read
     # nextpnr.log for the verdict.
@@ -99,7 +107,12 @@ for c in "${cases[@]}"; do
     printf '  %-26s FAIL (place/route/fasm) - %s\n' "$c" "$d/nextpnr.log"; fail=1; continue
   fi
   # An existing but empty target is how a failed stage reports success. Check content.
-  [ -s "$d/top.fasm" ] || { printf '  %-26s FAIL (empty .fasm)\n' "$c"; fail=1; continue; }
+  if [ -n "$no_route" ]; then
+    # Placement-level case: the artefact is the placed JSON, not a FASM.
+    [ -s "$d/top_routed.json" ] || { printf '  %-26s FAIL (empty placed json)\n' "$c"; fail=1; continue; }
+  else
+    [ -s "$d/top.fasm" ] || { printf '  %-26s FAIL (empty .fasm)\n' "$c"; fail=1; continue; }
+  fi
   # Some fixes changed which bits are emitted, not whether the flow completes. Those
   # cases carry an expect.txt of regexes that must all appear in the FASM.
   if [ -f "$d/expect.txt" ]; then
@@ -117,7 +130,11 @@ for c in "${cases[@]}"; do
     fi
   fi
   ran=$((ran+1))
-  printf '  %-26s ok  (%s)\n' "$c" "$(du -h "$d/top.fasm" | cut -f1)"
+  if [ -n "$no_route" ]; then
+    printf '  %-26s ok  (%s placed)\n' "$c" "$(du -h "$d/top_routed.json" | cut -f1)"
+  else
+    printf '  %-26s ok  (%s)\n' "$c" "$(du -h "$d/top.fasm" | cut -f1)"
+  fi
 done
 # A run where every case was skipped proved nothing -- the chipdb set covers
 # no case's part.  That must not read as a pass.
