@@ -49,7 +49,7 @@ env:
   # Single source of truth for the toolchain revision: both jobs (chipdb
   # and project) MUST resolve this exact rev. Bump it and regenerate the
   # golden bitstreams together (update-goldens input).
-  TOOLCHAIN_NIX_REV: 3fa6f4941b825bf986169fc6587f8f933bfd9b11
+  TOOLCHAIN_NIX_REV: 22340424724131a273b30c4d04b0dd13ccaa8a45
 
 jobs:
   # ---------------------------------------------------------------------
