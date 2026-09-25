@@ -46,10 +46,21 @@ ${PROJECT}.json: ${TOP_VERILOG} ${ADDITIONAL_SOURCES}
 	yosys -p "synth_xilinx -flatten -abc9 ${SYNTH_OPTS} -arch xc7 -top ${TOP_MODULE}; write_json ${PROJECT}.json" $< ${ADDITIONAL_SOURCES}
 
 # The chip database only needs to be generated once
-# that is why we don't clean it with make clean
+# that is why we don't clean it with make clean.
+#
+# The engine generates a database per DIE, not per part, so derive the die
+# from PART with the same device class the parser uses -- including its one
+# alias, xc7a35t served by the xc7a50t database.  CI pre-builds the databases
+# and points CHIPDB at that directory, so this rule never fires there; in a
+# devshell CHIPDB is unset and the database is built here on first use.
 ${CHIPDB}/${DBPART}.bin:
-	${PYPY3} ${NEXTPNR_XILINX_PYTHON_DIR}/bbaexport.py --device ${PART} --bba ${DBPART}.bba
-	bbasm -l ${DBPART}.bba ${CHIPDB}/${DBPART}.bin
+	mkdir -p ${CHIPDB}
+	DIE=$$(echo ${PART} | sed -E 's/^(xc7(s[0-9]+t?|a[0-9]+t|k[0-9]+t|z[0-9]+t?|v[xh]?[0-9]+t)).*/\1/'); \
+	if [ "$$DIE" = xc7a35t ]; then DIE=xc7a50t; fi; \
+	echo "generating chipdb for $$DIE (${PART})"; \
+	python3 ${NEXTPNR_XILINX_DIR}/share/nextpnr/himbaechel/uarch/xilinx/gen/xilinx_gen.py \
+	    --xray ${PRJXRAY_DB_DIR}/${FAMILY} --device $$DIE --bba ${DBPART}.bba
+	${NEXTPNR_XILINX_DIR}/bin/bbasm -l ${DBPART}.bba ${CHIPDB}/${DBPART}.bin
 	rm -f ${DBPART}.bba
 
 ${PROJECT}.fasm: ${PROJECT}.json ${CHIPDB}/${DBPART}.bin ${XDC}
