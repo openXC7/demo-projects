@@ -23,16 +23,16 @@ JTAG_LINK ?= --board ${BOARD}
 
 XDC ?= ${PROJECT}.xdc
 
-# fasm2frames writes its target through a shell redirection, so a failure part-way
-# leaves a truncated .frames that is NEWER than its prerequisite. The next make then
-# skips regenerating it and feeds the partial file to xc7frames2bit, which happily
-# produces a normal-looking ~9.7 MB bitstream. It flashes, reports done 1, and the
-# board does nothing -- done 1 means configuration completed, not that the design works.
-# A CI matrix that checks only "was a .bit produced" reports green on exactly this.
+# fpga-as writes its target through a shell redirection, so a failure part-way
+# leaves a truncated .bit that is NEWER than its prerequisite. The next make then
+# skips regenerating it, and a truncated bitstream flashes, reports done 1, and
+# the board does nothing -- done 1 means configuration completed, not that the
+# design works. A CI matrix that checks only "was a .bit produced" reports green
+# on exactly this.
 #
-# .DELETE_ON_ERROR makes make remove a target whose recipe failed, so the next run
-# rebuilds it instead of building on top of the wreckage. It covers .fasm, .json and
-# .bit as well, at no cost when nothing fails.
+# .DELETE_ON_ERROR makes make remove a target whose recipe failed, so the next
+# run rebuilds it instead of building on top of the wreckage. It covers .fasm,
+# .json and .bit as well, at no cost when nothing fails.
 .DELETE_ON_ERROR:
 
 .PHONY: all
@@ -66,11 +66,14 @@ ${CHIPDB}/${DBPART}.bin:
 ${PROJECT}.fasm: ${PROJECT}.json ${CHIPDB}/${DBPART}.bin ${XDC}
 	nextpnr-xilinx --chipdb ${CHIPDB}/${DBPART}.bin --xdc ${XDC} --json ${PROJECT}.json --fasm $@ ${PNR_ARGS} ${PNR_DEBUG}
 	
-${PROJECT}.frames: ${PROJECT}.fasm
-	fasm2frames --part ${PART} --db-root ${PRJXRAY_DB_DIR}/${FAMILY} $< > $@
-
-${PROJECT}.bit: ${PROJECT}.frames
-	xc7frames2bit --part_file ${PRJXRAY_DB_DIR}/${FAMILY}/${PART}/part.yaml --part_name ${PART} --frm_file $< --output_file $@
+# fpga-as assembles the FASM into the bitstream in one process, where
+# fasm2frames and xc7frames2bit needed two plus the .frames file between them.
+# Its frames match that pair's on the designs in this repo -- artix7, kintex7,
+# spartan7 and zynq7, compared frame by frame through its --dump_frames_file,
+# bar two words in each of two transceiver frames of
+# litex-sata-alientek-davincipro -- and it is 9x to 120x faster doing it.
+${PROJECT}.bit: ${PROJECT}.fasm
+	fpga-as --prjxray_db_path=${PRJXRAY_DB_DIR}/${FAMILY} --part ${PART} $< > $@
 
 .PHONY: clean
 clean:

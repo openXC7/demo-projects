@@ -3,7 +3,7 @@
 # 1. Builds the full toolchain (nextpnr-xilinx + prjxray + fasm + chipdb)
 #    from the pinned toolchain-nix revision (TOOLCHAIN_NIX_REV).
 # 2. Builds every demo project to a .bit file
-#    (yosys -> nextpnr-xilinx -> fasm2frames -> xc7frames2bit).
+#    (yosys -> nextpnr-xilinx -> fpga-as).
 #    One job per project, so the CI overview shows exactly which
 #    subprojects in demo-projects succeed and fail.
 # 3. Compares regenerated .bit files against the golden .bit files
@@ -49,7 +49,7 @@ env:
   # Single source of truth for the toolchain revision: both jobs (chipdb
   # and project) MUST resolve this exact rev. Bump it and regenerate the
   # golden bitstreams together (update-goldens input).
-  TOOLCHAIN_NIX_REV: e3df10cec952d1e97d28bd9a398f7d5fd6a55519
+  TOOLCHAIN_NIX_REV: 22340424724131a273b30c4d04b0dd13ccaa8a45
 
 jobs:
   # ---------------------------------------------------------------------
@@ -63,9 +63,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # The chipdb output contains one .bin per footprint (e.g.
-          # xc7k325tffg900.bin), so we copy them all; each project
-          # Makefile picks its part via ${UPPER}_CHIPDB.
+          # The chipdb derivation installs one .bin per footprint (e.g.
+          # xc7k325tffg900.bin), each a relative symlink to its die's
+          # database; each project Makefile picks its part via
+          # ${UPPER}_CHIPDB.  A family travels as one tar (see the build
+          # step), so the symlinks survive the round trip.
           - family: artix7
           - family: kintex7
           - family: spartan7
@@ -83,8 +85,16 @@ jobs:
           set -euo pipefail
           OUT=$(nix build "github:${TOOLCHAIN_NIX_REPO}/${TOOLCHAIN_NIX_REV}#nextpnr-xilinx-chipdb.${{ matrix.family }}" \
             --print-out-paths --no-link)
+          # One .bin per footprint, each a relative symlink to its die's
+          # database.  Tar rather than copy: `cp` dereferences the links and
+          # stages a full copy under every part name (kintex7: 1.2 GB for
+          # 252 MB of data), and upload-artifact's symlink handling is
+          # version-dependent (v4.3.5 changed it and broke pipelines), while a
+          # tar member list is exactly what the derivation installed -- links
+          # included.  The one archive also uploads and downloads far faster
+          # than the copies.
           mkdir -p "$GITHUB_WORKSPACE/stage"
-          cp "$OUT"/*.bin "$GITHUB_WORKSPACE/stage/"
+          ( cd "$OUT" && tar -cf "$GITHUB_WORKSPACE/stage/chipdb-${{ matrix.family }}.tar" *.bin )
           ls -la "$GITHUB_WORKSPACE/stage"
           echo "stage=$GITHUB_WORKSPACE/stage" >> "$GITHUB_OUTPUT"
 
@@ -179,6 +189,12 @@ jobs:
         with:
           name: chipdb-${{ matrix.family }}
           path: chipdb
+      - name: Unpack chipdb
+        run: |
+          set -euo pipefail
+          tar -C chipdb -xf "chipdb/chipdb-${{ matrix.family }}.tar"
+          rm -f "chipdb/chipdb-${{ matrix.family }}.tar"
+          ls -la chipdb
       - uses: DeterminateSystems/nix-installer-action@v14
       # v6: the last release before the FlakeHub cache requirement --
       # uses the native GitHub Actions cache directly, no token needed.
@@ -280,6 +296,12 @@ jobs:
         with:
           name: chipdb-${{ matrix.family }}
           path: chipdb
+      - name: Unpack chipdb
+        run: |
+          set -euo pipefail
+          tar -C chipdb -xf "chipdb/chipdb-${{ matrix.family }}.tar"
+          rm -f "chipdb/chipdb-${{ matrix.family }}.tar"
+          ls -la chipdb
       - uses: DeterminateSystems/nix-installer-action@v14
       # v6: the last release before the FlakeHub cache requirement --
       # uses the native GitHub Actions cache directly, no token needed.
@@ -337,6 +359,12 @@ jobs:
         with:
           name: chipdb-artix7
           path: chipdb
+      - name: Unpack chipdb
+        run: |
+          set -euo pipefail
+          tar -C chipdb -xf "chipdb/chipdb-artix7.tar"
+          rm -f "chipdb/chipdb-artix7.tar"
+          ls -la chipdb
       - uses: DeterminateSystems/nix-installer-action@v14
       # v6: the last release before the FlakeHub cache requirement --
       # uses the native GitHub Actions cache directly, no token needed.

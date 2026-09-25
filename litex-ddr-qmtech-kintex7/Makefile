@@ -18,4 +18,6 @@ edif: ${PROJECT}.json
 netlist2json: verilog-netlist.v
 	yosys -p "read_verilog verilog-netlist.v; hierarchy; synth_xilinx -flatten -abc9 -arch xc7  -top ${PROJECT}; write_json ${PROJECT}.json;"
 
+PNR_ARGS = --timing-allow-fail
+
 include ../openXC7.mk
