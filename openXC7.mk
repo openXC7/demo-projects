@@ -68,9 +68,10 @@ ${PROJECT}.fasm: ${PROJECT}.json ${CHIPDB}/${DBPART}.bin ${XDC}
 	
 # fpga-as assembles the FASM into the bitstream in one process, where
 # fasm2frames and xc7frames2bit needed two plus the .frames file between them.
-# It assembles the same configuration as that pair on every design in this
-# repo (23 designs, five families, compared frame by frame) and is 8x to 112x
-# faster doing it.
+# Its frames match that pair's on the designs in this repo -- artix7, kintex7,
+# spartan7 and zynq7, compared frame by frame through its --dump_frames_file,
+# bar two words in each of two transceiver frames of
+# litex-sata-alientek-davincipro -- and it is 9x to 120x faster doing it.
 ${PROJECT}.bit: ${PROJECT}.fasm
 	fpga-as --prjxray_db_path=${PRJXRAY_DB_DIR}/${FAMILY} --part ${PART} $< > $@
 
