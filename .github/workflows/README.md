@@ -59,9 +59,9 @@ as an artifact (`regenerated-goldens-<family>`) for manual commit.
 
 - `toolchain-nix` must contain the `ci-tests` devshell (cmake,
   pkg-config, python3, boost, eigen) — added in the flake for the unit
-  test job. If you fork either repo, update `TOOLCHAIN_NIX_REPO` (and
-  `NEXTPNR_XILINX_REF`, which must stay in sync with
-  `toolchain-nix/nix/nextpnr-xilinx.nix`).
+  test job. If you fork either repo, update `TOOLCHAIN_NIX_REPO` and the
+  `TOOLCHAIN_NIX_REV` both workflows read from it; the engine revision itself
+  is pinned in `toolchain-nix/nix/nextpnr.nix`.
 - Action tags (`@v4`, `@v14`, `@v8`) are mutable; pin to commit SHAs
   if you want supply-chain hardening.
 - First run of each family builds the chipdb from scratch and can take
