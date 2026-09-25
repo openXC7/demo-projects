@@ -3,7 +3,7 @@
 # 1. Builds the full toolchain (nextpnr-xilinx + prjxray + fasm + chipdb)
 #    from the pinned toolchain-nix revision (TOOLCHAIN_NIX_REV).
 # 2. Builds every demo project to a .bit file
-#    (yosys -> nextpnr-xilinx -> fasm2frames -> xc7frames2bit).
+#    (yosys -> nextpnr-xilinx -> fpga-as).
 #    One job per project, so the CI overview shows exactly which
 #    subprojects in demo-projects succeed and fail.
 # 3. Compares regenerated .bit files against the golden .bit files

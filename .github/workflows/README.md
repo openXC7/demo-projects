@@ -23,7 +23,7 @@ exercised end to end.
    unchanged toolchain are fast. Only the `.bin` files the projects
    actually need are uploaded as artifacts (`matrix.bins`).
 2. **project stage**: runs inside `nix develop ./toolchain-nix`, which
-   provides yosys, nextpnr-xilinx, fasm2frames, xc7frames2bit and the
+   provides yosys, nextpnr-xilinx, fpga-as and the
    python path plumbing. The `${FAMILY}_CHIPDB` env var (e.g.
    `ARTIX7_CHIPDB`) points at the downloaded chipdb artifacts — without
    it the project Makefiles fall back to a broken `/xc7a35t.bin` path.
