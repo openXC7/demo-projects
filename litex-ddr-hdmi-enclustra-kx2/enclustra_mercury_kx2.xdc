@@ -710,7 +710,6 @@ set_property LOC AB7 [get_ports {ddram0_reset_n}]
 set_property SLEW FAST [get_ports {ddram0_reset_n}]
 set_property VCCAUX_IO HIGH [get_ports {ddram0_reset_n}]
 set_property IOSTANDARD SSTL15 [get_ports {ddram0_reset_n}]
-set_property SLEW SLOW [get_ports {ddram0_reset_n}]
 
 # user_led:0
 set_property LOC U9 [get_ports {user_led0}]
