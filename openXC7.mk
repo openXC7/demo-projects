@@ -49,14 +49,16 @@ ${PROJECT}.json: ${TOP_VERILOG} ${ADDITIONAL_SOURCES}
 # that is why we don't clean it with make clean.
 #
 # The engine generates a database per DIE, not per part, so derive the die
-# from PART with the same device class the parser uses -- including its one
-# alias, xc7a35t served by the xc7a50t database.  CI pre-builds the databases
-# and points CHIPDB at that directory, so this rule never fires there; in a
-# devshell CHIPDB is unset and the database is built here on first use.
+# from PART with the same device class the parser uses -- including its
+# aliases: xc7a35t is served by the xc7a50t database and xc7z007s by
+# xc7z010's.  CI pre-builds the databases and points CHIPDB at that
+# directory, so this rule never fires there; in a devshell CHIPDB is unset
+# and the database is built here on first use.
 ${CHIPDB}/${DBPART}.bin:
 	mkdir -p ${CHIPDB}
-	DIE=$$(echo ${PART} | sed -E 's/^(xc7(s[0-9]+t?|a[0-9]+t|k[0-9]+t|z[0-9]+t?|v[xh]?[0-9]+t)).*/\1/'); \
+	DIE=$$(echo ${PART} | sed -E 's/^(xc7z007s|xc7z012s|xc7z014s|xc7[azks][0-9]+t?|xc7vx[0-9]+t?).*/\1/'); \
 	if [ "$$DIE" = xc7a35t ]; then DIE=xc7a50t; fi; \
+	if [ "$$DIE" = xc7z007s ]; then DIE=xc7z010; fi; \
 	echo "generating chipdb for $$DIE (${PART})"; \
 	python3 ${NEXTPNR_XILINX_DIR}/share/nextpnr/himbaechel/uarch/xilinx/gen/xilinx_gen.py \
 	    --xray ${PRJXRAY_DB_DIR}/${FAMILY} --device $$DIE --bba ${DBPART}.bba
