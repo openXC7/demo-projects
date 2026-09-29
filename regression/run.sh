@@ -39,11 +39,15 @@ fi
 # (run.sh dsp-const-only-pins).  Everything else has landed and runs by default:
 # lut_shared_pin (#158), fdse-fdpe-undefined-init (#179), const-holdout (#184),
 # lutram-ram64x1s (#195, fixed by #196) and lutram-clkinv (#201).
+# lutram-ram32x2s / lutram-ram32x1s guard openXC7/nextpnr#56 -- a
+# himbaechel-native fix with no nextpnr-xilinx counterpart; they pass once
+# that PR's binary is under the shim.
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
                                               iddr-four-iff-flops lut_shared_pin \
                                               fdse-fdpe-undefined-init const-holdout \
                                               lutram-ram64x1s lutram-clkinv \
+                                              lutram-ram32x2s lutram-ram32x1s \
                                               srl-init xorigport-unknown-name \
                                               srl-wemux dup-package-pin \
                                               bufio-in-use bufr-pad-site \
