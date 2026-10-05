@@ -9,11 +9,12 @@
 # Nightly cron (02:15 UTC) is gated on commit activity since the last
 # completed heavy run.  The gate looks up the most recent completed run
 # of this workflow and proceeds only when one of the three repos the
-# heavy build depends on (demo-projects, toolchain-nix, nextpnr-xilinx)
-# received commits after that run.  The first run (no completed run
-# yet) always proceeds.  prjxray is deliberately NOT in the list: it
-# receives commits daily and previously made the gate always-true.
-# workflow_dispatch always runs.
+# heavy build depends on (demo-projects, toolchain-nix, nextpnr) received
+# commits after that run.  The engine is openXC7/nextpnr; nextpnr-xilinx
+# is retired and no longer reaches the build.  The first run (no
+# completed run yet) always proceeds.  prjxray is deliberately NOT in the
+# list: it receives commits daily and previously made the gate
+# always-true.  workflow_dispatch always runs.
 #
 # One job per project keeps the overview readable even though there is
 # only one project today; if another too-slow-for-smoke project appears,
@@ -43,7 +44,7 @@ jobs:
   # Stage 0: activity gate for the nightly cron.  Determines the most
   # recent completed run of this workflow and checks for commits in the
   # three repos the build depends on (demo-projects, toolchain-nix,
-  # nextpnr-xilinx) since that run.  Skips the pipeline when nothing
+  # nextpnr) since that run.  Skips the pipeline when nothing
   # changed; the first run (no prior completed run) always proceeds.
   # Manual dispatches always proceed.  prjxray is excluded: its daily
   # commits made the gate always-true.
@@ -67,7 +68,7 @@ jobs:
             exit 0
           fi
           echo "last completed heavy run: $since"
-          repos="openXC7/nextpnr-xilinx openXC7/demo-projects openXC7/toolchain-nix"
+          repos="openXC7/nextpnr openXC7/demo-projects openXC7/toolchain-nix"
           changed=no
           for repo in $repos; do
             count="$(gh api "repos/$repo/commits?since=$since&per_page=1" --jq 'length')"

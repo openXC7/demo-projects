@@ -16,7 +16,7 @@
 #
 # The nightly cron is gated on repository activity like heavy.yml: it
 # only proceeds when at least one involved repo (demo-projects,
-# toolchain-nix, nextpnr-xilinx, prjxray) received commits within the
+# toolchain-nix, nextpnr, prjxray) received commits within the
 # previous 24h.  workflow_run and workflow_dispatch are event-driven
 # and always run.
 
@@ -56,7 +56,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           since="$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)"
-          repos="openXC7/demo-projects openXC7/toolchain-nix openXC7/nextpnr-xilinx openXC7/prjxray"
+          repos="openXC7/demo-projects openXC7/toolchain-nix openXC7/nextpnr openXC7/prjxray"
           changed=no
           for repo in $repos; do
             count="$(gh api "repos/$repo/commits?since=$since&per_page=1" --jq 'length')"
