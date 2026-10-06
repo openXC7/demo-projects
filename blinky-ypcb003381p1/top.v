@@ -1,7 +1,10 @@
 module top(
     input  wire clk,
-    output wire [2:0] led
+    output wire [2:0] led,
+    output wire ac24        // board reset on the YPCB-00338-1P1: must stay high (see the XDC)
 );
+    assign ac24 = 1'b1;
+
     reg [25:0] ctr = 26'd0;
     always @(posedge clk) ctr <= ctr + 1'b1;
 
