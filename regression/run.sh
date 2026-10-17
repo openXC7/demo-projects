@@ -45,6 +45,9 @@ fi
 # past #56); same lifecycle as dsp-const-only-pins: run them explicitly
 # (run.sh lutram-ram32x2s lutram-ram32x1s) and move them back into the
 # default list once they go green on the shipped engine.
+# pll-bufg-feedback (openXC7/nextpnr 39a39917) and odelay-plain-outbuf
+# (e229044c) have the same lifecycle: expected-red until those fixes are in
+# the shipped engine; run them explicitly.
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
                                               iddr-four-iff-flops lut_shared_pin \
@@ -111,6 +114,12 @@ for c in "${cases[@]}"; do
       printf '  %-26s FAIL (expected-fail case has no check.sh)\n' "$c"; fail=1; continue
     fi
     printf '  %-26s FAIL (place/route/fasm) - %s\n' "$c" "$d/nextpnr.log"; fail=1; continue
+  fi
+  # An expected-fail case that builds is a failure too: what it guards is that
+  # the flow stops, with the right message, and a flow that completed instead
+  # must not be judged by check.sh as if it had stopped.
+  if [ -f "$d/expect_fail" ]; then
+    printf '  %-26s FAIL (expected to fail, but it built)\n' "$c"; fail=1; continue
   fi
   # An existing but empty target is how a failed stage reports success. Check content.
   if [ -n "$no_route" ]; then
