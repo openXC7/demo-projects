@@ -115,6 +115,12 @@ for c in "${cases[@]}"; do
     fi
     printf '  %-26s FAIL (place/route/fasm) - %s\n' "$c" "$d/nextpnr.log"; fail=1; continue
   fi
+  # An expected-fail case that builds is a failure too: what it guards is that
+  # the flow stops, with the right message, and a flow that completed instead
+  # must not be judged by check.sh as if it had stopped.
+  if [ -f "$d/expect_fail" ]; then
+    printf '  %-26s FAIL (expected to fail, but it built)\n' "$c"; fail=1; continue
+  fi
   # An existing but empty target is how a failed stage reports success. Check content.
   if [ -n "$no_route" ]; then
     # Placement-level case: the artefact is the placed JSON, not a FASM.
