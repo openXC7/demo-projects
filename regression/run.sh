@@ -48,6 +48,7 @@ fi
 # pll-bufg-feedback (openXC7/nextpnr 39a39917) and odelay-plain-outbuf
 # (e229044c) have the same lifecycle: expected-red until those fixes are in
 # the shipped engine; run them explicitly.
+# bram-tdp-byte-enables (openXC7/nextpnr fix/bram-byte-enable-site-pins) too.
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
                                               iddr-four-iff-flops lut_shared_pin \
