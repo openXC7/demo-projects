@@ -35,14 +35,20 @@ for (side, x, y), hs in sorted(halves.items()):
             want = clk.get((f"INT_{side}_X{x}Y{y + data_row}", wire))
             line = f"BRAM_{side}_X{x}Y{y} {h} {reg}: row {row} {got}, row {data_row} {want}"
             if got is not None and got == want and got.startswith("GCLK"):
-                oks.append((reg, line))
+                oks.append((reg, f"BRAM_{side}_X{x}Y{y}", h))
             else:
                 fails.append(line)
 if fails:
     sys.exit("FAIL: output register clock missing: " + "; ".join(fails))
-n_dob = sum(1 for reg, _ in oks if reg == "DOB_REG")
-n_doa = sum(1 for reg, _ in oks if reg == "DOA_REG")
-if n_dob < 2 or n_doa < 1:
-    sys.exit(f"FAIL: expected DOB_REG on both halves of the RAMB36 and DOA_REG on the RAMB18, got {n_dob} and {n_doa}")
-print(f"ok: output register clocks on rows 0 and 4 ({n_dob} DOB_REG, {n_doa} DOA_REG)")
+# The design is one RAMB36E1 (DOB_REG on both halves of one tile) and one
+# RAMB18E1 (DOA_REG on one half of another tile): require exactly that.
+by_tile = {}
+for reg, tile, h in oks:
+    by_tile.setdefault(tile, {}).setdefault(reg, set()).add(h)
+ramb36 = [t for t, regs in by_tile.items() if regs.get("DOB_REG") == {"Y0", "Y1"}]
+ramb18 = [t for t, regs in by_tile.items() if len(regs.get("DOA_REG", ())) == 1 and "DOB_REG" not in regs]
+if len(ramb36) != 1 or len(ramb18) != 1:
+    sys.exit("FAIL: expected one RAMB36 with DOB_REG on both halves and a separate RAMB18 with DOA_REG, got "
+             + "; ".join(f"{t}: " + ", ".join(f"{r} on {'+'.join(sorted(hs))}" for r, hs in sorted(regs.items())) for t, regs in sorted(by_tile.items())))
+print(f"ok: output register clocks on rows 0 and 4 (RAMB36 {ramb36[0]} DOB_REG on Y0 and Y1, RAMB18 {ramb18[0]} DOA_REG)")
 PY
