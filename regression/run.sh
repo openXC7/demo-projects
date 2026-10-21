@@ -54,6 +54,8 @@ fi
 # stays out of the default list until that fix is in the engine the CI builds.
 # dsp-autoreset-patdet (openXC7/nextpnr fix/dsp-autoreset-patdet-not-match)
 # stays out of the default list until that fix is in the engine the CI builds.
+# bram-output-register-clock (openXC7/nextpnr fix/bram-output-register-clock)
+# stays out of the default list until that fix is in the engine the CI builds.
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
                                               iddr-four-iff-flops lut_shared_pin \
