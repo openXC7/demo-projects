@@ -50,6 +50,8 @@ fi
 # the shipped engine; run them explicitly.
 # bram-tdp-byte-enables (openXC7/nextpnr fix/bram-byte-enable-site-pins) too.
 # lutram-ram32x1s-x4 (the RAM32X1S patch posted on openXC7/nextpnr#56) too.
+# bram-output-register (openXC7/nextpnr fix/bram-output-register-sdp-zinv-regclkb)
+# stays out of the default list until that fix is in the engine the CI builds.
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
                                               iddr-four-iff-flops lut_shared_pin \
