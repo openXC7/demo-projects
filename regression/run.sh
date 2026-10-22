@@ -58,6 +58,9 @@ fi
 # stays out of the default list until that fix is in the engine the CI builds.
 # bufgmux (openXC7/nextpnr fix/bufgmux-to-bufgctrl) stays out of the default
 # list until that fix is in the engine the CI builds.
+# ibufds-gte2-odiv2-bufgce and ibufds-gte2-shared-mgtclkout (openXC7/nextpnr
+# fix/ibufds-gte2-fabric-buffers) stay out of the default list until that fix
+# is in the engine the CI builds.
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
                                               iddr-four-iff-flops lut_shared_pin \

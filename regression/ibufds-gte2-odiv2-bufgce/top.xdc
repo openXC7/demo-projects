@@ -1,0 +1,7 @@
+create_clock -period 8.000 -name refclk [get_ports refclk_p]
+set_property PACKAGE_PIN F6 [get_ports refclk_p]
+set_property PACKAGE_PIN E6 [get_ports refclk_n]
+set_property PACKAGE_PIN T6 [get_ports en]
+set_property PACKAGE_PIN E22 [get_ports led]
+set_property IOSTANDARD LVCMOS33 [get_ports en]
+set_property IOSTANDARD LVCMOS33 [get_ports led]
