@@ -5,7 +5,7 @@ Moved here from `openXC7/nextpnr-xilinx` at the maintainer's request
 generated chipdb, and this repository already has the `chipdb/` directory, the `CHIPDB`
 variable in `openXC7.mk`, and working CI — none of which `nextpnr-xilinx` has.
 
-One directory per fixed bug. Each design **failed before its patch** and builds after it.
+One directory per fixed bug. Each design **failed before its patch** and builds after it; an expected-fail case (an `expect_fail` file) stays unbuildable, and its `check.sh` asserts the message its fix gives instead.
 
 | Case | Guards | Failure before the fix |
 |---|---|---|
