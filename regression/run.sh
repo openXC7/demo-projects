@@ -34,33 +34,35 @@ if [ -z "${CHIPDB:-}" ] && [ -z "${CHIPDB_DIR:-}" ]; then
     exit 2
 fi
 
-# dsp-const-only-pins (#159) is expected-red until its fix lands in
-# nextpnr-xilinx main; disabled from the default run, pass it explicitly
-# (run.sh dsp-const-only-pins).  Everything else has landed and runs by default:
+# The ten cases after this note have their fix merged in openXC7/nextpnr main,
+# and that repository's own gate (.github/workflows/regression.yml) runs them as
+# blocking, so a nextpnr PR that breaks one of them is red there.  They stay out
+# of this repository's default list for one reason: the engine its CI builds
+# predates those merges.  smoke.yml's regression job resolves TOOLCHAIN_NIX_REV,
+# and that revision builds nextpnr 3e5c2cdd (5-Oct), before every one of the ten
+# fixes; measured, all ten are red with that engine and green with main.  Move
+# them into the default list -- all at once -- when the TOOLCHAIN_NIX_REV this
+# repository names carries them.  Run any of them now with run.sh <case>.
+#   dsp-const-only-pins                                  openXC7/nextpnr#66
+#   pll-bufg-feedback, odelay-plain-outbuf               openXC7/nextpnr#116
+#   bram-tdp-byte-enables                                openXC7/nextpnr#119
+#   bram-output-register                                 openXC7/nextpnr#124
+#   dsp-autoreset-patdet                                 openXC7/nextpnr#129
+#   bram-output-register-clock                           openXC7/nextpnr#130
+#   bufgmux                                              openXC7/nextpnr#132
+#   ibufds-gte2-odiv2-bufgce, ibufds-gte2-shared-mgtclkout  openXC7/nextpnr#131 + #134
+# Everything else older has landed and runs by default:
 # lut_shared_pin (#158), fdse-fdpe-undefined-init (#179), const-holdout (#184),
 # lutram-ram64x1s (#195, fixed by #196) and lutram-clkinv (#201).
-# lutram-ram32x2s / lutram-ram32x1s guard openXC7/nextpnr#56 -- a
-# himbaechel-native fix with no nextpnr-xilinx counterpart.  Expected-red
-# until that fix is in the binary this repo's CI ships (the toolchain pin
-# past #56); same lifecycle as dsp-const-only-pins: run them explicitly
-# (run.sh lutram-ram32x2s lutram-ram32x1s) and move them back into the
-# default list once they go green on the shipped engine.
-# pll-bufg-feedback (openXC7/nextpnr 39a39917) and odelay-plain-outbuf
-# (e229044c) have the same lifecycle: expected-red until those fixes are in
-# the shipped engine; run them explicitly.
-# bram-tdp-byte-enables (openXC7/nextpnr fix/bram-byte-enable-site-pins) too.
-# lutram-ram32x1s-x4 (the RAM32X1S patch posted on openXC7/nextpnr#56) too.
-# bram-output-register (openXC7/nextpnr fix/bram-output-register-sdp-zinv-regclkb)
-# stays out of the default list until that fix is in the engine the CI builds.
-# dsp-autoreset-patdet (openXC7/nextpnr fix/dsp-autoreset-patdet-not-match)
-# stays out of the default list until that fix is in the engine the CI builds.
-# bram-output-register-clock (openXC7/nextpnr fix/bram-output-register-clock)
-# stays out of the default list until that fix is in the engine the CI builds.
-# bufgmux (openXC7/nextpnr fix/bufgmux-to-bufgctrl) stays out of the default
-# list until that fix is in the engine the CI builds.
-# ibufds-gte2-odiv2-bufgce and ibufds-gte2-shared-mgtclkout (openXC7/nextpnr
-# fix/ibufds-gte2-fabric-buffers) stay out of the default list until that fix
-# is in the engine the CI builds.
+# lutram-ram32x2s, lutram-ram32x1s and lutram-ram32x1s-x4 guard
+# openXC7/nextpnr#56 -- a gap of this engine alone, with no nextpnr-xilinx
+# counterpart, and for a different reason than the ten: the PR is still open, so
+# they are red on the engine this repository's CI builds and on openXC7/nextpnr
+# main alike.  Without a packing branch the two 32-deep cells stop in the placer
+# ("no BELs remaining to implement cell type"), and several RAM32X1S sharing
+# clock, write enable and address need the placement rule of the patch posted on
+# that PR.  They join the default list when #56 merges and the TOOLCHAIN_NIX_REV
+# named here carries it; run them now with run.sh <case>.
 cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-port \
                                               bufg-fabric-driven config-primitive-startupe2 \
                                               iddr-four-iff-flops lut_shared_pin \
