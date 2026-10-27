@@ -16,6 +16,10 @@ JTAG_LINK = -c ft2232
 else ifeq (${BOARD}, hpc_420t)
 PART = xc7k420tffg901-1
 JTAG_LINK = -c ft4232
+else ifeq (${BOARD}, arty_s7)
+FAMILY = spartan7
+PART = xc7s50csga324-1
+JTAG_LINK = --cable digilent
 else
 .PHONY: check
 check:
@@ -24,6 +28,7 @@ check:
 	@echo " * genesys2"
 	@echo " * kx2"
 	@echo " * hpc_420t"
+	@echo " * arty_s7"
 	@exit 1
 endif
 

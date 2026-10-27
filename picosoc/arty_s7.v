@@ -1,0 +1,83 @@
+/*
+ *  PicoSoC - A simple example SoC using PicoRV32
+ *
+ *  Digilent Arty S7-50 (XC7S50-CSGA324) board top level.
+ *
+ *  Pin choices come from the Arty S7 constraints already carried by
+ *  demo-projects/litex-minimal-arty-s7/digilent_arty_s7.xdc:
+ *  the 100 MHz oscillator sits on R2 in an SSTL135 bank, the four user LEDs
+ *  are E18/F13/E13/H15, and the FT2232 UART is R12 (tx) / V12 (rx).
+ *
+ *  The four user switches are not wired up here yet, so the GPIO read returns
+ *  the LED state alone.
+ */
+
+module top (
+    input clk,
+
+    output tx,
+    input  rx,
+
+    output [3:0] led
+);
+
+  wire clk_bufg;
+  BUFG bufg (
+      .I(clk),
+      .O(clk_bufg)
+  );
+
+  reg [5:0] reset_cnt = 0;
+  wire resetn = &reset_cnt;
+
+  always @(posedge clk_bufg) begin
+    reset_cnt <= reset_cnt + !resetn;
+  end
+
+  wire        iomem_valid;
+  reg         iomem_ready;
+  wire [ 3:0] iomem_wstrb;
+  wire [31:0] iomem_addr;
+  wire [31:0] iomem_wdata;
+  reg  [31:0] iomem_rdata;
+
+  reg  [31:0] gpio;
+
+  assign led = gpio[3:0];
+
+  always @(posedge clk_bufg) begin
+    if (!resetn) begin
+      gpio <= 0;
+    end else begin
+      iomem_ready <= 0;
+      if (iomem_valid && !iomem_ready && iomem_addr[31:24] == 8'h03) begin
+        iomem_ready <= 1;
+        iomem_rdata <= {30'b0, gpio[1:0]};
+        if (iomem_wstrb[0]) gpio[7:0]   <= iomem_wdata[7:0];
+        if (iomem_wstrb[1]) gpio[15:8]  <= iomem_wdata[15:8];
+        if (iomem_wstrb[2]) gpio[23:16] <= iomem_wdata[23:16];
+        if (iomem_wstrb[3]) gpio[31:24] <= iomem_wdata[31:24];
+      end
+    end
+  end
+
+  picosoc_noflash soc (
+      .clk   (clk_bufg),
+      .resetn(resetn),
+
+      .ser_tx(tx),
+      .ser_rx(rx),
+
+      .irq_5(1'b0),
+      .irq_6(1'b0),
+      .irq_7(1'b0),
+
+      .iomem_valid(iomem_valid),
+      .iomem_ready(iomem_ready),
+      .iomem_wstrb(iomem_wstrb),
+      .iomem_addr (iomem_addr),
+      .iomem_wdata(iomem_wdata),
+      .iomem_rdata(iomem_rdata)
+  );
+
+endmodule
