@@ -1,6 +1,12 @@
 NEXTPNR_XILINX_DIR ?= /snap/openxc7/current/opt/nextpnr-xilinx
-NEXTPNR_XILINX_PYTHON_DIR ?= ${NEXTPNR_XILINX_DIR}/python
 PRJXRAY_DB_DIR ?= ${NEXTPNR_XILINX_DIR}/external/prjxray-db
+
+# The engine's chip database generator and assembler.  Both are part of the
+# openXC7/nextpnr toolchain; the archived nextpnr-xilinx line (0.9.x) has
+# neither, and a prefix from it otherwise fails here with a bare `python3: can't
+# open file` or `fpga-as: command not found`.
+XILINX_GEN = ${NEXTPNR_XILINX_DIR}/share/nextpnr/himbaechel/uarch/xilinx/gen/xilinx_gen.py
+BBASM = ${NEXTPNR_XILINX_DIR}/bin/bbasm
 
 DBPART = $(shell echo ${PART} | sed -e 's/-[0-9]//g')
 SPEEDGRADE = $(shell echo ${PART} | sed -e 's/.*\-\([0-9]\)/\1/g')
@@ -9,8 +15,6 @@ CHIPDB ?= ../chipdb/
 ifeq ($(CHIPDB),)
 CHIPDB = ../chipdb/
 endif
-
-PYPY3 ?= pypy3
 
 TOP ?= ${PROJECT}
 TOP_MODULE ?= ${TOP}
@@ -55,14 +59,38 @@ ${PROJECT}.json: ${TOP_VERILOG} ${ADDITIONAL_SOURCES}
 # directory, so this rule never fires there; in a devshell CHIPDB is unset
 # and the database is built here on first use.
 ${CHIPDB}/${DBPART}.bin:
+	@test -f "${XILINX_GEN}" || { \
+	    printf '%s\n' \
+	        "error: ${XILINX_GEN} not found." \
+	        "  NEXTPNR_XILINX_DIR is \"${NEXTPNR_XILINX_DIR}\"." \
+	        "  openXC7.mk generates the chip database with the openXC7/nextpnr" \
+	        "  engine. Source the toolchain's export.sh (for a source build:" \
+	        "  'source /opt/openxc7/export.sh') or rebuild the prefix with the" \
+	        "  current toolchain-installer; a nextpnr-xilinx 0.9.x prefix has" \
+	        "  no xilinx_gen.py." >&2; \
+	    exit 1; \
+	}
+	@test -d "${PRJXRAY_DB_DIR}/${FAMILY}" || { \
+	    printf '%s\n' \
+	        "error: ${PRJXRAY_DB_DIR}/${FAMILY} is not a directory." \
+	        "  Source the toolchain's export.sh or set PRJXRAY_DB_DIR to the" \
+	        "  prjxray database for the ${FAMILY} family." >&2; \
+	    exit 1; \
+	}
+	@test -x "${BBASM}" || { \
+	    printf '%s\n' \
+	        "error: ${BBASM} not found or not executable." \
+	        "  Source the toolchain's export.sh or rebuild the prefix with the" \
+	        "  current toolchain-installer." >&2; \
+	    exit 1; \
+	}
 	mkdir -p ${CHIPDB}
 	DIE=$$(echo ${PART} | sed -E 's/^(xc7z007s|xc7z012s|xc7z014s|xc7[azks][0-9]+t?|xc7vx[0-9]+t?).*/\1/'); \
 	if [ "$$DIE" = xc7a35t ]; then DIE=xc7a50t; fi; \
 	if [ "$$DIE" = xc7z007s ]; then DIE=xc7z010; fi; \
 	echo "generating chipdb for $$DIE (${PART})"; \
-	python3 ${NEXTPNR_XILINX_DIR}/share/nextpnr/himbaechel/uarch/xilinx/gen/xilinx_gen.py \
-	    --xray ${PRJXRAY_DB_DIR}/${FAMILY} --device $$DIE --bba ${DBPART}.bba
-	${NEXTPNR_XILINX_DIR}/bin/bbasm -l ${DBPART}.bba ${CHIPDB}/${DBPART}.bin
+	python3 ${XILINX_GEN} --xray ${PRJXRAY_DB_DIR}/${FAMILY} --device $$DIE --bba ${DBPART}.bba
+	${BBASM} -l ${DBPART}.bba ${CHIPDB}/${DBPART}.bin
 	rm -f ${DBPART}.bba
 
 ${PROJECT}.fasm: ${PROJECT}.json ${CHIPDB}/${DBPART}.bin ${XDC}
@@ -75,6 +103,23 @@ ${PROJECT}.fasm: ${PROJECT}.json ${CHIPDB}/${DBPART}.bin ${XDC}
 # bar two words in each of two transceiver frames of
 # litex-sata-alientek-davincipro -- and it is 9x to 120x faster doing it.
 ${PROJECT}.bit: ${PROJECT}.fasm
+	@test -d "${PRJXRAY_DB_DIR}/${FAMILY}" || { \
+	    printf '%s\n' \
+	        "error: ${PRJXRAY_DB_DIR}/${FAMILY} is not a directory." \
+	        "  fpga-as reads the prjxray database. Source the toolchain's" \
+	        "  export.sh or set PRJXRAY_DB_DIR to the database for ${FAMILY}." >&2; \
+	    exit 1; \
+	}
+	@command -v fpga-as >/dev/null 2>&1 || { \
+	    printf '%s\n' \
+	        "error: fpga-as not found on PATH." \
+	        "  openXC7.mk assembles the bitstream with fpga-as from the" \
+	        "  openXC7/nextpnr toolchain. Source its export.sh (for a source" \
+	        "  build: 'source /opt/openxc7/export.sh'). toolchain-installer" \
+	        "  release 1.0.0 and older predate fpga-as; build the prefix from" \
+	        "  its current main branch." >&2; \
+	    exit 1; \
+	}
 	fpga-as --prjxray_db_path=${PRJXRAY_DB_DIR}/${FAMILY} --part ${PART} $< > $@
 
 .PHONY: clean
