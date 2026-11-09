@@ -51,6 +51,10 @@ fi
 #   bram-output-register-clock                           openXC7/nextpnr#130
 #   bufgmux                                              openXC7/nextpnr#132
 #   ibufds-gte2-odiv2-bufgce, ibufds-gte2-shared-mgtclkout  openXC7/nextpnr#131 + #134
+# Fixes merged after that note, also out of the default list.  smoke.yml and
+# heavy.yml set TOOLCHAIN_NIX_REV to 22327ebf; nix/nextpnr.nix at that commit
+# names nextpnr cf5f7a21, and the fix on each line is not an ancestor of it.
+#   inverted-clock                                       openXC7/nextpnr#158
 # Everything else older has landed and runs by default:
 # lut_shared_pin (#158), fdse-fdpe-undefined-init (#179), const-holdout (#184),
 # lutram-ram64x1s (#195, fixed by #196) and lutram-clkinv (#201).
