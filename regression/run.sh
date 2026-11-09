@@ -55,6 +55,8 @@ fi
 # heavy.yml set TOOLCHAIN_NIX_REV to 22327ebf; nix/nextpnr.nix at that commit
 # names nextpnr cf5f7a21, and the fix on each line is not an ancestor of it.
 #   inverted-clock                                       openXC7/nextpnr#158
+#   xdc-braced-names, xdc-extra-positional,              openXC7/nextpnr#165
+#   xdc-repeated-target, xdc-unbalanced
 # Everything else older has landed and runs by default:
 # lut_shared_pin (#158), fdse-fdpe-undefined-init (#179), const-holdout (#184),
 # lutram-ram64x1s (#195, fixed by #196) and lutram-clkinv (#201).
