@@ -28,7 +28,9 @@ awk -v period="$period" -v achieved="$achieved" 'BEGIN {
   printf "ok: fmax %.2f MHz within half-period %.2f MHz\n", achieved, half
 }'
 
-if ! grep -q 'CLKINV' "$fasm"; then fail "fasm has no CLKINV"; fi
+# The exact feature, not NOCLKINV: the slice holding the folded cells
+# programs its clock inverter.
+if ! grep -qE '\.CLKINV$' "$fasm"; then fail "fasm has no slice programming CLKINV"; fi
 
 python3 - "$case_dir/top_routed.json" << 'PY'
 import json, sys
@@ -41,5 +43,18 @@ for name, cell in cells.items():
 if left:
     print("FAIL: inverter left in the routed netlist: " + ", ".join(sorted(left)))
     sys.exit(1)
-print(f"ok: {len(cells)} routed cells, no INV and no LUT1")
+# the polarity of each clocked cell of top.v
+def inverted(name, param):
+    cell = cells.get(name)
+    if cell is None:
+        print(f"FAIL: no cell {name} in the routed netlist")
+        sys.exit(1)
+    return int(str(cell["parameters"].get(param, "0")), 2) == 1
+want = {("u_ff", "IS_C_INVERTED"): True, ("u_srl", "IS_WCLK_INVERTED"): True,
+        ("u_launch", "IS_C_INVERTED"): False, ("u_cap", "IS_C_INVERTED"): False}
+wrong = [f"{n}.{p}" for (n, p), w in want.items() if inverted(n, p) != w]
+if wrong:
+    print("FAIL: wrong clock polarity on " + ", ".join(wrong))
+    sys.exit(1)
+print(f"ok: {len(cells)} routed cells, no INV and no LUT1; u_ff and u_srl inverted, u_launch and u_cap not")
 PY
