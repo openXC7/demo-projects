@@ -61,7 +61,12 @@ kinds = {}
 for n, c in cells.items():
     if c["type"] == "SLICE_FFX":
         site = c["attributes"].get("NEXTPNR_BEL", "").split("/")[0]
-        kinds.setdefault(site, set()).add(c["attributes"].get("X_ORIG_TYPE"))
+        kind = c["attributes"].get("X_ORIG_TYPE")
+        # an FDRE only counts when its clock is inverted, like the FDRE_1
+        inverted = int(str(c["parameters"].get("IS_C_INVERTED", "0")), 2) == 1
+        if kind == "FDRE" and not inverted:
+            kind = "FDRE, not inverted"
+        kinds.setdefault(site, set()).add(kind)
 mixed = sorted(s for s, k in kinds.items() if {"FDRE_1", "FDRE"} <= k)
 if not mixed:
     print("FAIL: no half-slice holds both FDRE_1 and FDRE: the chain no longer tests what it guards")
