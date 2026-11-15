@@ -61,6 +61,7 @@ fi
 #   srl-q31-fabric, srl-q31-bel-above-a                  openXC7/nextpnr#167
 #   ff-falling-capture                                   openXC7/nextpnr#174
 #   clock-net-inv                                        openXC7/nextpnr#177
+#   part-dsp-limit, part-utilisation                     openXC7/nextpnr#180
 # Everything else older has landed and runs by default:
 # lut_shared_pin (#158), fdse-fdpe-undefined-init (#179), const-holdout (#184),
 # lutram-ram64x1s (#195, fixed by #196) and lutram-clkinv (#201).
