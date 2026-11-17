@@ -1,0 +1,8 @@
+set_property PACKAGE_PIN R4 [get_ports clk_in]
+set_property IOSTANDARD LVCMOS33 [get_ports clk_in]
+set_property PACKAGE_PIN G3 [get_ports led]
+set_property IOSTANDARD LVCMOS33 [get_ports led]
+create_clock -period 10.000 [get_ports clk_in]
+set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets clk_in_IBUF]
+set_property MARK_DEBUG true [get_nets {c[0]}]
+set_property -dict {MARK_DEBUG true} [get_pins {c_reg[0]/Q}]

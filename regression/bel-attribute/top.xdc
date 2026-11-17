@@ -1,0 +1,5 @@
+set_property PACKAGE_PIN R4 [get_ports clk_in]
+set_property IOSTANDARD LVCMOS33 [get_ports clk_in]
+set_property PACKAGE_PIN G3 [get_ports led]
+set_property IOSTANDARD LVCMOS33 [get_ports led]
+create_clock -period 10.000 [get_ports clk_in]
