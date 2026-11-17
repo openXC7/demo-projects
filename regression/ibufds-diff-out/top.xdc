@@ -1,0 +1,7 @@
+set_property PACKAGE_PIN E3 [get_ports clk_p]
+set_property IOSTANDARD LVDS_25 [get_ports clk_p]
+set_property PACKAGE_PIN D3 [get_ports clk_n]
+set_property IOSTANDARD LVDS_25 [get_ports clk_n]
+set_property PACKAGE_PIN R10 [get_ports led]
+set_property IOSTANDARD LVCMOS33 [get_ports led]
+create_clock -period 10.000 [get_ports clk_p]
