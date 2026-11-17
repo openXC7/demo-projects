@@ -65,6 +65,7 @@ fi
 #   bel-attribute                                        openXC7/nextpnr#192
 #   xdc-skipped-targets                                  openXC7/nextpnr#193
 #   diff-pair-n-from-package                             openXC7/nextpnr#194
+#   carry-lut-pair-const-inputs                          openXC7/nextpnr#187
 # report-used-within-available (openXC7/nextpnr#191) is in the default
 # list. On cf5f7a21 its JSON report has PSEUDO_GND and PSEUDO_VCC at 1/1,
 # so the check passes. It fails on the parent of the #191 merge, where
