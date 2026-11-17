@@ -62,6 +62,10 @@ fi
 #   ff-falling-capture                                   openXC7/nextpnr#174
 #   clock-net-inv                                        openXC7/nextpnr#177
 #   part-dsp-limit, part-utilisation                     openXC7/nextpnr#180
+# report-used-within-available (openXC7/nextpnr#191) is in the default
+# list. On cf5f7a21 its JSON report has PSEUDO_GND and PSEUDO_VCC at 1/1,
+# so the check passes. It fails on the parent of the #191 merge, where
+# both are used 1 and available 0.
 # Everything else older has landed and runs by default:
 # lut_shared_pin (#158), fdse-fdpe-undefined-init (#179), const-holdout (#184),
 # lutram-ram64x1s (#195, fixed by #196) and lutram-clkinv (#201).
@@ -82,7 +86,8 @@ cases=("$@"); [ ${#cases[@]} -eq 0 ] && cases=(clock-srcc-bufg bram-sdp-unused-p
                                               srl-init xorigport-unknown-name \
                                               srl-wemux dup-package-pin \
                                               bufio-in-use bufr-pad-site \
-                                              bufr-sink-region bufh-clock-constraint)
+                                              bufr-sink-region bufh-clock-constraint \
+                                              report-used-within-available)
 fail=0
 ran=0
 for c in "${cases[@]}"; do
@@ -108,7 +113,7 @@ for c in "${cases[@]}"; do
     fi
   fi
 
-  rm -f "$d/top.json" "$d/top.fasm" "$d/top_routed.json"
+  rm -f "$d/top.json" "$d/top.fasm" "$d/top_routed.json" "$d/report.json"
   synth_flags="-flatten -abc9 -nocarry -nodsp"
   [ -f "$d/synth_flags" ] && synth_flags="$(cat "$d/synth_flags")"
   nextpnr_flags=""
@@ -123,8 +128,9 @@ for c in "${cases[@]}"; do
         synth_xilinx $synth_flags -family xc7 -top top; \
         write_json $d/top.json" >"$d/yosys.log" 2>&1; then
     printf '  %-26s FAIL (synthesis) - %s\n' "$c" "$d/yosys.log"; fail=1; continue; fi
+  # --report has to name this case's directory. A nextpnr_flags file cannot.
   if ! nextpnr-xilinx --chipdb "$chipdb" --xdc "$d/top.xdc" --json "$d/top.json" \
-        --write "$d/top_routed.json" --fasm "$d/top.fasm" $nextpnr_flags $no_route --timing-allow-fail >"$d/nextpnr.log" 2>&1; then
+        --write "$d/top_routed.json" --fasm "$d/top.fasm" --report "$d/report.json" $nextpnr_flags $no_route --timing-allow-fail >"$d/nextpnr.log" 2>&1; then
     # An expected-fail case (e.g. the duplicate-package-pin warning) declares
     # nextpnr's non-zero exit as the expected outcome and lets its check.sh read
     # nextpnr.log for the verdict.
