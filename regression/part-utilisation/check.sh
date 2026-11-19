@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # The available count of each kind must be what Vivado reports available on
 # an xc7a35tcsg324, both in the "Device utilisation" table of nextpnr.log
-# and in the JSON --report (the file apio reads).
+# and in the JSON --report (the file apio reads). PAD is the user I/O, which
+# is Vivado's Bonded IOB: the package's GTP and XADC pads are not in it.
 set -euo pipefail
 case_dir="${CASE_DIR:?CASE_DIR is not set}"
 log="$case_dir/nextpnr.log"
@@ -9,7 +10,7 @@ report="$case_dir/report.json"
 [ -f "$log" ] || { echo "FAIL: no $log"; exit 1; }
 [ -s "$report" ] || { echo "FAIL: no $report"; exit 1; }
 fail=0
-wants="SLICE_LUTX=20800 SLICE_FFX=41600 CARRY4=8150 RAMB36E1=50 RAMB18E1=100 DSP48E1=90 IOB33_INBUF_EN=210 IOB33_OUTBUF=210 ILOGICE3_IFF=210 OLOGICE3_OUTFF=210 PAD=212"
+wants="SLICE_LUTX=20800 SLICE_FFX=41600 CARRY4=8150 RAMB36E1=50 RAMB18E1=100 DSP48E1=90 IOB33_INBUF_EN=210 IOB33_OUTBUF=210 ILOGICE3_IFF=210 OLOGICE3_OUTFF=210 PAD=210"
 for want in $wants; do
     kind=${want%=*}
     n=${want#*=}
