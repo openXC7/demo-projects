@@ -46,6 +46,19 @@ module bscan_user1 (
         .O(jtag_clk)
     );
 
+    // The keys change whenever someone presses them, with no relation to
+    // TCK, so two registers bring them into the TCK domain before CAPTURE
+    // loads them. TCK only runs during a scan, but the TAP always takes two
+    // TCK cycles (Select-DR-Scan, Capture-DR) to reach the capture: the
+    // value loaded is the keys of those two cycles before.
+    reg [3:0] keys_meta = 4'hf;
+    reg [3:0] keys_sync = 4'hf;
+
+    always @(posedge jtag_clk) begin
+        keys_meta <= keys;
+        keys_sync <= keys_meta;
+    end
+
     // One clock, TCK. A scan through USER1 is CAPTURE (load the register),
     // SHIFT (TDI in at bit 7, bit 0 out to TDO: the least significant bit
     // travels first) and, a couple of TCK cycles after the last shift,
@@ -53,7 +66,7 @@ module bscan_user1 (
     // finds what was shifted in.
     always @(posedge jtag_clk) begin
         if (sel && capture)
-            shift_reg <= {led_value, ~keys};
+            shift_reg <= {led_value, ~keys_sync};
         else if (sel && shift)
             shift_reg <= {tdi, shift_reg[7:1]};
 

@@ -69,6 +69,9 @@ interface configuration for that cable. Only the AL321 was tried.
   UPDATE can use it.
 - TDI enters at bit 7 and bit 0 leaves through TDO: the least significant bit
   travels first, which is how `drscan` numbers them.
+- The keys are not related to TCK: they go through two registers clocked by
+  TCK before CAPTURE loads them, so a key that changes right at a TCK edge has
+  a whole TCK cycle to settle before it is read.
 
 ## Tested
 
