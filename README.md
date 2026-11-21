@@ -45,7 +45,7 @@ below is the same matrix, embedded and updated by CI.
 ## Hardware checks
 
 The matrix above is hardware-free: it proves a bitstream builds, not that it
-behaves. Three demos ship a host-side console check to run against a real board.
+behaves. Four demos ship a host-side check to run against a real board.
 These are manual checks by design — CI has no board attached, so nothing here
 runs in a workflow; flash the design and run the script yourself.
 
@@ -64,3 +64,8 @@ runs in a workflow; flash the design and run the script yourself.
   checks the write/read-back pairs. A served read proves the controller
   reached DONE_CALIBRATE and that data survives the DDR3 round trip; the four
   debug LEDs only show the calibration state and cannot be scripted.
+- `bscan-user1-alinx-ax7035b/user1-test.tcl` — an OpenOCD script (`make test`)
+  for an 8-bit register behind the JTAG USER1 instruction (`BSCANE2`): it
+  writes eight values to the board's LEDs through the JTAG cable and reads each
+  one back from the register, so the write, UPDATE and capture paths are
+  checked without a UART and without anyone looking at the LEDs.

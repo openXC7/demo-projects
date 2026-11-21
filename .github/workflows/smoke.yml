@@ -150,6 +150,10 @@ jobs:
           - family: spartan7
             upper: SPARTAN7
             project: dsp-test-arty-s7
+          # --- bscan-user1: BSCANE2 register behind JTAG USER1, checked on board over JTAG (no golden) ---
+          - family: artix7
+            upper: ARTIX7
+            project: bscan-user1-alinx-ax7035b
           # --- litex-ddr / SoC-class demos (no goldens, gate on the build) ---
           - family: spartan7
             upper: SPARTAN7
