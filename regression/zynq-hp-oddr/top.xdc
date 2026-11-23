@@ -1,0 +1,5 @@
+set_property PACKAGE_PIN G7 [get_ports clk_in]
+set_property IOSTANDARD LVCMOS18 [get_ports clk_in]
+set_property PACKAGE_PIN B5 [get_ports io]
+set_property IOSTANDARD LVCMOS18 [get_ports io]
+create_clock -period 25.000 -name clk_in [get_ports clk_in]

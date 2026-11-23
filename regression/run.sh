@@ -72,6 +72,9 @@ fi
 #   iserdes-bitslip-open                                 openXC7/nextpnr#223
 #   iserdes-oclk-tie0                                    openXC7/nextpnr#224
 #   clock-row-crossed                                    openXC7/nextpnr#226
+#   zynq-hp-oddr                                         openXC7/nextpnr#227
+#     (and a xc7z030 chipdb built with the zynq7 site types of
+#      openXC7/nextpnr-xilinx-meta#8)
 # report-used-within-available (openXC7/nextpnr#191) is in the default
 # list. On cf5f7a21 its JSON report has PSEUDO_GND and PSEUDO_VCC at 1/1,
 # so the check passes. It fails on the parent of the #191 merge, where
