@@ -1,0 +1,5 @@
+set_property PACKAGE_PIN B8 [get_ports clk_in]
+set_property IOSTANDARD LVCMOS33 [get_ports clk_in]
+create_clock -period 10.000 -name clk_in [get_ports clk_in]
+set_property PACKAGE_PIN D9 [get_ports clk_out]
+set_property IOSTANDARD LVCMOS33 [get_ports clk_out]
