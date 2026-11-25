@@ -70,6 +70,7 @@ fi
 #   pad-user-io                                          FPGAwars/apio#1192
 #     (part-utilisation expects the same user-I/O count of PAD)
 #   iserdes-bitslip-open                                 openXC7/nextpnr#223
+#   iserdes-oclk-tie0                                    openXC7/nextpnr#224
 #   clock-row-crossed                                    openXC7/nextpnr#226
 # report-used-within-available (openXC7/nextpnr#191) is in the default
 # list. On cf5f7a21 its JSON report has PSEUDO_GND and PSEUDO_VCC at 1/1,
